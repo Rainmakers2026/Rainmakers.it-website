@@ -1,50 +1,42 @@
 import type { Dictionary, Locale } from '@/content/types';
-import { contacts, rainforest } from '@/content/shared';
+import { SECTION_IDS } from '@/content/types';
+import { facts, rainforest } from '@/content/shared';
 import { Cta, cssVars } from '../ui';
 import { RainforestStats } from '../visuals/RainforestStats';
 
-/** 06 — Italian Rainforest: the second discovery point (PRD §11, §20). */
+/** 05 — Italian Rainforest: the ecosystem intelligence layer (PRD §12–13). */
 export function Rainforest({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const r = dict.rainforest;
   return (
-    <section className="section section--deep rainforest" aria-labelledby="rainforest-title">
+    <section id={SECTION_IDS.rainforest} className="section section--deep rainforest" aria-labelledby="rainforest-title">
       <div className="rainforest__canopy" aria-hidden />
       <div className="container rainforest__grid">
         <div>
-          <p className="eyebrow reveal">
-            <span className="eyebrow__index">06</span>
-            {r.eyebrow}
-          </p>
+          <p className="eyebrow reveal">{r.eyebrow}</p>
           <h2 id="rainforest-title" className="h2 reveal">
             {r.title}
           </h2>
+          <p className="rainforest__tagline reveal">{r.tagline}</p>
           <p className="lead reveal">{r.text}</p>
+          <div className="rf-explore reveal">
+            <p className="rf-explore__label">{r.exploreLabel}</p>
+            <ul className="tags">
+              {r.explore.map((x, i) => (
+                <li key={x} style={cssVars({ '--i': i })}>
+                  {x}
+                </li>
+              ))}
+            </ul>
+          </div>
           <blockquote className="formula reveal">
             <p>{r.formula}</p>
           </blockquote>
-          <ul className="rf-features">
-            {r.features.map((f, i) => (
-              <li key={f.title} className="reveal" style={cssVars({ '--i': i })}>
-                <strong>{f.title}</strong>
-                <span>{f.text}</span>
-              </li>
-            ))}
-          </ul>
           <div className="cta-row reveal">
-            <Cta
-              href={rainforest.urlFor(locale)}
-              track="rainforest_cta_click"
-              location="rainforest_section"
-              external
-              externalLabel={dict.a11y.external}
-            >
-              {dict.cta.rainforest}
+            <Cta href={rainforest.urlFor(locale)} track="rainforest_cta_click" location="rainforest_section" external externalLabel={dict.ui.a11y.external}>
+              {dict.ui.cta.exploreRainforest}
             </Cta>
-            <a
-              className="link-arrow"
-              href={`mailto:${contacts.rainforest}?subject=${encodeURIComponent('Italian Rainforest — update')}`}
-            >
-              {r.secondaryCta}
+            <a className="link-arrow" href={`mailto:${facts.rainforestEmail.value}?subject=${encodeURIComponent('Italian Rainforest — update')}`}>
+              {r.contribute}
             </a>
           </div>
         </div>

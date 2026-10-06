@@ -1,5 +1,5 @@
 import { leadSchema, toFieldErrors } from '@/lib/validation';
-import { storeLead } from '@/lib/leads-store';
+import { storeLead } from '@/lib/supabase/leads';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';

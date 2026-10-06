@@ -1,8 +1,8 @@
 {
   "name": "rainmakers-web",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Rainmakers.it — one-page lead generation site (IT/EN), Next.js + Supabase + Vercel",
+  "description": "Rainmakers.it \u2014 one-page lead generation site (IT/EN), Next.js + Supabase + Vercel",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "check:content": "tsx scripts/check-content.ts",
     "copy:export": "tsx scripts/export-copy.ts > docs/03-copy-deck.md",
-    "test": "tsx scripts/test-validation.ts && tsx scripts/check-content.ts"
+    "test": "tsx scripts/test-validation.ts && tsx scripts/check-content.ts && tsx scripts/check-placeholders.ts",
+    "check:placeholders": "tsx scripts/check-placeholders.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",

@@ -2,6 +2,7 @@
 import { renderToString } from 'react-dom/server';
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { HomePage } from '@/components/HomePage';
+import { communitiesFallback } from '@/content/shared';
 import { getDictionary } from '@/lib/i18n';
 import { buildMetadata } from '@/lib/seo';
 import type { Locale } from '@/content/types';
@@ -13,7 +14,7 @@ mkdirSync(out, { recursive: true });
 for (const locale of ['it', 'en'] as Locale[]) {
   const dict = getDictionary(locale);
   const meta = buildMetadata(dict) as any;
-  const body = renderToString(<HomePage dict={dict} locale={locale} />);
+  const body = renderToString(<HomePage dict={dict} locale={locale} communities={communitiesFallback} />);
   const alt = meta.alternates.languages;
   const html = `<!doctype html><html lang="${locale}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -1,6 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { Intent } from '@/content/types';
-import { ArrowRight, ArrowUpRight } from './icons';
+import { ArrowDown, ArrowRight, ArrowUpRight } from './icons';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
 
@@ -12,54 +11,26 @@ interface CtaProps {
   track?: string;
   /** Where on the page the CTA lives — sent as event property. */
   location?: string;
-  /** Preselects the lead form intent. */
-  intent?: Intent;
   external?: boolean;
   externalLabel?: string;
   className?: string;
 }
 
 /** Server-rendered CTA. Clicks are tracked globally by <ClientEffects /> via data-attributes. */
-export function Cta({
-  href,
-  children,
-  variant = 'primary',
-  track,
-  location,
-  intent,
-  external,
-  externalLabel,
-  className = '',
-}: CtaProps) {
+export function Cta({ href, children, variant = 'primary', track, location, external, externalLabel, className = '' }: CtaProps) {
+  const inPage = href.startsWith('#');
   return (
     <a
       href={href}
       className={`btn btn--${variant} ${className}`}
       data-track={track}
       data-location={location}
-      data-intent={intent}
       {...(external ? { target: '_blank', rel: 'noopener' } : {})}
     >
       <span>{children}</span>
-      {external ? <ArrowUpRight aria-hidden /> : <ArrowRight aria-hidden />}
+      {external ? <ArrowUpRight aria-hidden /> : inPage ? <ArrowDown aria-hidden /> : <ArrowRight aria-hidden />}
       {external && externalLabel ? <span className="sr-only"> {externalLabel}</span> : null}
     </a>
-  );
-}
-
-interface SectionProps {
-  id?: string;
-  children: ReactNode;
-  className?: string;
-  labelledBy?: string;
-  tone?: 'base' | 'raised' | 'deep';
-}
-
-export function Section({ id, children, className = '', labelledBy, tone = 'base' }: SectionProps) {
-  return (
-    <section id={id} aria-labelledby={labelledBy} className={`section section--${tone} ${className}`}>
-      <div className="container">{children}</div>
-    </section>
   );
 }
 
@@ -69,16 +40,12 @@ interface HeaderProps {
   id: string;
   intro?: string;
   align?: 'left' | 'center';
-  index?: string;
 }
 
-export function SectionHeader({ eyebrow, title, id, intro, align = 'left', index }: HeaderProps) {
+export function SectionHeader({ eyebrow, title, id, intro, align = 'left' }: HeaderProps) {
   return (
     <header className={`section-header section-header--${align} reveal`}>
-      <p className="eyebrow">
-        {index ? <span className="eyebrow__index">{index}</span> : null}
-        {eyebrow}
-      </p>
+      <p className="eyebrow">{eyebrow}</p>
       <h2 id={id} className="h2">
         {title}
       </h2>

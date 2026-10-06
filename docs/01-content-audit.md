@@ -1,3 +1,5 @@
+> **Nota (PRD v2):** con il PRD v2 i contenuti TO VERIFY non vengono pubblicati (testimonianze nascoste, dati societari rimossi dal footer). Stato aggiornato: `npm run check:placeholders`.
+
 # 01 — Content audit (Step 1.5)
 
 Fonti analizzate il 6 ottobre 2026:

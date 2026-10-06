@@ -20,6 +20,11 @@ export const ArrowRight = (p: P) => (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
 );
+export const ArrowDown = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M12 5v14M6 13l6 6 6-6" />
+  </svg>
+);
 export const ArrowUpRight = (p: P) => (
   <svg {...base(p)}>
     <path d="M7 17 17 7M8 7h9v9" />
@@ -124,5 +129,4 @@ export const IconSolo = (p: P) => (
   </svg>
 );
 
-export const pillarIcons = [IconNetwork, IconKnowledge, IconCommunity, IconOpportunity, IconEcosystem, IconExperience];
-export const challengeIcons = [IconFragment, IconNetwork, IconKnowledge, IconCompass, IconSolo];
+export const accessIcons = [IconNetwork, IconKnowledge, IconOpportunity, IconCommunity, IconEcosystem, IconExperience];

@@ -1,11 +1,13 @@
 import type { Dictionary } from '@/content/types';
+import { SECTION_IDS } from '@/content/types';
 import { Plus } from '../icons';
+import { PhText } from '../PhText';
 import { SectionHeader } from '../ui';
 
-/** FAQ (PRD §32) — native <details>, works without JavaScript; mirrored in FAQPage schema. */
+/** FAQ (PRD §25) — native <details>; answers with placeholders are excluded from FAQPage schema. */
 export function Faq({ dict }: { dict: Dictionary }) {
   return (
-    <section id="faq" className="section section--base faq" aria-labelledby="faq-title">
+    <section id={SECTION_IDS.faq} className="section section--raised faq" aria-labelledby="faq-title">
       <div className="container container--narrow">
         <SectionHeader eyebrow={dict.faq.eyebrow} title={dict.faq.title} id="faq-title" />
         <div className="faq__list">
@@ -15,7 +17,7 @@ export function Faq({ dict }: { dict: Dictionary }) {
                 <h3 className="faq__q">{item.q}</h3>
                 <Plus aria-hidden className="faq__icon" />
               </summary>
-              <p className="faq__a">{item.a}</p>
+              <PhText as="p" className="faq__a" value={item.a} badge={dict.ui.placeholderBadge} />
             </details>
           ))}
         </div>

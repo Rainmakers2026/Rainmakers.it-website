@@ -1,27 +1,35 @@
 # Rainmakers
 
-> Rainmakers is an Italian entrepreneurial ecosystem, based in Milan and active since 2011, connecting founders, entrepreneurs and professionals with people, knowledge, communities and business opportunities.
+> Rainmakers is an innovation advisor and venture builder & accelerator, active in Milan since 2011 (founded by Francesco Inguscio, formerly Nuvolab): it makes large companies innovative and innovative companies large, and it created Italian Rainforest.
 
-Rainmakers is not a VC fund, an accelerator, a consultancy or just a community: its value is access to an ecosystem — people, knowledge, community, opportunities — rather than to a single service.
+Rainmakers is an entrepreneurial ecosystem, not just a VC fund, accelerator, incubator, consultancy, agency or community: its value is access to people, expertise, opportunities, knowledge and communities.
 
-## What Rainmakers offers
-- Network: entrepreneurs, professionals and ecosystem players
-- Knowledge: practical knowledge and learning shared by people who build companies
-- Communities: private, curated communities for entrepreneurs (access by request)
-- Opportunities: partnerships, collaborations and business opportunities
-- Ecosystem: Italian Rainforest, the map and database of the Italian innovation ecosystem
+## Business units
+Rainmakers is an integrated venture development organisation (VDO) with six units: Advisory (innovation advisory since 2011, formerly Nuvolab), Investments (investment advisory for VCs, CVCs and family offices), Club (club deal of 300+ entrepreneurs and intrapreneurs), Lab (scaling as a service), Tribe (startups created or accelerated: 6 exits, significant stakes in 14) and Community (networking events, vertical communities, giveback; on the board of InnovUp).
+
+## Track record
+- Tribe: https://www.rainmakers.it/en#tribe
+- Innovation advisory projects (e.g. Le Village by Crédit Agricole, MCE 4x4 for Assolombarda, iBicocca for University of Milano-Bicocca, Officine Formative for Intesa Sanpaolo, 360 by 360 for 360 Capital Partners): https://www.rainmakers.it/en#advisory
 
 ## Who it is for
-Entrepreneurs, startup founders (idea to growth) and scaleup founders. Also investors, corporate innovation teams, accelerators, incubators, institutions and professionals who work with entrepreneurs.
+First of all founders, entrepreneurs and leaders of startups, scaleups and SMEs, intrapreneurs and innovation managers. Also investors, corporates, innovation professionals and ecosystem players (accelerators, incubators, advisors, universities, communities, institutions, service providers).
+
+## What entrepreneurs can access
+- Network: entrepreneurs, professionals and innovation players
+- Knowledge: content, materials and learning opportunities shared in the ecosystem
+- Opportunities: partnerships and connections that support growth
+- Community: topic-based and professional WhatsApp communities
+- Ecosystem intelligence: Italian Rainforest
+- Experience: peers facing similar entrepreneurial paths
 
 ## Italian Rainforest
-Italian Rainforest (https://italian-innovation-map.vercel.app/en) is the map and database of the Italian innovation ecosystem, created by Rainmakers: venture capital funds, incubators, accelerators, startup studios, angel networks, coworking spaces and institutions. Open data under a copyleft licence for non-commercial use.
-Relationship: Rainmakers helps people connect; Italian Rainforest helps people discover the ecosystem they can connect to; Rainmakers communities are where the conversations happen.
+Italian Rainforest (https://italian-innovation-map.vercel.app/en) is the map and database of the Italian innovation ecosystem, created by Rainmakers: investors, incubators and accelerators, startup studios, corporate venture capital, coworking spaces, institutions and other innovation enablers. Open data under a copyleft licence for non-commercial use.
+
+## How the pieces relate
+Rainmakers.it (the gateway) → Italian Rainforest (the ecosystem intelligence layer) → WhatsApp communities (the human layer).
 
 ## Pages
 - Italiano: https://www.rainmakers.it/it
 - English: https://www.rainmakers.it/en
-
-## Contact
-- Join, request community access or contact the team via the form at https://www.rainmakers.it/en#join
-- Italian Rainforest: italianrainforest@rainmakers.it
+- Communities: https://www.rainmakers.it/en#community
+- Contact form: https://www.rainmakers.it/en#connect

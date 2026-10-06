@@ -1,3 +1,5 @@
+> **Nota (PRD v2):** questa revisione riguarda il PRD v1. Diverse decisioni sono state superate dal PRD v2 — vedi `docs/00-technical-spec.md` §0 per l'elenco delle differenze.
+
 # 02 — Revisione del PRD v1.0
 
 Il PRD è solido su strategia, gerarchia e principi. Questa revisione elenca solo ciò che serviva decidere per costruire lo Step 2. Per ogni punto: il problema, la decisione presa nel codice, e come cambiarla.

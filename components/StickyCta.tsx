@@ -1,44 +1,47 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ArrowUpRight } from './icons';
 
 /**
- * Mobile-only persistent CTA (PRD §44–45). Appears after the hero, hides while the
- * join form is on screen so it never covers the form.
+ * Mobile-only persistent primary CTA (PRD §6, §37): "Explore the ecosystem".
+ * Hidden on the hero (which has its own CTAs) and while the contact form is on screen.
  */
-export function StickyCta({ label }: { label: string }) {
+export function StickyCta({ label, href, external }: { label: string; href: string; external: string }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const hero = document.getElementById('top');
-    const join = document.getElementById('join');
-    if (!hero || !join || !('IntersectionObserver' in window)) return;
+    const form = document.getElementById('connect');
+    if (!hero || !form || !('IntersectionObserver' in window)) return;
     let heroVisible = true;
-    let joinVisible = false;
-    const update = () => setVisible(!heroVisible && !joinVisible);
+    let formVisible = false;
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (e.target === hero) heroVisible = e.isIntersecting;
-        if (e.target === join) joinVisible = e.isIntersecting;
+        if (e.target === form) formVisible = e.isIntersecting;
       }
-      update();
+      setVisible(!heroVisible && !formVisible);
     });
     io.observe(hero);
-    io.observe(join);
+    io.observe(form);
     return () => io.disconnect();
   }, []);
 
   return (
     <div className={`sticky-cta ${visible ? 'is-visible' : ''}`} aria-hidden={!visible}>
       <a
-        href="#join"
+        href={href}
+        target="_blank"
+        rel="noopener"
         className="btn btn--primary btn--block"
         tabIndex={visible ? 0 : -1}
-        data-track="join_cta_click"
+        data-track="rainforest_cta_click"
         data-location="sticky_mobile"
-        data-intent="join"
       >
-        {label}
+        <span>{label}</span>
+        <ArrowUpRight aria-hidden />
+        <span className="sr-only"> {external}</span>
       </a>
     </div>
   );

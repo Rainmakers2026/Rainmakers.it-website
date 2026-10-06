@@ -1,11 +1,11 @@
 /**
- * Verifies that IT and EN dictionaries are structurally identical and that every
- * form option uses the canonical values stored in the database (lib/options.ts).
+ * Verifies that IT and EN dictionaries are structurally identical and that form options
+ * use the canonical values stored in the database (lib/options.ts).
  * Run: npm run check:content
  */
 import it from '../content/it';
 import en from '../content/en';
-import { CHALLENGES, COMPANY_STAGES, INTERESTS, SOURCES } from '../lib/options';
+import { PROFILE_TYPES } from '../lib/options';
 
 let failures = 0;
 const fail = (msg: string) => {
@@ -13,11 +13,13 @@ const fail = (msg: string) => {
   console.error('✗', msg);
 };
 
+// Keys whose array length may legitimately differ between languages
+const FREE_LENGTH = new Set(['dict.meta.keywords']);
+
 function shape(value: unknown, path: string, other: unknown) {
   if (Array.isArray(value)) {
     if (!Array.isArray(other)) return fail(`${path}: array vs ${typeof other}`);
-    // SEO keywords are tuned per language and may differ in number.
-    if (path === 'dict.meta.keywords') return;
+    if (FREE_LENGTH.has(path)) return;
     if (value.length !== other.length) fail(`${path}: ${value.length} items (it) vs ${other.length} (en)`);
     value.forEach((v, i) => shape(v, `${path}[${i}]`, other[i]));
   } else if (value && typeof value === 'object') {
@@ -32,14 +34,9 @@ function shape(value: unknown, path: string, other: unknown) {
 shape(it, 'dict', en);
 
 for (const dict of [it, en]) {
-  const check = (name: string, opts: { value: string }[], canonical: readonly string[]) => {
-    const values = opts.map((o) => o.value).join(',');
-    if (values !== canonical.join(',')) fail(`${dict.locale}.form.${name} values differ from lib/options.ts`);
-  };
-  check('stages', dict.form.stages, COMPANY_STAGES);
-  check('challengeOptions', dict.form.challengeOptions, CHALLENGES);
-  check('interestOptions', dict.form.interestOptions, INTERESTS);
-  check('sourceOptions', dict.form.sourceOptions, SOURCES);
+  const values = dict.connect.form.profiles.map((o) => o.value).join(',');
+  if (values !== PROFILE_TYPES.join(',')) fail(`${dict.locale}.connect.form.profiles differ from lib/options.ts`);
+  if (dict.network.nodes.length !== 7) fail(`${dict.locale}.network.nodes must list the 7 actor groups`);
 }
 
 if (failures) {

@@ -1,0 +1,53 @@
+import type { ConnectCopy } from '../types';
+
+export const connect: ConnectCopy = {
+  eyebrow: 'Contact',
+  title: 'Connect with Rainmakers',
+  intro:
+    'Tell us who you are and what you’re looking for. It helps us point you to the most relevant people, communities and resources.',
+  form: {
+    firstName: 'First name',
+    lastName: 'Last name',
+    email: 'Email',
+    company: 'Company',
+    role: 'Role',
+    link: 'Website or LinkedIn',
+    linkHint: 'Helps us understand what you do.',
+    profileType: 'You are',
+    profilePlaceholder: 'Select your profile',
+    profiles: [
+      { value: 'founder', label: 'Founder / Entrepreneur' },
+      { value: 'startup', label: 'Startup / Scaleup' },
+      { value: 'investor', label: 'Investor' },
+      { value: 'corporate', label: 'Corporate' },
+      { value: 'innovation_professional', label: 'Innovation professional' },
+      { value: 'other', label: 'Other' },
+    ],
+    interest: 'What are you looking for?',
+    interestPlaceholder: 'For example: business partners, expertise, investors, a community on a topic…',
+    consent: 'I have read the privacy policy and agree to the processing of my data so that Rainmakers can get back to me.',
+    consentLink: 'Read the privacy policy',
+    required: 'required',
+    optional: 'optional',
+    submit: 'Connect with Rainmakers',
+    submitting: 'Sending…',
+    errors: {
+      required: 'This field is required.',
+      email: 'Please enter a valid email address.',
+      url: 'Please enter a valid web address (e.g. company.com or linkedin.com/in/name).',
+      consent: 'We need your consent to process your data.',
+      tooLong: 'This text is too long.',
+      generic: 'Something went wrong. Please try again in a moment.',
+      rateLimited: 'Too many requests. Please try again in a few minutes.',
+      summary: 'Please check the highlighted fields.',
+    },
+  },
+  success: {
+    title: 'You’re in.',
+    text: 'Now discover the ecosystem around you.',
+    nextTitle: 'Your next step',
+    rainforestText: 'Explore who operates in Italy’s innovation ecosystem.',
+    communityText: 'Choose the community closest to your interests.',
+    reset: 'Send another request',
+  },
+};

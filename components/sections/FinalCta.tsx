@@ -1,8 +1,9 @@
 import type { Dictionary, Locale } from '@/content/types';
+import { SECTION_IDS } from '@/content/types';
 import { rainforest } from '@/content/shared';
 import { Cta } from '../ui';
 
-/** 11 — Final CTA (PRD §38, §68): three ways forward, no dead ends. */
+/** 10 — Final conversion (PRD §47): primary + secondary CTA, tertiary as text link. */
 export function FinalCta({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   return (
     <section className="final" aria-labelledby="final-title">
@@ -13,16 +14,18 @@ export function FinalCta({ dict, locale }: { dict: Dictionary; locale: Locale })
         </h2>
         <p className="lead reveal">{dict.final.text}</p>
         <div className="final__ctas reveal">
-          <Cta href="#join" track="join_cta_click" location="final" intent="join">
-            {dict.cta.join}
+          <Cta href={rainforest.urlFor(locale)} track="rainforest_cta_click" location="final" external externalLabel={dict.ui.a11y.external}>
+            {dict.ui.cta.exploreRainforest}
           </Cta>
-          <Cta href={rainforest.urlFor(locale)} variant="secondary" track="rainforest_cta_click" location="final" external externalLabel={dict.a11y.external}>
-            {dict.cta.rainforest}
-          </Cta>
-          <Cta href="#join" variant="ghost" track="contact_cta_click" location="final" intent="contact">
-            {dict.cta.contact}
+          <Cta href={`#${SECTION_IDS.community}`} variant="secondary" track="community_cta_click" location="final">
+            {dict.ui.cta.community}
           </Cta>
         </div>
+        <p className="final__tertiary reveal">
+          <a href={`#${SECTION_IDS.connect}`} className="link-arrow link-arrow--down" data-track="contact_cta_click" data-location="final">
+            {dict.ui.cta.connect}
+          </a>
+        </p>
       </div>
     </section>
   );

@@ -1,0 +1,61 @@
+import type { TrackCopy } from '../types';
+
+export const track: TrackCopy = {
+  eyebrow: 'Track record',
+  title: 'Since 2011: startups and innovation advisory.',
+  intro:
+    'Rainmakers, the startups in its Tribe and its innovation advisory work have been part of Italy’s innovation and startup “renaissance”, across corporates, VCs and institutions.',
+  stats: [
+    { value: '2011', label: 'the year we started, as Nuvolab' },
+    { value: '{exits}', label: 'exits in the Tribe' },
+    { value: '{active}', label: 'startups with significant stakes' },
+    { value: '300+', label: 'entrepreneurs and intrapreneurs in the Club' },
+    { value: '{advisory}', label: 'innovation advisory projects' },
+  ],
+  tribe: {
+    title: 'The Tribe',
+    intro:
+      'Startups created, co-founded or accelerated by Rainmakers, bringing meaningful innovation for our country, people and the planet. Each can contribute to projects with skills, vertical platforms and communities.',
+    statusLabels: { active: 'Portfolio', exit: 'Exit', minority: 'Minority', writeoff: 'Write-off' },
+    dataNote: 'Portfolio status: company overview, May 2025. FTE (partners + employees) and revenue: latest available sheets (2023).',
+  },
+  advisory: {
+    title: 'Innovation advisory',
+    intro: 'Projects delivered for corporates, investors, business associations and institutions. Each card shows client, summary and impact.',
+    typeLabels: { corporate: 'Corporate', investor: 'Investors', association: 'Associations', institution: 'Institutions', third_sector: 'Third sector' },
+    dataNote: 'Source: project sheets in the Rainmakers company overview. Year = first edition or delivery.',
+  },
+  explorer: {
+    searchLabel: 'Search',
+    searchPlaceholder: 'Search by name, sector, city…',
+    all: 'All',
+    filterLabel: 'Filter',
+    sortLabel: 'Sort',
+    sorts: { az: 'A–Z', recent: 'Most recent', oldest: 'Oldest', size: 'Size' },
+    results: '{n} results',
+    showAll: 'Show all ({n})',
+    showLess: 'Show less',
+    details: 'Details',
+    hide: 'Close',
+    website: 'Website',
+    noResults: 'No results with these filters.',
+    reset: 'Clear filters',
+    revenueUnit: '€k',
+    fields: {
+      sector: 'Sector',
+      city: 'HQ',
+      founded: 'Founded',
+      fte: 'FTE',
+      revenue: 'Revenue',
+      status: 'Status',
+      client: 'Client',
+      project: 'Project',
+      type: 'Client type',
+      location: 'Project location',
+      year: 'Year',
+      impact: 'Impact',
+      note: 'Note',
+      source: 'Source',
+    },
+  },
+};

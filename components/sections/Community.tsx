@@ -1,63 +1,80 @@
-import type { Dictionary } from '@/content/types';
-import { community } from '@/content/shared';
-import { Cta, SectionHeader, cssVars } from '../ui';
-import { IconLock, WhatsApp } from '../icons';
+import type { Dictionary, Locale } from '@/content/types';
+import { SECTION_IDS } from '@/content/types';
+import type { Community as CommunityItem } from '@/content/shared';
+import { isPlaceholder } from '@/content/governance';
+import { PhText } from '../PhText';
+import { WhatsApp } from '../icons';
+import { SectionHeader, cssVars } from '../ui';
 
-/** 07 — Communities: the relational conversion layer (PRD §12, §21, §22). */
-export function Community({ dict }: { dict: Dictionary }) {
+/** 09 — Community / WhatsApp: conversion section, data-driven (PRD §16–17). */
+export function Community({ dict, locale, communities }: { dict: Dictionary; locale: Locale; communities: CommunityItem[] }) {
   const c = dict.community;
   return (
-    <section id="communities" className="section section--base community" aria-labelledby="community-title">
+    <section id={SECTION_IDS.community} className="section section--deep community" aria-labelledby="community-title">
       <div className="container">
-        <SectionHeader index="07" eyebrow={c.eyebrow} title={c.title} intro={c.text} id="community-title" />
-
-        <div className="community__grid">
-          <ul className="community__bullets">
-            {c.bullets.map((b, i) => (
-              <li key={b.title} className="card reveal" style={cssVars({ '--i': i })}>
-                <h3 className="h3">{b.title}</h3>
-                <p>{b.text}</p>
-              </li>
+        <SectionHeader eyebrow={c.eyebrow} title={c.title} intro={c.text} id="community-title" />
+        <div className="community__spaces reveal">
+          <span className="community__spaces-label">{c.spacesLabel}</span>
+          <ul className="tags">
+            {c.spaces.map((s) => (
+              <li key={s}>{s}</li>
             ))}
           </ul>
-
-          <aside className="community__aside reveal">
-            <figure className="quote">
-              <blockquote>
-                <p>{c.quote}</p>
-              </blockquote>
-              <figcaption>{c.quoteSource}</figcaption>
-            </figure>
-            <div className="community__exclusive">
-              <h3 className="h3">{c.exclusiveTitle}</h3>
-              <p>{c.exclusiveText}</p>
-            </div>
-            <p className="community__access">
-              <IconLock aria-hidden />
-              <span>
-                {c.accessNote}
-                {community.limitedMembership ? ` ${c.limitedNote}` : ''}
-              </span>
-            </p>
-            <Cta href="#join" track="community_cta_click" location="community_section" intent="community" className="btn--block">
-              {dict.cta.community}
-            </Cta>
-            <p className="community__public">
-              {c.publicCommunityText}{' '}
-              <a
-                href={community.publicWhatsappUrl}
-                target="_blank"
-                rel="noopener"
-                data-track="whatsapp_click"
-                data-location="community_section"
-              >
-                <WhatsApp aria-hidden className="inline-icon" />
-                {c.publicCommunityCta}
-                <span className="sr-only"> {dict.a11y.external}</span>
-              </a>
-            </p>
-          </aside>
         </div>
+
+        <h3 className="h3 community__list-title reveal">{c.listTitle}</h3>
+        <ul className="community__list">
+          {communities.map((item, i) => {
+            const name = item.name[locale];
+            const description = item.description[locale];
+            const canJoin = item.status === 'active' && !!item.whatsappUrl && !isPlaceholder(item.whatsappUrl);
+            return (
+              <li key={item.slug} className={`community-card reveal is-${item.status}`} style={cssVars({ '--i': i % 3 })}>
+                <div className="community-card__body">
+                  {item.category ? (
+                    <p className="community-card__meta">
+                      <span className="sr-only">{c.categoryLabel}: </span>
+                      {item.category}
+                      {item.target ? ` · ${c.targetLabel} ${item.target}` : ''}
+                    </p>
+                  ) : null}
+                  <PhText as="h4" className="community-card__name" value={name} badge={dict.ui.placeholderBadge} />
+                  {description ? <PhText as="p" value={description} badge={dict.ui.placeholderBadge} /> : null}
+                </div>
+                {canJoin ? (
+                  <a
+                    className="btn btn--primary btn--block"
+                    href={item.whatsappUrl!}
+                    target="_blank"
+                    rel="noopener"
+                    data-track="whatsapp_click"
+                    data-location="community_section"
+                    data-community={item.slug}
+                  >
+                    <WhatsApp aria-hidden />
+                    <span>{c.join}</span>
+                    <span className="sr-only">
+                      {' '}
+                      — {name} {dict.ui.a11y.external}
+                    </span>
+                  </a>
+                ) : (
+                  <p className="community-card__status">
+                    {item.status === 'full' ? c.full : item.status === 'coming_soon' ? c.comingSoon : null}
+                    {!item.whatsappUrl && item.status !== 'full' ? <PhText className="community-card__missing" value={c.linkMissing} badge={dict.ui.placeholderBadge} /> : null}
+                  </p>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+
+        <p className="community__note reveal">
+          {c.note}{' '}
+          <a href={`#${SECTION_IDS.connect}`} className="link-arrow link-arrow--down" data-track="contact_cta_click" data-location="community_note">
+            {dict.ui.cta.connect}
+          </a>
+        </p>
       </div>
     </section>
   );

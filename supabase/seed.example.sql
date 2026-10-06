@@ -1,0 +1,21 @@
+-- EXAMPLE ONLY — not applied automatically. Fill with real, confirmed data before running.
+-- PRD §17: never insert invented communities.
+
+-- The Italian Rainforest WhatsApp community (link published on italian-innovation-map.vercel.app).
+-- TO VERIFY: confirm it is the community you want to promote on rainmakers.it.
+-- insert into public.communities (slug, name_it, name_en, description_it, description_en, category, whatsapp_url, status, sort_order)
+-- values (
+--   'italian-rainforest',
+--   'Community Italian Rainforest',
+--   'Italian Rainforest Community',
+--   'La community WhatsApp collegata alla mappa dell’ecosistema italiano dell’innovazione.',
+--   'The WhatsApp community connected to the map of the Italian innovation ecosystem.',
+--   'ecosystem',
+--   'https://chat.whatsapp.com/Fka8dKBYNkw8hbZtTo88U1',
+--   'active',
+--   10
+-- );
+
+-- Template for a Rainmakers community:
+-- insert into public.communities (slug, name_it, name_en, description_it, description_en, target, category, whatsapp_url, status, capacity, sort_order)
+-- values ('<slug>', '<nome IT>', '<name EN>', '<descrizione IT>', '<description EN>', '<target>', '<category>', 'https://chat.whatsapp.com/<code>', 'active', null, 20);

@@ -2,8 +2,8 @@ import { getDictionary } from '@/lib/i18n';
 
 // not-found doesn't receive params; Italian is the primary language, with an English line below.
 export default function NotFound() {
-  const it = getDictionary('it').notFound;
-  const en = getDictionary('en').notFound;
+  const it = getDictionary('it').ui.notFound;
+  const en = getDictionary('en').ui.notFound;
   return (
     <main id="main" className="legal-page not-found">
       <div className="container container--narrow">

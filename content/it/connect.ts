@@ -1,0 +1,53 @@
+import type { ConnectCopy } from '../types';
+
+export const connect: ConnectCopy = {
+  eyebrow: 'Contatti',
+  title: 'Connettiti con Rainmakers',
+  intro:
+    'Raccontaci chi sei e cosa stai cercando. Ci aiuta a indicarti le persone, le community e le risorse più rilevanti per te.',
+  form: {
+    firstName: 'Nome',
+    lastName: 'Cognome',
+    email: 'Email',
+    company: 'Azienda',
+    role: 'Ruolo',
+    link: 'Sito web o LinkedIn',
+    linkHint: 'Ci aiuta a capire cosa fai.',
+    profileType: 'Chi sei',
+    profilePlaceholder: 'Seleziona il tuo profilo',
+    profiles: [
+      { value: 'founder', label: 'Founder / Imprenditore' },
+      { value: 'startup', label: 'Startup / Scaleup' },
+      { value: 'investor', label: 'Investitore' },
+      { value: 'corporate', label: 'Corporate' },
+      { value: 'innovation_professional', label: 'Professionista dell’innovazione' },
+      { value: 'other', label: 'Altro' },
+    ],
+    interest: 'Cosa stai cercando?',
+    interestPlaceholder: 'Ad esempio: partner commerciali, competenze, investitori, una community su un tema…',
+    consent: 'Ho letto l’informativa privacy e acconsento al trattamento dei miei dati per essere ricontattato da Rainmakers.',
+    consentLink: 'Leggi l’informativa privacy',
+    required: 'obbligatorio',
+    optional: 'facoltativo',
+    submit: 'Connettiti con Rainmakers',
+    submitting: 'Invio in corso…',
+    errors: {
+      required: 'Questo campo è obbligatorio.',
+      email: 'Inserisci un indirizzo email valido.',
+      url: 'Inserisci un indirizzo web valido (es. azienda.it o linkedin.com/in/nome).',
+      consent: 'Per procedere serve il consenso al trattamento dei dati.',
+      tooLong: 'Il testo è troppo lungo.',
+      generic: 'Qualcosa è andato storto. Riprova tra qualche istante.',
+      rateLimited: 'Hai inviato troppe richieste. Riprova tra qualche minuto.',
+      summary: 'Controlla i campi evidenziati.',
+    },
+  },
+  success: {
+    title: 'Ci sei.',
+    text: 'Ora scopri l’ecosistema intorno a te.',
+    nextTitle: 'Il prossimo passo',
+    rainforestText: 'Esplora chi opera nell’ecosistema italiano dell’innovazione.',
+    communityText: 'Scegli la community più vicina ai tuoi interessi.',
+    reset: 'Invia un’altra richiesta',
+  },
+};

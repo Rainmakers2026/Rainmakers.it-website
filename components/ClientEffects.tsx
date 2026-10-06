@@ -1,18 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import type { Intent, Locale } from '@/content/types';
+import type { Locale } from '@/content/types';
 import { track, type AnalyticsEvent } from '@/lib/analytics';
-import { emitIntent } from '@/lib/intent';
-import { INTENTS } from '@/lib/options';
 
 /**
- * Page-level progressive enhancements, in one small client island:
+ * Page-level progressive enhancements in one small client island:
  *  - scroll reveal animations (.reveal → .is-visible)
- *  - CTA click tracking via data-track / data-location
- *  - intent preselection via data-intent
- *  - scroll depth (25/50/75/90), FAQ opens, page_view
- * Everything degrades gracefully: without JS all content is visible and links work.
+ *  - click tracking via data-track / data-location (+ data-community for WhatsApp links)
+ *  - scroll_depth (25/50/75/90), faq_open, page_view   — PRD §44
+ * Without JavaScript all content is visible and every link works.
  */
 export function ClientEffects({ locale }: { locale: Locale }) {
   useEffect(() => {
@@ -20,7 +17,6 @@ export function ClientEffects({ locale }: { locale: Locale }) {
     root.classList.add('js', 'reveal-ready');
     track('page_view', { locale, path: window.location.pathname });
 
-    // Reveal on scroll
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const revealEls = document.querySelectorAll<HTMLElement>('.reveal');
     let io: IntersectionObserver | null = null;
@@ -38,29 +34,27 @@ export function ClientEffects({ locale }: { locale: Locale }) {
         },
         { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
       );
-      revealEls.forEach((el) => io!.observe(el));
+      revealEls.forEach((el) => io?.observe(el));
     }
 
-    // Click delegation: tracking + intent
     const onClick = (e: MouseEvent) => {
-      const el = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-track], [data-intent]');
+      const el = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-track]');
       if (!el) return;
-      const name = el.dataset.track as AnalyticsEvent | undefined;
-      if (name) track(name, { location: el.dataset.location, locale });
-      const intent = el.dataset.intent as Intent | undefined;
-      if (intent && (INTENTS as readonly string[]).includes(intent)) emitIntent(intent);
+      track(el.dataset.track as AnalyticsEvent, {
+        location: el.dataset.location,
+        community: el.dataset.community,
+        locale,
+      });
     };
     document.addEventListener('click', onClick);
 
-    // FAQ opens
     const onToggle = (e: Event) => {
       const d = e.target as HTMLDetailsElement;
       if (d.matches?.('details[data-faq]') && d.open) track('faq_open', { index: Number(d.dataset.faq), locale });
     };
     document.addEventListener('toggle', onToggle, true);
 
-    // Scroll depth
-    const marks = [25, 50, 75, 90] as const;
+    const marks = [25, 50, 75, 90];
     const fired = new Set<number>();
     let ticking = false;
     const onScroll = () => {
@@ -74,7 +68,7 @@ export function ClientEffects({ locale }: { locale: Locale }) {
         for (const m of marks) {
           if (pct >= m && !fired.has(m)) {
             fired.add(m);
-            track(`scroll_${m}` as AnalyticsEvent, { locale });
+            track('scroll_depth', { percent: m, locale });
           }
         }
       });

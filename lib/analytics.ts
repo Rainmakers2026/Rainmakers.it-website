@@ -3,26 +3,24 @@
 import { track as vercelTrack } from '@vercel/analytics';
 
 /**
- * Event catalogue (PRD §40). Keep names stable: they feed dashboards and KPIs.
+ * Event catalogue (PRD §44). Keep names stable: they feed dashboards and KPIs.
  */
 export type AnalyticsEvent =
   | 'page_view'
+  | 'language_switch'
   | 'hero_cta_click'
   | 'rainforest_cta_click'
   | 'community_cta_click'
   | 'contact_cta_click'
-  | 'join_cta_click'
   | 'lead_form_start'
   | 'lead_form_submit'
   | 'lead_form_error'
-  | 'community_request'
   | 'whatsapp_click'
   | 'faq_open'
-  | 'language_switch'
-  | 'scroll_25'
-  | 'scroll_50'
-  | 'scroll_75'
-  | 'scroll_90';
+  | 'scroll_depth'
+  | 'tribe_card_expand'
+  | 'advisory_card_expand'
+  | 'explorer_filter';
 
 type Props = Record<string, string | number | boolean | null | undefined>;
 
