@@ -5,6 +5,9 @@
 export const PROFILE_TYPES = ['founder', 'startup', 'investor', 'corporate', 'innovation_professional', 'other'] as const;
 export type ProfileType = (typeof PROFILE_TYPES)[number];
 
+export const INTENTS = ['join', 'community', 'contact'] as const;
+export type Intent = (typeof INTENTS)[number];
+
 export const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const;
 
 /** Bump when the consent text changes, so we know which wording each lead accepted. */

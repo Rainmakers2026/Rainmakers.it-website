@@ -1,4 +1,4 @@
-import type { Intent } from '@/content/types';
+import type { Intent } from './options';
 import { INTENTS } from './options';
 
 /** Window event used by CTAs (data-intent="…") to preselect the lead form intent. */

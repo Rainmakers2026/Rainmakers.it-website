@@ -1,10 +1,19 @@
-import type { Dictionary } from '@/content/types';
+type EcosystemModelData = {
+  entrepreneur: string;
+  rainmakers: string;
+  people: string;
+  knowledge: string;
+  community: string;
+  rainforest: string;
+  ecosystem: string;
+  outcomes: string;
+};
 
 /**
  * PRD §69 — Final ecosystem model, rendered in HTML/CSS (not an image) so it stays
  * readable on mobile, translatable and indexable. Connectors are drawn with CSS.
  */
-export function EcosystemModel({ model, label }: { model: Dictionary['how']['model']; label: string }) {
+export function EcosystemModel({ model, label }: { model: EcosystemModelData; label: string }) {
   return (
     <figure className="eco-model reveal" aria-label={label}>
       <ol className="eco-model__flow">

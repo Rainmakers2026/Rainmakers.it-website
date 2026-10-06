@@ -129,4 +129,5 @@ export const IconSolo = (p: P) => (
   </svg>
 );
 
+export const challengeIcons = [IconFragment, IconNetwork, IconKnowledge, IconCompass, IconSolo];
 export const accessIcons = [IconNetwork, IconKnowledge, IconOpportunity, IconCommunity, IconEcosystem, IconExperience];

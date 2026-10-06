@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getDictionary } from '@/lib/i18n';
 
 // not-found doesn't receive params; Italian is the primary language, with an English line below.
@@ -14,12 +15,12 @@ export default function NotFound() {
           {en.title} — {en.text}
         </p>
         <p>
-          <a className="btn btn--primary" href="/it">
+          <Link className="btn btn--primary" href="/it">
             {it.back}
-          </a>{' '}
-          <a className="btn btn--ghost" href="/en" lang="en">
+          </Link>{' '}
+          <Link className="btn btn--ghost" href="/en" lang="en">
             {en.back}
-          </a>
+          </Link>
         </p>
       </div>
     </main>

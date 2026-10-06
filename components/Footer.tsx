@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Dictionary, Locale } from '@/content/types';
 import { SECTION_IDS } from '@/content/types';
 import { facts, rainforest, socialProfiles } from '@/content/shared';
@@ -63,10 +64,10 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
           <h2 className="site-footer__title">{f.legal}</h2>
           <ul>
             <li>
-              <a href={`/${locale}/privacy`}>{f.privacy}</a>
+              <Link href={`/${locale}/privacy`}>{f.privacy}</Link>
             </li>
             <li>
-              <a href={`/${locale}/cookie`}>{f.cookies}</a>
+              <Link href={`/${locale}/cookie`}>{f.cookies}</Link>
             </li>
           </ul>
         </div>
@@ -77,13 +78,13 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
         </p>
         <p>
           <span className="sr-only">{f.language}: </span>
-          <a href="/it" hrefLang="it" lang="it" aria-current={locale === 'it' ? 'page' : undefined}>
+          <Link href="/it" hrefLang="it" lang="it" aria-current={locale === 'it' ? 'page' : undefined}>
             Italiano
-          </a>
+          </Link>
           {' · '}
-          <a href="/en" hrefLang="en" lang="en" aria-current={locale === 'en' ? 'page' : undefined}>
+          <Link href="/en" hrefLang="en" lang="en" aria-current={locale === 'en' ? 'page' : undefined}>
             English
-          </a>
+          </Link>
         </p>
       </div>
     </footer>
