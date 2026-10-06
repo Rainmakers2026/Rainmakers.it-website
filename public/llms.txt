@@ -1,0 +1,27 @@
+# Rainmakers
+
+> Rainmakers is an Italian entrepreneurial ecosystem, based in Milan and active since 2011, connecting founders, entrepreneurs and professionals with people, knowledge, communities and business opportunities.
+
+Rainmakers is not a VC fund, an accelerator, a consultancy or just a community: its value is access to an ecosystem — people, knowledge, community, opportunities — rather than to a single service.
+
+## What Rainmakers offers
+- Network: entrepreneurs, professionals and ecosystem players
+- Knowledge: practical knowledge and learning shared by people who build companies
+- Communities: private, curated communities for entrepreneurs (access by request)
+- Opportunities: partnerships, collaborations and business opportunities
+- Ecosystem: Italian Rainforest, the map and database of the Italian innovation ecosystem
+
+## Who it is for
+Entrepreneurs, startup founders (idea to growth) and scaleup founders. Also investors, corporate innovation teams, accelerators, incubators, institutions and professionals who work with entrepreneurs.
+
+## Italian Rainforest
+Italian Rainforest (https://italian-innovation-map.vercel.app/en) is the map and database of the Italian innovation ecosystem, created by Rainmakers: venture capital funds, incubators, accelerators, startup studios, angel networks, coworking spaces and institutions. Open data under a copyleft licence for non-commercial use.
+Relationship: Rainmakers helps people connect; Italian Rainforest helps people discover the ecosystem they can connect to; Rainmakers communities are where the conversations happen.
+
+## Pages
+- Italiano: https://www.rainmakers.it/it
+- English: https://www.rainmakers.it/en
+
+## Contact
+- Join, request community access or contact the team via the form at https://www.rainmakers.it/en#join
+- Italian Rainforest: italianrainforest@rainmakers.it
