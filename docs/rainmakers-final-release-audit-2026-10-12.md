@@ -237,6 +237,9 @@ hero markup or moving the reviews below a "show more" are the next levers.
 - Branch `feat/website-optimization` created from `main`; work committed there (`main` untouched).
 - GitHub push **refused** (403: account `charliox` has no write access to
   `Rainmakers2026/Rainmakers.it-website`). Preview created instead with `vercel deploy` (no `--prod`)
-  from a clean `git archive` of the commit (no local env files uploaded): PREVIEW_STATUS
+  from a clean `git archive` of the commit (no local env files uploaded):
+  **https://rainmakers-5cqdj3ig8-rainmakers3.vercel.app** — target `preview`, Ready; `/it`, `/en`,
+  `/it/join`, `/en/join`, robots, sitemap → 200 (13 Oct 2026, commit `4585b0a`). Protected by Vercel
+  Deployment Protection; no Preview env vars, so forms show honest "not configured" errors.
 - **No production deployment.** Production blockers in section 6 still apply (Supabase, Brevo, legal
   texts, domain plan, live end-to-end tests).
