@@ -9,6 +9,7 @@ export const footer: FooterCopy = {
   privacy: 'Privacy policy',
   cookies: 'Cookie policy',
   rights: 'All rights reserved.',
-  rainforestEmailLabel: 'Italian Rainforest',
+  emailLabel: 'Email',
+  onSubstack: 'on Substack',
   language: 'Language',
 };

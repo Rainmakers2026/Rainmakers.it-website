@@ -12,6 +12,7 @@ export type AnalyticsEvent =
   | 'rainforest_cta_click'
   | 'community_cta_click'
   | 'contact_cta_click'
+  | 'review_cta_click'
   | 'lead_form_start'
   | 'lead_form_submit'
   | 'lead_form_error'
@@ -20,7 +21,11 @@ export type AnalyticsEvent =
   | 'scroll_depth'
   | 'tribe_card_expand'
   | 'advisory_card_expand'
-  | 'explorer_filter';
+  | 'explorer_filter'
+  | 'video_play'
+  | 'join_application_submit'
+  | 'community_request'
+  | 'newsletter_signup';
 
 type Props = Record<string, string | number | boolean | null | undefined>;
 

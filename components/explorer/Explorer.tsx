@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useMemo, useState, type CSSProperties } from 'react';
+import Image from 'next/image';
 import type { TrackCopy } from '@/content/types';
 import { isPlaceholder } from '@/content/governance';
 import { track, type AnalyticsEvent } from '@/lib/analytics';
@@ -19,6 +20,9 @@ export interface ExplorerItem {
   name: string;
   subtitle?: string;
   initials: string;
+  favicon?: string;
+  /** 'dark' = logo shown on a neutral dark plate (light-on-transparent logos, or supplied on a dark background). */
+  faviconTone?: 'light' | 'dark';
   hue: number;
   badge: { label: string; tone: Tone };
   location?: string;
@@ -155,8 +159,15 @@ export function Explorer({ kind, items, filters, labels, externalLabel, placehol
             return (
               <li key={item.id} className={`xrow ${isOpen ? 'is-open' : ''}`}>
                 <button type="button" className="xrow__head" aria-expanded={isOpen} aria-controls={panelId} onClick={() => toggle(item.id)}>
-                  <span className="xrow__avatar" style={{ ['--h' as string]: item.hue } as CSSProperties} aria-hidden>
+                  <span
+                    className={`xrow__avatar${item.favicon ? ' xrow__avatar--logo' : ''}${item.favicon && item.faviconTone === 'dark' ? ' xrow__avatar--dark' : ''}`}
+                    data-company={item.id}
+                    style={{ ['--h' as string]: item.hue } as CSSProperties}
+                    aria-hidden
+                  >
                     {item.initials}
+                    {/* Requested at the plate size (88×56, 2× for retina) so logos are not upscaled */}
+                    {item.favicon ? <Image src={item.favicon} alt="" width={88} height={56} sizes="88px" onError={(event) => { event.currentTarget.style.display = 'none'; }} /> : null}
                   </span>
                   <span className="xrow__id">
                     <span className="xrow__name">{item.name}</span>

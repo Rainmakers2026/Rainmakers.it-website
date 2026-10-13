@@ -1,35 +1,33 @@
 # Rainmakers
 
-> Rainmakers is an innovation advisor and venture builder & accelerator, active in Milan since 2011 (founded by Francesco Inguscio, formerly Nuvolab): it makes large companies innovative and innovative companies large, and it created Italian Rainforest.
+> Rainmakers is an innovation advisor and venture builder & accelerator, active in Milan since 2011 (under the name Nuvolab until 2021). It connects entrepreneurs and startups with people, expertise and opportunities, and it created Italian Rainforest, the map of the Italian innovation ecosystem.
 
-Rainmakers is an entrepreneurial ecosystem, not just a VC fund, accelerator, incubator, consultancy, agency or community: its value is access to people, expertise, opportunities, knowledge and communities.
-
-## Business units
-Rainmakers is an integrated venture development organisation (VDO) with six units: Advisory (innovation advisory since 2011, formerly Nuvolab), Investments (investment advisory for VCs, CVCs and family offices), Club (club deal of 300+ entrepreneurs and intrapreneurs), Lab (scaling as a service), Tribe (startups created or accelerated: 6 exits, significant stakes in 14) and Community (networking events, vertical communities, giveback; on the board of InnovUp).
-
-## Track record
-- Tribe: https://www.rainmakers.it/en#tribe
-- Innovation advisory projects (e.g. Le Village by Crédit Agricole, MCE 4x4 for Assolombarda, iBicocca for University of Milano-Bicocca, Officine Formative for Intesa Sanpaolo, 360 by 360 for 360 Capital Partners): https://www.rainmakers.it/en#advisory
+Rainmakers is neither a fund nor just a community: it is a network of entrepreneurs, experts and partners that helps companies grow. Founder: Francesco Inguscio.
 
 ## Who it is for
-First of all founders, entrepreneurs and leaders of startups, scaleups and SMEs, intrapreneurs and innovation managers. Also investors, corporates, innovation professionals and ecosystem players (accelerators, incubators, advisors, universities, communities, institutions, service providers).
+Founders and entrepreneurs of startups, scaleups and SMEs, intrapreneurs and innovation managers. Investors, corporates and innovation professionals are welcome too.
 
-## What entrepreneurs can access
-- Network: entrepreneurs, professionals and innovation players
-- Knowledge: content, materials and learning opportunities shared in the ecosystem
-- Opportunities: partnerships and connections that support growth
-- Community: topic-based and professional WhatsApp communities
-- Ecosystem intelligence: Italian Rainforest
-- Experience: peers facing similar entrepreneurial paths
+## What Rainmakers does
+- Advisory: innovation advisory for companies, institutions and investors (since 2011).
+- Investments: investment advisory for VC funds, family offices and corporate VCs.
+- Club: entrepreneurs and intrapreneurs (300+) who invest in Tribe startups.
+- Lab: marketing, sales, funding, finance, tech, legal and HR "as a service" for startups.
+- Tribe: venture builder & accelerator — startups created, co-founded or accelerated (6 exits, significant stakes in 14 startups).
+- Community: events, vertical WhatsApp communities and giveback initiatives.
 
-## Italian Rainforest
-Italian Rainforest (https://italian-innovation-map.vercel.app/en) is the map and database of the Italian innovation ecosystem, created by Rainmakers: investors, incubators and accelerators, startup studios, corporate venture capital, coworking spaces, institutions and other innovation enablers. Open data under a copyleft licence for non-commercial use.
+## Rainmakers and Italian Rainforest
+Rainmakers is the organisation: people, experience, relationships and community. Italian Rainforest (https://italian-innovation-map.vercel.app/en) is a separate project created by Rainmakers: the map and database of the Italian innovation ecosystem (investors, incubators and accelerators, corporate VC, startup studios, coworking spaces, institutions and other innovation enablers), open data for non-commercial use. WhatsApp communities are where people meet and take part.
 
-## How the pieces relate
-Rainmakers.it (the gateway) → Italian Rainforest (the ecosystem intelligence layer) → WhatsApp communities (the human layer).
+## Track record
+- Tribe (startups): https://www.rainmakers.it/en#tribe
+- Innovation advisory projects (28 documented, e.g. Le Village by Crédit Agricole, Assolombarda, University of Milano-Bicocca, Intesa Sanpaolo, 360 Capital Partners): https://www.rainmakers.it/en#advisory
+
+## How to get in touch
+- Contact form "Connect with Rainmakers": https://www.rainmakers.it/en#connect
+- Send a pitch or a CV (Join the Tribe): https://www.rainmakers.it/en/join
+- WhatsApp communities: https://www.rainmakers.it/en#community
+- Email: info@rainmakers.it
 
 ## Pages
 - Italiano: https://www.rainmakers.it/it
 - English: https://www.rainmakers.it/en
-- Communities: https://www.rainmakers.it/en#community
-- Contact form: https://www.rainmakers.it/en#connect

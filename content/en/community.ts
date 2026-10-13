@@ -3,11 +3,8 @@ import { PH } from '../governance';
 
 export const community: CommunityCopy = {
   eyebrow: 'Community',
-  title: 'The ecosystem is better when you are part of it.',
-  text:
-    'WhatsApp communities are the human layer of the Rainmakers ecosystem: spaces to meet people, ask questions and find resources relevant to your entrepreneurial journey.',
-  spacesLabel: 'Spaces for',
-  spaces: ['networking', 'knowledge sharing', 'learning', 'opportunities', 'discussion', 'useful resources'],
+  title: 'Ideas grow when they meet the right people.',
+  text: 'In the Rainmakers WhatsApp communities you can ask questions, meet other founders and find opportunities.',
   listTitle: 'Choose your community',
   join: 'Join on WhatsApp',
   full: 'Full',
@@ -15,5 +12,26 @@ export const community: CommunityCopy = {
   linkMissing: PH.whatsapp,
   categoryLabel: 'Topic',
   targetLabel: 'For',
-  note: 'Not sure which community is right for you? Connect with Rainmakers and we’ll point you to the best fit.',
+  note: 'Not sure which one to choose?',
+  form: {
+    intro: 'Leave your name and email and we’ll show you the link to join right away.',
+    firstName: 'First name',
+    email: 'Email',
+    consent: 'I agree to the processing of my data to handle my request to join the community. This is not a newsletter subscription.',
+    privacy: 'Privacy policy',
+    submit: 'Continue',
+    submitting: 'Sending…',
+    cancel: 'Cancel',
+    success: 'Done! Here is the link to join the community.',
+    open: 'Open WhatsApp',
+    errors: {
+      required: 'Please fill in this field.',
+      email: 'Please enter a valid email address.',
+      consent: 'We need your consent to process your data.',
+      tooLong: 'This text is too long.',
+      summary: 'Please check the highlighted fields.',
+      generic: 'We could not send your request. Please try again in a moment.',
+      rateLimited: 'Too many requests. Please try again in a few minutes.',
+    },
+  },
 };

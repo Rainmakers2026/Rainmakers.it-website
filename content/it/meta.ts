@@ -1,12 +1,12 @@
 import type { MetaCopy } from '../types';
 
 export const meta: MetaCopy = {
-  title: 'Rainmakers | Ecosistema di innovazione e imprenditorialità in Italia',
+  title: 'Rainmakers | Ecosistema per imprenditori e startup in Italia',
   description:
-    'Rainmakers connette imprenditori e founder con persone, competenze, opportunità e conoscenza nell’ecosistema italiano dell’innovazione. Esplora Italian Rainforest ed entra nella community.',
-  ogTitle: 'Rainmakers — Costruisci meglio. Cresci insieme all’ecosistema.',
+    'Rainmakers connette imprenditori e startup con persone, competenze e opportunità. Innovation advisor e venture builder a Milano dal 2011.',
+  ogTitle: 'Rainmakers — Le opportunità non cadono dal cielo',
   ogDescription:
-    'Il punto d’ingresso all’ecosistema italiano dell’innovazione per imprenditori e founder: persone, competenze, opportunità e community.',
+    'Founder, esperti e investitori: la rete che aiuta imprenditori e startup a fare il prossimo passo.',
   keywords: [
     'ecosistema startup italiano',
     'ecosistema innovazione Italia',

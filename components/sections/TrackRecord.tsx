@@ -25,6 +25,68 @@ const hue = (name: string) => {
 
 const host = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
+const tribeFavicons: Record<string, string> = {
+  'startup-geeks': 'startupgeeks.webp',
+  trovabando: 'trovabando.webp',
+  easysea: 'easysea.webp',
+  noonic: 'noonic.webp',
+  'future-fashion': 'DIS.webp',
+  designwanted: 'designwanted.webp',
+  verbalizza: 'verbalizza.webp',
+  zanze: 'zanzexvi.webp',
+  kampaay: 'kampaay.webp',
+  mapadore: 'mapadore.webp',
+  ncode: 'ncode.webp',
+  'coppa-landini': 'coppalandini.webp',
+  crowdchicken: 'crowdchicken.webp',
+  'this-is-not-a-sushi-bar': 'thisisnotsushibar.webp',
+  backbone: 'backbone.webp',
+  'chi-odia-paga': 'chiodiapaga.webp',
+  'robo-for-it': 'robo4it.webp',
+  fornace: 'fornacestudio.webp',
+  bidtotrip: 'bidtotrip.webp',
+  startuphome: 'startuphome.webp',
+  instilla: 'instilla.webp',
+  gellify: 'gellify.webp',
+  'startup-wise-guys': 'startupwiseguys.webp',
+};
+
+const advisoryFavicons: Record<string, string> = {
+  '360-capital': '360capitalpartners.webp',
+  agos: 'agos.webp',
+  antea: 'antea.tech.webp',
+  // Keyed by the data slug (content/data/advisory.ts); the file name keeps the supplied spelling
+  assolombarda: 'assolombardia.webp',
+  'art-er': 'art-er.webp',
+  'cciaa-milano': 'innovhub.webp',
+  'cdp-vc': 'cdpventurecapital.webp',
+  coeso: 'coeso.webp',
+  'confindustria-veneto': 'confindustriaveneto.webp',
+  'confindustria-verona': 'confindustriaverona.webp',
+  'credit-agricole': 'credit-agricole-levillagebyca.webp',
+  electrolux: 'electrolux.webp',
+  ey: 'ey.webp',
+  feduf: 'feduf.webp',
+  finservice: 'gruppofinservice.webp',
+  'intesa-off': 'intesasanpaolo.webp',
+  'intesa-adottup': 'intesasanpaolo.webp',
+  oltre: 'oltreimpact.webp',
+  rcs: 'corrieredellasera.webp',
+  siamosoci: 'mamacrowd.webp',
+  startupitalia: 'startupitalia.webp',
+  'talent-garden': 'talentgarden.webp',
+  'tetra-pak': 'tetrapak.webp',
+  unicredit: 'unicreditstartlab.webp',
+  bicocca: 'ibicocca.unimib.webp',
+  vita: 'vita.webp',
+};
+
+/**
+ * Logos that are light-on-transparent (invisible on white) or supplied on their own dark background:
+ * shown on a neutral dark plate instead of white. Checked visually against the supplied files.
+ */
+const darkPlateLogos = new Set(['easysea', 'gellify', 'fornace', 'noonic', 'antea', 'oltre']);
+
 function tribeItems(dict: Dictionary, locale: Locale): ExplorerItem[] {
   const t = dict.track;
   const f = t.explorer.fields;
@@ -47,6 +109,8 @@ function tribeItems(dict: Dictionary, locale: Locale): ExplorerItem[] {
       id: c.slug,
       name: c.name,
       initials: initials(c.name),
+      favicon: tribeFavicons[c.slug] ? `/brand/The-Tribe-companies-favicons/${tribeFavicons[c.slug]}` : undefined,
+      faviconTone: darkPlateLogos.has(c.slug) ? 'dark' : 'light',
       hue: hue(c.name),
       badge: { label: t.tribe.statusLabels[c.status], tone: c.status as Tone },
       location: c.city ?? undefined,
@@ -73,6 +137,8 @@ function advisoryItems(dict: Dictionary, locale: Locale): ExplorerItem[] {
     name: p.client,
     subtitle: p.project,
     initials: initials(p.client),
+    favicon: advisoryFavicons[p.slug] ? `/brand/Innovation-Advisory-companies-favicons/${advisoryFavicons[p.slug]}` : undefined,
+    faviconTone: darkPlateLogos.has(p.slug) ? 'dark' : 'light',
     hue: hue(p.client),
     badge: { label: t.advisory.typeLabels[p.type], tone: 'neutral' as Tone },
     location: p.location,
@@ -96,11 +162,11 @@ function advisoryItems(dict: Dictionary, locale: Locale): ExplorerItem[] {
   }));
 }
 
-/** Track record (Tribe + innovation advisory) with OpenVC-style expandable cards. */
+/** Proof (PRD §5.3 step 3): key figures, Tribe and innovation advisory explorers (testimonials: Reviews section). */
 export function TrackRecord({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const t = dict.track;
   return (
-    <section className="section section--raised track" aria-labelledby="track-title">
+    <section id={SECTION_IDS.track} className="section section--base track" aria-labelledby="track-title">
       <div className="container">
         <SectionHeader eyebrow={t.eyebrow} title={t.title} intro={t.intro} id="track-title" />
         <dl className="track__stats">
@@ -126,6 +192,7 @@ export function TrackRecord({ dict, locale }: { dict: Dictionary; locale: Locale
             placeholderBadge={dict.ui.placeholderBadge}
             sorts={['az', 'recent', 'oldest', 'size']}
             initialSort="size"
+            initialVisible={4}
           />
           <p className="track__note">{t.tribe.dataNote}</p>
         </div>
@@ -144,6 +211,7 @@ export function TrackRecord({ dict, locale }: { dict: Dictionary; locale: Locale
             placeholderBadge={dict.ui.placeholderBadge}
             sorts={['az', 'recent', 'oldest']}
             initialSort="recent"
+            initialVisible={4}
           />
           <p className="track__note">{t.advisory.dataNote}</p>
         </div>

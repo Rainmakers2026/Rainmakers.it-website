@@ -1,11 +1,11 @@
 import type { HeroCopy } from '../types';
 
 export const hero: HeroCopy = {
-  eyebrow: 'Ecosistema per imprenditori · Italia',
-  title: 'Costruisci meglio.',
-  titleAccent: 'Cresci insieme all’ecosistema.',
-  lead:
-    'Rainmakers connette imprenditori, competenze, opportunità e conoscenza per aiutare chi costruisce imprese a navigare e crescere nell’ecosistema dell’innovazione italiano.',
+  eyebrow: 'Per imprenditori, founder e startup',
+  title: 'Le opportunità non cadono dal cielo.',
+  titleAccent: 'Insieme, le facciamo piovere.',
+  lead: 'Rainmakers connette imprenditori, competenze e opportunità per aiutarti a fare il prossimo passo.',
+  secondaryCta: 'Scopri come possiamo aiutarti',
   visualLabel:
-    'Animazione: punti isolati che si collegano gradualmente in una rete, a rappresentare il passaggio dal costruire da soli al crescere insieme all’ecosistema.',
+    'Illustrazione: sopra lo skyline di Milano, una nuvola fatta di connessioni fa piovere luce su un gruppo di imprenditori che la raccolgono con ombrelli capovolti, il simbolo di Rainmakers; nascono germogli e un giovane albero, e lungo un sentiero illuminato arrivano i clienti.',
 };

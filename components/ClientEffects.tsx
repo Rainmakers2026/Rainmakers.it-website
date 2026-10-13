@@ -37,6 +37,19 @@ export function ClientEffects({ locale }: { locale: Locale }) {
       revealEls.forEach((el) => io?.observe(el));
     }
 
+    // Ambient rain animations ([data-fx]) play only while their scene is on screen (pause off-screen)
+    const fxEls = document.querySelectorAll<HTMLElement>('[data-fx]');
+    let fxIo: IntersectionObserver | null = null;
+    if (!reduce && 'IntersectionObserver' in window) {
+      fxIo = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) e.target.classList.toggle('is-active', e.isIntersecting);
+        },
+        { rootMargin: '120px 0px' },
+      );
+      fxEls.forEach((el) => fxIo?.observe(el));
+    }
+
     const onClick = (e: MouseEvent) => {
       const el = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-track]');
       if (!el) return;
@@ -64,7 +77,7 @@ export function ClientEffects({ locale }: { locale: Locale }) {
         ticking = false;
         const max = root.scrollHeight - window.innerHeight;
         const pct = max > 0 ? (window.scrollY / max) * 100 : 100;
-        root.style.setProperty('--scroll', String(Math.min(1, pct / 100)));
+        // The progress bar is a CSS scroll-driven animation: no style write here (it re-styled the whole page on every frame)
         for (const m of marks) {
           if (pct >= m && !fired.has(m)) {
             fired.add(m);
@@ -78,6 +91,7 @@ export function ClientEffects({ locale }: { locale: Locale }) {
 
     return () => {
       io?.disconnect();
+      fxIo?.disconnect();
       document.removeEventListener('click', onClick);
       document.removeEventListener('toggle', onToggle, true);
       window.removeEventListener('scroll', onScroll);

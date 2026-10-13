@@ -57,7 +57,7 @@ Regola: preservare il valore, non il wording.
 | Testimonianze | **KEEP + VERIFY** | Citazioni mantenute fedeli (non riscritte: riscrivere le parole altrui le renderebbe non autentiche). Il PRD chiede la struttura Problem → Rainmakers → Outcome: l'abbiamo applicata come *etichette di contesto* attorno alla citazione originale. Serve ri-conferma dei testimonial |
 | Form "Apply / Send us your pitch" | **REWRITE** | Sostituito dal form lead unico con 3 intenti (Join / Community / Talk) |
 | Form contatto per aziende/istituzioni/investitori | **REPURPOSE** | Intento "Parla con Rainmakers" + audience secondarie in "Per chi è" |
-| News | **REMOVE** (V1) | Fuori scope one-page; torna con il Knowledge hub (V3) |
+| News | **ADD** (V2 update) | Hub bilingue con tag Articles, Tech news, Events e Open venture builder; articoli in attesa dei contenuti |
 
 ## 4. Classificazione contenuti — Nuvolab
 

@@ -3,11 +3,10 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import type { Locale } from '@/content/types';
 import type { HeaderCopy } from '@/lib/client-copy';
-import { rainforest } from '@/content/shared';
 import { track } from '@/lib/analytics';
 import { allSectionIds, navItems } from '@/lib/nav';
 import { Logo } from './Logo';
-import { ArrowUpRight, Close, Menu } from './icons';
+import { Close, Menu } from './icons';
 
 export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale: Locale; home?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -111,7 +110,7 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
           <ul>
             {items.map((item) => (
               <li key={item.id}>
-                <a href={`${prefix}#${item.id}`} aria-current={active === item.id ? 'true' : undefined}>
+                <a href={item.href ? `/${locale}${item.href}` : `${prefix}#${item.id}`} aria-current={active === item.id ? 'true' : undefined}>
                   {item.label}
                 </a>
               </li>
@@ -120,20 +119,16 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
         </nav>
 
         <div className="site-header__actions">
-          <a className="lang-switch" href={`/${other}`} hrefLang={other} lang={other} onClick={switchLanguage} aria-label={dict.a11y.languageSwitch}>
+          <a className="lang-switch" href={`/${other}`} hrefLang={other} lang={other} onClick={switchLanguage} aria-label={`${other.toUpperCase()} – ${dict.a11y.languageSwitch}`}>
             {other.toUpperCase()}
           </a>
           <a
-            href={rainforest.urlFor(locale)}
-            target="_blank"
-            rel="noopener"
+            href={`/${locale}/join`}
             className="btn btn--primary btn--sm site-header__cta"
-            data-track="rainforest_cta_click"
+            data-track="community_cta_click"
             data-location="header"
           >
-            {dict.cta.explore}
-            <ArrowUpRight aria-hidden />
-            <span className="sr-only"> {dict.a11y.external}</span>
+            {dict.cta.join}
           </a>
           <button
             ref={toggleRef}
@@ -161,21 +156,17 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
         <ul>
           {items.map((item, i) => (
             <li key={item.id} style={{ '--i': i } as CSSProperties}>
-              <a href={`${prefix}#${item.id}`}>{item.label}</a>
+              <a href={item.href ? `/${locale}${item.href}` : `${prefix}#${item.id}`}>{item.label}</a>
             </li>
           ))}
         </ul>
         <a
-          href={rainforest.urlFor(locale)}
-          target="_blank"
-          rel="noopener"
+          href={`/${locale}/join`}
           className="btn btn--primary btn--block"
-          data-track="rainforest_cta_click"
+          data-track="community_cta_click"
           data-location="mobile_menu"
         >
-          {dict.cta.explore}
-          <ArrowUpRight aria-hidden />
-          <span className="sr-only"> {dict.a11y.external}</span>
+          {dict.cta.join}
         </a>
         <a className="mobile-menu__lang" href={`/${other}`} hrefLang={other} lang={other} onClick={switchLanguage}>
           {dict.a11y.languageSwitch}

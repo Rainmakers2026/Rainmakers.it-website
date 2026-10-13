@@ -2,11 +2,9 @@ import type { TrackCopy } from '../types';
 
 export const track: TrackCopy = {
   eyebrow: 'Track record',
-  title: 'Dal 2011, startup e innovation advisory.',
-  intro:
-    'Rainmakers, le startup della sua Tribe e la sua attività di innovation advisory hanno accompagnato il “rinascimento” italiano dell’innovazione e delle startup, nel mondo corporate, VC e istituzionale.',
+  title: 'L’esperienza conta. Le connessioni giuste fanno la differenza.',
+  intro: 'Dal 2011: startup create o accelerate e progetti di innovazione per aziende, investitori e istituzioni.',
   stats: [
-    { value: '2011', label: 'l’anno di partenza, come Nuvolab' },
     { value: '{exits}', label: 'exit nella Tribe' },
     { value: '{active}', label: 'startup con partecipazioni rilevanti' },
     { value: '300+', label: 'entrepreneur e intrapreneur nel Club' },
@@ -14,14 +12,13 @@ export const track: TrackCopy = {
   ],
   tribe: {
     title: 'La Tribe',
-    intro:
-      'Le startup create, co-fondate o accelerate da Rainmakers, portatrici di meaningful innovation per il Paese, le Persone e il Pianeta. Ognuna può contribuire ai progetti con competenze, piattaforme verticali e community.',
+    intro: 'Le startup create, co-fondate o accelerate da Rainmakers.',
     statusLabels: { active: 'Partecipata', exit: 'Exit', minority: 'Minoranza', writeoff: 'Write-off' },
     dataNote: 'Stato del portafoglio: company overview, maggio 2025. FTE (soci + dipendenti) e fatturato: ultime schede disponibili (2023).',
   },
   advisory: {
-    title: 'Innovation advisory',
-    intro: 'Progetti realizzati per corporate, investitori, associazioni imprenditoriali e istituzioni. Ogni scheda riporta cliente, sintesi e impatto.',
+    title: 'Innovation Advisory',
+    intro: 'Progetti per corporate, investitori, associazioni e istituzioni.',
     typeLabels: { corporate: 'Corporate', investor: 'Investitori', association: 'Associazioni', institution: 'Istituzioni', third_sector: 'Terzo settore' },
     dataNote: 'Fonte: schede progetto del company overview Rainmakers. L’anno indica la prima edizione o erogazione.',
   },

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import type { Locale } from '@/content/types';
-import { SECTION_IDS } from '@/content/types';
 import type { LeadFormCopy } from '@/lib/client-copy';
 import { rainforest } from '@/content/shared';
 import { leadSchema, toFieldErrors, type ErrorCode } from '@/lib/validation';
@@ -49,6 +48,8 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
   const [serverError, setServerError] = useState<string | null>(null);
   const [hp, setHp] = useState('');
   const mountedAt = useRef(0);
+  /** One key per filled-in form: a double click or retry is stored once (contact_requests.idempotency_key). */
+  const idempotencyKey = useRef('');
   const started = useRef(false);
   const utm = useRef<Record<string, string>>({});
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -56,6 +57,7 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
 
   useEffect(() => {
     mountedAt.current = Date.now();
+    idempotencyKey.current = crypto.randomUUID();
     // Campaign attribution from the landing URL (no storage needed on a one-page site)
     const params = new URLSearchParams(window.location.search);
     for (const k of UTM_KEYS) {
@@ -88,6 +90,7 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
     utm: Object.keys(utm.current).length ? utm.current : undefined,
     company_website_hp: hp,
     elapsedMs: Date.now() - mountedAt.current,
+    idempotencyKey: idempotencyKey.current,
   });
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -136,6 +139,7 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
     setStatus('idle');
     started.current = false;
     mountedAt.current = Date.now();
+    idempotencyKey.current = crypto.randomUUID();
   };
 
   if (status === 'success') {
@@ -158,9 +162,9 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
             <span>{s.rainforestText}</span>
             <span className="sr-only">{dict.external}</span>
           </a>
-          <a className="next-card" href={`#${SECTION_IDS.community}`} data-track="community_cta_click" data-location="form_success">
+          <a className="next-card" href={`/${locale}/join`} data-track="community_cta_click" data-location="form_success">
             <strong>
-              {dict.cta.community} <ArrowDown aria-hidden className="inline-icon" />
+              {dict.cta.join} <ArrowDown aria-hidden className="inline-icon" />
             </strong>
             <span>{s.communityText}</span>
           </a>

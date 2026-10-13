@@ -10,6 +10,8 @@ const csp = [
   "img-src 'self' data: blob:",
   "font-src 'self'",
   "connect-src 'self' https://vitals.vercel-insights.com",
+  // YouTube player is loaded only after a click, in privacy-enhanced mode (components/YouTubeFacade.tsx)
+  "frame-src https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -28,7 +30,11 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  images: { formats: ['image/avif', 'image/webp'] },
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    // Video thumbnail, served through /_next/image so the CSP img-src stays 'self'
+    remotePatterns: [{ protocol: 'https', hostname: 'i.ytimg.com', pathname: '/vi/**' }],
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

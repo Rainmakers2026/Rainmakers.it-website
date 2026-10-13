@@ -1,24 +1,11 @@
 import type { RainforestCopy } from '../types';
 
 export const rainforest: RainforestCopy = {
-  eyebrow: 'Italian Rainforest',
-  title: 'Your gateway to the Italian innovation ecosystem.',
-  tagline: 'Know the ecosystem. Navigate it. Become part of it.',
+  title: 'Italian Rainforest',
+  headline: 'Discover the ecosystem behind the connections.',
   text:
-    'Italian Rainforest is the map and database of Italy’s innovation ecosystem, created by Rainmakers. It makes the ecosystem easier to discover, understand and navigate: searchable data, updated with the community’s help and available as open data for non-commercial use.',
-  formula: 'Rainmakers opens the door. Italian Rainforest lets you explore.',
-  exploreLabel: 'Explore',
-  explore: [
-    'investors',
-    'incubators and accelerators',
-    'startup studios',
-    'corporate venture capital',
-    'communities',
-    'institutions',
-    'coworking spaces',
-    'programmes',
-    'other innovation enablers',
-  ],
+    'Italian Rainforest is the map of the Italian innovation ecosystem, created by Rainmakers: a tool to explore investors, incubators, accelerators and other organisations, and discover new ways to connect. Open data for non-commercial use.',
+  formula: 'Rainmakers opens the door. Italian Rainforest lets you explore. The communities let you take part.',
   statsTitle: 'What you’ll find on the map today',
   statsTotalLabel: 'active organisations mapped',
   statsItalyLabel: 'based in Italy',
@@ -27,7 +14,7 @@ export const rainforest: RainforestCopy = {
     vc: 'Venture capital',
     incubators: 'Incubators & accelerators',
     cvc: 'Corporate VC',
-    coworking: 'Coworking spaces',
+    coworking: 'Coworking',
     studios: 'Startup studios',
     angels: 'Angel networks',
     institutions: 'Institutions',

@@ -37,7 +37,7 @@ Without `SUPABASE_URL`, `/api/lead` runs in **mock mode** in development (logs t
 Supabase is empty: the migration creates structure only, never data.
 
 1. Create a project (EU region, e.g. Frankfurt, for GDPR).
-2. Run `supabase/migrations/0001_init.sql` (SQL editor or `supabase db push`).
+2. Run `supabase/migrations/0001_init.sql` and `0002_lead_application.sql` (SQL editor or `supabase db push`).
 3. Add real communities to `communities` (template in `supabase/seed.example.sql`). The page re-reads them every 5 minutes; while the table is empty it shows the fallback list in `content/shared.ts`.
 4. In Vercel set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (writes) and `SUPABASE_ANON_KEY` (reads). Never expose them with `NEXT_PUBLIC_`.
 
@@ -48,10 +48,14 @@ Supabase is empty: the migration creates structure only, never data.
 | `content`, `ecosystem_links` | Future | Public read of `published` rows only |
 | `newsletter_subscribers` | Future | No public access |
 
+### Airtable lead sync
+
+The pitch and CV forms always submit through `/api/lead` and save to Supabase. To mirror each accepted submission to Airtable, configure the server-only `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `AIRTABLE_PITCH_TABLE_ID` and `AIRTABLE_CV_TABLE_ID` values in the deployment environment. Use an Airtable personal access token with record read/write access. Create both tables with text fields `First name`, `Last name`, `Email`, `Company`, `Role`, `Website or LinkedIn`, `Profile type`, `Interest`, `Language`, `Startup name`, `Company incorporated?`, `Incorporation year`, `City / Province`, `Sector`, `Websites`, `Service of interest`, `Other service`; add a checkbox field named `Consent`. The endpoint reports a partial submission if Airtable is not configured or sync fails, while preserving the successfully stored Rainmakers lead.
+
 ## Deploy on Vercel
 
 1. Import the repo → framework auto-detected (Next.js). Region `fra1` is set in `vercel.json`.
-2. Env vars: `NEXT_PUBLIC_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`.
+2. Env vars: `NEXT_PUBLIC_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`; optionally add the Airtable variables above to enable the mirror.
 3. Enable **Web Analytics** in the Vercel project (cookieless; custom events need a plan that supports them).
 4. Point `www.rainmakers.it` to Vercel; redirect the apex domain to `www`.
 
@@ -103,7 +107,7 @@ Semantic landmarks, one `h1`, ordered headings, skip link, visible focus, keyboa
 
 Run `npm run check:placeholders` — it lists everything below that is still open.
 
-- [ ] Logo files in `public/brand/`, then `brand.available = true` in `content/shared.ts`
+- [x] Official white Rainmakers logo and square mark in `public/brand/`; PNG favicon in `app/icon.png`
 - [ ] Real Rainmakers communities in Supabase (name, description, WhatsApp link)
 - [ ] Confirm the Italian Rainforest WhatsApp community is the one to promote
 - [ ] Testimonials: confirm with each person, then mark VERIFIED

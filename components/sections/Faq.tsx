@@ -1,8 +1,61 @@
+import type { ReactNode } from 'react';
 import type { Dictionary } from '@/content/types';
 import { SECTION_IDS } from '@/content/types';
+import { isPlaceholder } from '@/content/governance';
+import { rainforest } from '@/content/shared';
 import { Plus } from '../icons';
 import { PhText } from '../PhText';
 import { SectionHeader } from '../ui';
+
+function FaqAnswer({ value, dict }: { value: string; dict: Dictionary }) {
+  if (isPlaceholder(value)) return <PhText as="p" className="faq__a" value={value} badge={dict.ui.placeholderBadge} />;
+
+  const links = [
+    { label: 'Italian Rainforest', href: rainforest.urlFor(dict.locale), external: true },
+    { label: 'Track record', href: `#${SECTION_IDS.tribe}` },
+    { label: 'Community', href: `#${SECTION_IDS.community}` },
+    { label: 'Join the Tribe', href: `/${dict.locale}/join` },
+    ...(dict.locale === 'it'
+      ? [
+          { label: 'Connettiti con Rainmakers', href: '#connect-form' },
+        ]
+      : [
+          { label: 'Connect with Rainmakers', href: '#connect-form' },
+        ]),
+  ];
+
+  const parts: ReactNode[] = [];
+  let cursor = 0;
+  while (cursor < value.length) {
+    const match = links
+      .map((link) => ({ ...link, index: value.indexOf(link.label, cursor) }))
+      .filter((link) => link.index >= 0)
+      .sort((a, b) => a.index - b.index || b.label.length - a.label.length)[0];
+
+    if (!match) {
+      parts.push(value.slice(cursor));
+      break;
+    }
+    if (match.index > cursor) parts.push(value.slice(cursor, match.index));
+    parts.push(
+      <a
+        key={`${match.index}-${match.label}`}
+        href={match.href}
+        {...(match.external
+          ? { target: '_blank', rel: 'noopener', 'data-track': 'rainforest_cta_click', 'data-location': 'faq' }
+          : match.href === '#connect-form'
+            ? { 'data-track': 'contact_cta_click', 'data-location': 'faq' }
+            : {})}
+      >
+        {match.label}
+        {match.external ? <span className="sr-only"> {dict.ui.a11y.external}</span> : null}
+      </a>,
+    );
+    cursor = match.index + match.label.length;
+  }
+
+  return <p className="faq__a">{parts}</p>;
+}
 
 /** FAQ (PRD §25) — native <details>; answers with placeholders are excluded from FAQPage schema. */
 export function Faq({ dict }: { dict: Dictionary }) {
@@ -17,7 +70,7 @@ export function Faq({ dict }: { dict: Dictionary }) {
                 <h3 className="faq__q">{item.q}</h3>
                 <Plus aria-hidden className="faq__icon" />
               </summary>
-              <PhText as="p" className="faq__a" value={item.a} badge={dict.ui.placeholderBadge} />
+              <FaqAnswer value={item.a} dict={dict} />
             </details>
           ))}
         </div>

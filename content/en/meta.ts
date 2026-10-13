@@ -1,12 +1,12 @@
 import type { MetaCopy } from '../types';
 
 export const meta: MetaCopy = {
-  title: 'Rainmakers | Connecting Entrepreneurs with Italy’s Innovation Ecosystem',
+  title: 'Rainmakers | Ecosystem for founders and startups in Italy',
   description:
-    'Rainmakers connects entrepreneurs and founders with the people, expertise, opportunities and knowledge of the Italian innovation ecosystem. Explore Italian Rainforest and join the community.',
-  ogTitle: 'Rainmakers — Build better. Grow with the ecosystem.',
+    'Rainmakers connects entrepreneurs and startups with people, expertise and opportunities. Innovation advisor and venture builder in Milan since 2011.',
+  ogTitle: 'Rainmakers — Opportunities don’t fall from the sky',
   ogDescription:
-    'The gateway to the Italian innovation ecosystem for entrepreneurs and founders: people, expertise, opportunities and communities.',
+    'Founders, experts and investors: the network that helps entrepreneurs and startups take the next step.',
   keywords: [
     'Italian startup ecosystem',
     'Italy innovation ecosystem',

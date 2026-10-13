@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import type { Dictionary, Locale } from '@/content/types';
-import { SECTION_IDS } from '@/content/types';
-import { facts, rainforest, socialProfiles } from '@/content/shared';
+import { facts, rainforest, socialProfiles, substack } from '@/content/shared';
 import { navItems } from '@/lib/nav';
 import { Logo } from './Logo';
+import { NewsletterSignup } from './NewsletterSignup';
 
 /**
- * Footer (PRD §48). No address, email or company data until confirmed as current:
- * contact goes through the form; only the verified Italian Rainforest address is shown.
+ * Footer (PRD §48). No address or company data until confirmed as current.
+ * Contact: the form and the operational address info@rainmakers.it (PRD §12).
  */
 export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale: Locale; home?: boolean }) {
   const prefix = home ? '' : `/${locale}`;
@@ -26,7 +26,7 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
           <ul>
             {navItems(dict.ui).map((i) => (
               <li key={i.id}>
-                <a href={`${prefix}#${i.id}`}>{i.label}</a>
+                <a href={i.href ? `/${locale}${i.href}` : `${prefix}#${i.id}`}>{i.label}</a>
               </li>
             ))}
             <li>
@@ -41,13 +41,13 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
           <h2 className="site-footer__title">{f.contact}</h2>
           <ul>
             <li>
-              <a href={`${prefix}#${SECTION_IDS.connect}`} data-track="contact_cta_click" data-location="footer">
+              <a href={`${prefix}#connect-form`} data-track="contact_cta_click" data-location="footer">
                 {f.contactCta}
               </a>
             </li>
             <li>
-              <span className="muted">{f.rainforestEmailLabel}: </span>
-              <a href={`mailto:${facts.rainforestEmail.value}`}>{facts.rainforestEmail.value}</a>
+              <span className="muted">{f.emailLabel}: </span>
+              <a href={`mailto:${facts.contactEmail.value}`}>{facts.contactEmail.value}</a>
             </li>
             {socialProfiles.map((s) => (
               <li key={s.url}>
@@ -57,11 +57,17 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
                 </a>
               </li>
             ))}
+            <li>
+              <a href={substack.url} target="_blank" rel="noopener">
+                {substack.name} {f.onSubstack} ↗<span className="sr-only"> {dict.ui.a11y.external}</span>
+              </a>
+            </li>
           </ul>
         </div>
 
         <div>
           <h2 className="site-footer__title">{f.legal}</h2>
+          <NewsletterSignup locale={locale} source="footer" />
           <ul>
             <li>
               <Link href={`/${locale}/privacy`}>{f.privacy}</Link>

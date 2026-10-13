@@ -1,39 +1,29 @@
 import 'server-only';
-import type { Lead } from '@/lib/validation';
+import type { CommunitySubmission, ContactSubmission, JoinSubmission } from '@/lib/validation';
 import { CONSENT_VERSION } from '@/lib/options';
 import { authHeaders, supabaseConfig } from './rest';
 
-export type StoreResult = { ok: true } | { ok: false; reason: 'rate_limited' | 'error' | 'not_configured' };
+export type StoreResult =
+  | { ok: true; id: string | null; duplicate: boolean; mock?: true }
+  | { ok: false; reason: 'rate_limited' | 'error' | 'not_configured' };
 
-/** Persists a lead through the `submit_lead` Postgres function (see supabase/migrations). */
-export async function storeLead(lead: Lead): Promise<StoreResult> {
+/**
+ * Calls one of the submit_* Postgres functions (supabase/migrations/0003) with the service key.
+ * Without Supabase configuration: development accepts and logs (mock); production returns not_configured,
+ * so a visitor is never told that an unsaved request was received.
+ */
+async function rpc(fn: 'submit_contact' | 'submit_join_application' | 'submit_community_request', payload: Record<string, unknown>, idKey: string): Promise<StoreResult> {
   const cfg = supabaseConfig('service');
   if (!cfg) {
     if (process.env.NODE_ENV !== 'production' || process.env.LEADS_MOCK === '1') {
-      console.info('[leads] Supabase not configured — mock mode. Lead accepted:', { profile: lead.profileType, locale: lead.locale });
-      return { ok: true };
+      console.info(`[${fn}] Supabase not configured — mock mode, nothing stored`);
+      return { ok: true, id: null, duplicate: false, mock: true };
     }
-    console.error('[leads] SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing');
+    console.error(`[${fn}] SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing`);
     return { ok: false, reason: 'not_configured' };
   }
-
-  const payload = {
-    first_name: lead.firstName,
-    last_name: lead.lastName,
-    email: lead.email,
-    company: lead.company,
-    role: lead.role,
-    website_or_linkedin: lead.link ?? null,
-    profile_type: lead.profileType,
-    interest: lead.interest ?? null,
-    language: lead.locale,
-    consent: lead.consent,
-    consent_version: CONSENT_VERSION,
-    utm: lead.utm ?? {},
-  };
-
   try {
-    const res = await fetch(`${cfg.url}/rest/v1/rpc/submit_lead`, {
+    const res = await fetch(`${cfg.url}/rest/v1/rpc/${fn}`, {
       method: 'POST',
       headers: { ...authHeaders(cfg.key), 'Content-Type': 'application/json' },
       body: JSON.stringify({ p: payload }),
@@ -42,12 +32,71 @@ export async function storeLead(lead: Lead): Promise<StoreResult> {
     if (!res.ok) {
       const body = await res.text();
       if (body.includes('rate_limited')) return { ok: false, reason: 'rate_limited' };
-      console.error('[leads] Supabase error', res.status, body.slice(0, 500));
+      // Postgres error code/message only — the payload (personal data) is never logged
+      console.error(`[${fn}] Supabase error`, res.status, body.slice(0, 300));
       return { ok: false, reason: 'error' };
     }
-    return { ok: true };
-  } catch (err) {
-    console.error('[leads] Network error', err);
+    const data = (await res.json()) as Record<string, unknown>;
+    return { ok: true, id: (data[idKey] as string) ?? null, duplicate: data.duplicate === true };
+  } catch {
+    console.error(`[${fn}] network error`);
     return { ok: false, reason: 'error' };
   }
+}
+
+const person = (s: { locale: string; firstName: string; email: string; utm?: Record<string, string> }) => ({
+  first_name: s.firstName,
+  email: s.email,
+  language: s.locale,
+  consent: true,
+  consent_version: CONSENT_VERSION,
+  utm: s.utm ?? {},
+});
+
+/** "Connettiti con Rainmakers" → contact_requests. */
+export function submitContact(s: ContactSubmission) {
+  return rpc(
+    'submit_contact',
+    {
+      ...person(s),
+      last_name: s.lastName,
+      company: s.company,
+      role: s.role,
+      link: s.link ?? null,
+      profile_type: s.profileType,
+      message: s.interest ?? null,
+      idempotency_key: s.idempotencyKey,
+    },
+    'request_id',
+  );
+}
+
+/** "Join the Tribe" → join_applications. `file` is set once the PDF is in the private bucket. */
+export function submitJoinApplication(s: JoinSubmission, file: { path: string; name: string; size: number } | null) {
+  const pitch = s.submissionType === 'pitch';
+  return rpc(
+    'submit_join_application',
+    {
+      ...person(s),
+      last_name: s.lastName,
+      // Person record: the startup name is the company; the pitch "role" field carries the service, not a job title
+      company: s.company,
+      role: pitch ? null : s.role,
+      link: s.link ?? null,
+      profile_type: s.profileType,
+      kind: s.submissionType,
+      application: s.application ?? null,
+      notes: s.interest ?? null,
+      storage_path: file?.path ?? null,
+      file_name: file?.name ?? null,
+      file_size: file?.size ?? null,
+      idempotency_key: s.idempotencyKey,
+    },
+    'application_id',
+  );
+}
+
+/** "Entra su WhatsApp" → community_requests. */
+export function submitCommunityRequest(s: CommunitySubmission) {
+  return rpc('submit_community_request', { ...person(s), community_slug: s.community }, 'request_id');
 }

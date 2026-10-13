@@ -2,11 +2,9 @@ import type { TrackCopy } from '../types';
 
 export const track: TrackCopy = {
   eyebrow: 'Track record',
-  title: 'Since 2011: startups and innovation advisory.',
-  intro:
-    'Rainmakers, the startups in its Tribe and its innovation advisory work have been part of Italy’s innovation and startup “renaissance”, across corporates, VCs and institutions.',
+  title: 'Experience matters. The right connections make the difference.',
+  intro: 'Since 2011: startups created or accelerated, and innovation projects for companies, investors and institutions.',
   stats: [
-    { value: '2011', label: 'the year we started, as Nuvolab' },
     { value: '{exits}', label: 'exits in the Tribe' },
     { value: '{active}', label: 'startups with significant stakes' },
     { value: '300+', label: 'entrepreneurs and intrapreneurs in the Club' },
@@ -14,14 +12,13 @@ export const track: TrackCopy = {
   ],
   tribe: {
     title: 'The Tribe',
-    intro:
-      'Startups created, co-founded or accelerated by Rainmakers, bringing meaningful innovation for our country, people and the planet. Each can contribute to projects with skills, vertical platforms and communities.',
+    intro: 'Startups created, co-founded or accelerated by Rainmakers.',
     statusLabels: { active: 'Portfolio', exit: 'Exit', minority: 'Minority', writeoff: 'Write-off' },
     dataNote: 'Portfolio status: company overview, May 2025. FTE (partners + employees) and revenue: latest available sheets (2023).',
   },
   advisory: {
-    title: 'Innovation advisory',
-    intro: 'Projects delivered for corporates, investors, business associations and institutions. Each card shows client, summary and impact.',
+    title: 'Innovation Advisory',
+    intro: 'Projects for corporates, investors, associations and institutions.',
     typeLabels: { corporate: 'Corporate', investor: 'Investors', association: 'Associations', institution: 'Institutions', third_sector: 'Third sector' },
     dataNote: 'Source: project sheets in the Rainmakers company overview. Year = first edition or delivery.',
   },

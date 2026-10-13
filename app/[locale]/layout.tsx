@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { isLocale, locales } from '@/content/types';
 import { getDictionary } from '@/lib/i18n';
 import { buildMetadata } from '@/lib/seo';
+import { ReviewLoader } from '@/components/annotations/ReviewLoader';
 import '../globals.css';
 
 const roboto = Roboto({
@@ -58,6 +59,8 @@ export default async function LocaleLayout({
       <body>
         {children}
         <Analytics />
+        {/* Internal annotation tool: renders nothing unless review mode is on (team sign-in required) */}
+        <ReviewLoader />
       </body>
     </html>
   );

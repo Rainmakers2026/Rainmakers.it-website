@@ -12,6 +12,7 @@ export const legal: LegalCopy = {
         title: '2. Data we collect',
         body: [
           'Data you enter in the “Connect with Rainmakers” form: first name, last name, email, company, role, profile and, if you provide them, website or LinkedIn and what you are looking for.',
+          'For the newsletter: email, selected language and consent, with the subscription date and status.',
           'Technical data: page language, campaign parameters (UTM) and IP address, used only to prevent abuse and not stored.',
           'Aggregated, anonymous visit statistics via Vercel Web Analytics, which does not use cookies.',
         ],
@@ -20,6 +21,7 @@ export const legal: LegalCopy = {
         title: '3. Purposes and legal basis',
         body: [
           'Getting back to you and pointing you to people, communities and resources in the ecosystem: consent (Art. 6.1.a GDPR).',
+          'Sending the monthly newsletter with articles, tech news and events: consent, which can be withdrawn at any time.',
           'Preventing spam and abuse of the form: legitimate interest (Art. 6.1.f GDPR).',
         ],
       },
@@ -28,6 +30,7 @@ export const legal: LegalCopy = {
         title: '5. Recipients',
         body: [
           'Authorised Rainmakers staff and providers acting as processors: Supabase (database) and Vercel (hosting).',
+          'Francesco Inguscio’s articles on Substack are published by an external service subject to its own privacy policy.',
           `Hosting region and safeguards for any non-EU transfer: ${PH.provided}`,
           'Data is never sold or shared with third parties for marketing purposes.',
         ],

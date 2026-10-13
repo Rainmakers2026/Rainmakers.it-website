@@ -275,15 +275,15 @@ export const tribe: TribeCompany[] = [
   // ───────────── Exits (6) ─────────────
   {
     slug: 'impactscool',
-    name: 'Impactscool',
+    name: 'Edulia',
     status: 'exit',
     sector: s('EduTech', 'EduTech'),
-    website: 'https://www.edulia.it',
+    website: 'https://edulia.it/',
     city: 'Roma',
     founded: 2017,
     fte: 6,
     revenueK: 400,
-    summary: s('Formazione sulle tecnologie esponenziali; oggi parte di Treccani (Edulia).', 'Training on exponential technologies; now part of Treccani (Edulia).'),
+    summary: s('Formazione sulle tecnologie esponenziali, oggi Edulia (già Impactscool).', 'Training in exponential technologies, now Edulia (formerly Impactscool).'),
     description: s(
       'Formazione per giovani e adulti su temi di frontiera come tecnologie esponenziali, AI, stampa 3D, biotecnologie e genetica, con format offline e contenuti online: la “versione italiana” della Singularity University. Con l’ingresso in Treccani (Treccani Futura) ha ampliato la formazione online e offline su una platea molto ampia.',
       'Training for young people and adults on frontier topics such as exponential technologies, AI, 3D printing, biotech and genetics, offline and online: the “Italian version” of Singularity University. After joining Treccani (Treccani Futura) it expanded online and offline training to a very wide audience.',

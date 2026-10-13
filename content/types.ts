@@ -25,18 +25,16 @@ export interface Option {
 /** Stable section anchors — identical in both languages so the language switch keeps position. */
 export const SECTION_IDS = {
   why: 'why',
-  about: 'about',
-  access: 'access',
-  rainforest: 'rainforest',
-  network: 'network',
-  how: 'how',
-  audience: 'audience',
-  community: 'community',
-  connect: 'connect',
-  model: 'model',
+  founder: 'founder',
+  track: 'track',
   tribe: 'tribe',
   advisory: 'advisory',
+  how: 'how',
+  community: 'community',
+  rainforest: 'rainforest',
+  reviews: 'reviews',
   faq: 'faq',
+  connect: 'connect',
 } as const;
 
 export interface MetaCopy {
@@ -57,81 +55,65 @@ export interface UiCopy {
     languageName: string;
     external: string;
   };
-  nav: { why: string; access: string; rainforest: string; model: string; community: string; track: string; connect: string };
+  nav: { why: string; founder: string; track: string; community: string; rainforest: string; connect: string; news: string };
   cta: {
-    /** Primary — to Italian Rainforest */
-    explore: string;
-    /** Primary, explicit target name */
+    /** Primary conversion CTA — leads to the "how do you want to join" section */
+    start: string;
+    /** Italian Rainforest (external) */
     exploreRainforest: string;
-    /** Secondary — to the community selection */
-    community: string;
-    /** Tertiary — to the lead form */
+    /** Join the Tribe page (pitch / CV) */
+    join: string;
+    /** Contact form */
     connect: string;
   };
   placeholderBadge: string;
   notFound: { title: string; text: string; back: string };
 }
 
+/** Hero: value proposition (PRD §5.3 step 1). The primary CTA label is ui.cta.start. */
 export interface HeroCopy {
   eyebrow: string;
   title: string;
   titleAccent: string;
   lead: string;
+  secondaryCta: string;
+  /** Alt text of the hero illustration */
   visualLabel: string;
 }
 
-export interface WhyCopy {
+/** Why Rainmakers: the benefits for an entrepreneur (PRD §5.3 step 2). */
+export interface BenefitsCopy {
   eyebrow: string;
   title: string;
-  intro: string;
-  notOnlyLabel: string;
-  notOnly: string[];
-  accessLabel: string;
-  access: string[];
-  statement: string;
-}
-
-export interface AboutCopy {
-  eyebrow: string;
-  title: string;
-  /** Explicit entity definition for search & answer engines (PRD §23). */
+  /** Explicit, quotable entity definition for search & answer engines (PRD §17.4). */
   definition: string;
-  text: string;
-  notTitle: string;
-  notList: string[];
-  notOutro: string;
-  heritageTitle: string;
-  heritage: TitleText[];
-  /** Mission as stated in the company overview */
-  mission: string;
-  founder: {
-    label: string;
-    name: string;
-    role: string;
-    motto: string;
-    quoteTitle: string;
-    quote: string;
-    linkedinLabel: string;
-  };
+  items: TitleText[];
+  audienceLabel: string;
+  audience: string;
+  /** Alt text of the shelter-vs-harvest illustration */
+  artAlt: string;
 }
 
-export interface ModelUnit {
-  key: 'advisory' | 'investments' | 'club' | 'lab' | 'tribe' | 'community';
-  name: string;
-  tagline: string;
-  text: string;
-  forYou: string;
-  items?: string[];
-  stat?: { value: string; label: string };
-  link?: { label: string; target: 'tribe' | 'advisory' };
-}
-
-export interface ModelCopy {
+/** Founder section (PRD §6): only verified facts. */
+export interface FounderCopy {
   eyebrow: string;
   title: string;
-  intro: string;
-  forYouLabel: string;
-  units: ModelUnit[];
+  text: string;
+  name: string;
+  role: string;
+  facts: string[];
+  /** Alt text for the official photo, used once content/shared.ts `founder.photo` is set. */
+  photoAlt: string;
+  video: {
+    title: string;
+    caption: string;
+    play: string;
+  };
+  linkedinLabel: string;
+  youtubeLabel: string;
+  /** Link to the Substack blog, shown under the name "Italian Rainmaker" (PRD §13). */
+  substackLabel: string;
+  cta: string;
 }
 
 export interface TrackCopy {
@@ -186,22 +168,12 @@ export interface TrackCopy {
   };
 }
 
-export interface AccessCopy {
-  eyebrow: string;
-  title: string;
-  intro: string;
-  items: TitleText[];
-  disclaimer: string;
-}
-
 export interface RainforestCopy {
-  eyebrow: string;
+  /** Must be exactly "Italian Rainforest" (PRD §9.1). */
   title: string;
-  tagline: string;
+  headline: string;
   text: string;
   formula: string;
-  exploreLabel: string;
-  explore: string[];
   statsTitle: string;
   statsTotalLabel: string;
   statsItalyLabel: string;
@@ -211,43 +183,32 @@ export interface RainforestCopy {
 }
 
 export interface NetworkNodeCopy {
-  key: 'entrepreneurs' | 'expertise' | 'capital' | 'communities' | 'institutions' | 'corporates' | 'startups';
+  key: 'people' | 'knowledge' | 'community' | 'opportunities' | 'ecosystem' | 'growth';
   label: string;
   text: string;
 }
 
-export interface NetworkCopy {
+/** How Rainmakers works (PRD §5.3 step 4, §8): network infographic, path, business units. */
+export interface HowCopy {
   eyebrow: string;
   title: string;
   intro: string;
   centerLabel: string;
   hint: string;
-  nodes: NetworkNodeCopy[];
   mapLabel: string;
-  layersTitle: string;
-  layers: { name: string; role: string; text: string }[];
-}
-
-export interface HowCopy {
-  eyebrow: string;
-  title: string;
+  nodes: NetworkNodeCopy[];
+  stepsTitle: string;
   steps: TitleText[];
-}
-
-export interface AudienceCopy {
-  eyebrow: string;
-  title: string;
-  intro: string;
-  primaryTitle: string;
-  primary: string[];
-  secondaryTitle: string;
-  secondary: TitleText[];
+  servicesTitle: string;
+  services: { name: string; text: string }[];
 }
 
 export interface Testimonial {
   quote: string;
   people: string;
   company: string;
+  /** File in /public/brand/The-Tribe-companies-favicons/ */
+  logo: string;
   /** Only VERIFIED (authorised, still valid) testimonials are rendered — PRD §26. */
   status: ContentStatus;
   source: string;
@@ -256,6 +217,10 @@ export interface Testimonial {
 export interface ProofCopy {
   eyebrow: string;
   title: string;
+  intro: string;
+  sourceNote: string;
+  /** "Leave a review" hook under the testimonials (opens an email to the team) */
+  review: { hook: string; cta: string; subject: string; body: string };
   testimonials: Testimonial[];
 }
 
@@ -263,8 +228,6 @@ export interface CommunityCopy {
   eyebrow: string;
   title: string;
   text: string;
-  spacesLabel: string;
-  spaces: string[];
   listTitle: string;
   join: string;
   full: string;
@@ -273,6 +236,22 @@ export interface CommunityCopy {
   categoryLabel: string;
   targetLabel: string;
   note: string;
+  /** "Entra su WhatsApp" request form (PRD §10.2): saved in community_requests, then the link is shown. */
+  form: CommunityFormCopy;
+}
+
+export interface CommunityFormCopy {
+  intro: string;
+  firstName: string;
+  email: string;
+  consent: string;
+  privacy: string;
+  submit: string;
+  submitting: string;
+  cancel: string;
+  success: string;
+  open: string;
+  errors: { required: string; email: string; consent: string; tooLong: string; summary: string; generic: string; rateLimited: string };
 }
 
 export interface ConnectCopy {
@@ -325,9 +304,18 @@ export interface FaqCopy {
   items: { q: string; a: string }[];
 }
 
+/** Final conversion section: three ways in, then the contact form (PRD §5.3 step 7). */
 export interface FinalCopy {
+  eyebrow: string;
   title: string;
   text: string;
+  paths: { community: FinalPath; join: FinalPath; contact: FinalPath };
+}
+
+export interface FinalPath {
+  title: string;
+  text: string;
+  cta: string;
 }
 
 export interface FooterCopy {
@@ -339,7 +327,9 @@ export interface FooterCopy {
   privacy: string;
   cookies: string;
   rights: string;
-  rainforestEmailLabel: string;
+  emailLabel: string;
+  /** Follows the Substack name ("Italian Rainmaker"), e.g. "su Substack". */
+  onSubstack: string;
   language: string;
 }
 
@@ -361,17 +351,13 @@ export interface Dictionary {
   meta: MetaCopy;
   ui: UiCopy;
   hero: HeroCopy;
-  why: WhyCopy;
-  about: AboutCopy;
-  access: AccessCopy;
-  rainforest: RainforestCopy;
-  network: NetworkCopy;
-  how: HowCopy;
-  audience: AudienceCopy;
-  model: ModelCopy;
+  benefits: BenefitsCopy;
+  founder: FounderCopy;
   track: TrackCopy;
-  proof: ProofCopy;
+  how: HowCopy;
   community: CommunityCopy;
+  rainforest: RainforestCopy;
+  proof: ProofCopy;
   connect: ConnectCopy;
   faq: FaqCopy;
   final: FinalCopy;

@@ -1,6 +1,12 @@
 import type { FinalCopy } from '../types';
 
 export const final: FinalCopy = {
-  title: 'Don’t build alone. Join the ecosystem.',
-  text: 'Discover people, knowledge, opportunities and communities that can support your entrepreneurial journey.',
+  eyebrow: 'Join Rainmakers',
+  title: 'Where would you like to start?',
+  text: 'Pick the step that suits you best.',
+  paths: {
+    community: { title: 'Join a community', text: 'Meet other founders on WhatsApp.', cta: 'See the communities' },
+    join: { title: 'Send your pitch or CV', text: 'Have a startup or want to work with us?', cta: 'Join the Tribe' },
+    contact: { title: 'Talk to us', text: 'Tell us what you need and the team will get back to you.', cta: 'Fill in the form' },
+  },
 };

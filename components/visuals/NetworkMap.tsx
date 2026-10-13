@@ -1,36 +1,36 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import type { NetworkCopy, NetworkNodeCopy } from '@/content/types';
+import type { HowCopy, NetworkNodeCopy } from '@/content/types';
 
 /**
- * Interactive ecosystem network (PRD §14): Rainmakers at the centre, seven actor groups around it,
- * connected to the centre and to each other. Selecting a node highlights its relationships.
+ * Interactive network (PRD §8.2): the entrepreneur at the centre, connected to people, knowledge,
+ * community, opportunities, ecosystem and growth, which are linked to each other. Selecting a node
+ * highlights its relationships. Conceptual only: no metrics or real relationships are simulated.
  * - Real <button>s (keyboard + screen readers), state announced in a live region
  * - Gentle auto-tour until the user interacts; disabled with prefers-reduced-motion
  */
 
 type Key = NetworkNodeCopy['key'];
 
-/** Relationships between actor groups (besides each one's link to the centre). */
+/** How the elements reinforce each other (besides each one's link to the centre). */
 const LINKS: [Key, Key][] = [
-  ['entrepreneurs', 'expertise'],
-  ['entrepreneurs', 'capital'],
-  ['entrepreneurs', 'communities'],
-  ['startups', 'capital'],
-  ['startups', 'corporates'],
-  ['startups', 'expertise'],
-  ['corporates', 'institutions'],
-  ['institutions', 'communities'],
-  ['capital', 'corporates'],
-  ['communities', 'startups'],
+  ['people', 'knowledge'],
+  ['people', 'community'],
+  ['knowledge', 'community'],
+  ['community', 'opportunities'],
+  ['people', 'opportunities'],
+  ['ecosystem', 'people'],
+  ['ecosystem', 'opportunities'],
+  ['opportunities', 'growth'],
+  ['knowledge', 'growth'],
 ];
 
 const SIZE = 600;
 const C = SIZE / 2;
 const R = 215;
 
-type Copy = Pick<NetworkCopy, 'centerLabel' | 'hint' | 'nodes' | 'mapLabel'>;
+type Copy = Pick<HowCopy, 'centerLabel' | 'hint' | 'nodes' | 'mapLabel'>;
 
 export function NetworkMap({ copy }: { copy: Copy }) {
   const uid = useId();

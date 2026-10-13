@@ -9,6 +9,30 @@ export const site = {
   url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.rainmakers.it').replace(/\/$/, ''),
 } as const;
 
+/**
+ * Francesco Inguscio's personal blog, shown under the name "Italian Rainmaker" (PRD §13).
+ * URL updated on 2026-10-12: francescoinguscio.substack.com returns 404; italianrainmaker.substack.com
+ * is "Il Substack di Italian Rainmaker" (same name as the founder's YouTube channel) — TO CONFIRM with the team.
+ */
+export const substack = {
+  name: 'Italian Rainmaker',
+  url: 'https://italianrainmaker.substack.com',
+} as const;
+
+/**
+ * Founder section assets (PRD §6).
+ * `photo`: path under /public of the official, team-approved photo (square, ≥ 800 px).
+ * Leave null to show the circular placeholder — never use a generated or unapproved image.
+ */
+export const founderProfile = {
+  photo: null as string | null,
+  linkedinUrl: 'https://www.linkedin.com/in/italianrainmaker',
+  /** Channel "Italian Rainmaker" — author of the video below (YouTube oEmbed). */
+  youtubeUrl: 'https://www.youtube.com/@InguscioFrancesco1981',
+  /** "IF - Inguscio Francesco - 2014 - Nuovi Occhi (per Imprenditori e Paese) (ITA)" */
+  videoId: 'v_fRsxaAzyU',
+};
+
 export const facts = {
   /** "Since 2011" — rainmakers.it (EN), "Who we are". */
   foundingYear: fact(2011, 'VERIFIED', 'rainmakers.it/en — “We are Rainmakers. Since 2011.”'),
@@ -16,10 +40,11 @@ export const facts = {
   city: fact('Milano', 'VERIFIED', 'rainmakers.it/en — “Based in Milan”'),
   /** Legal entity, address and VAT appear on nuvolab.com (2021). Not shown until confirmed (PRD §48). */
   legalEntity: fact(PH.provided, 'TO_VERIFY', 'nuvolab.com footer (2021)', 'Rainmakers s.r.l. a Socio Unico, Via Carducci 8, Milano — confirm before publishing'),
-  /** General contact email: not confirmed → the site routes contact through the form. */
-  contactEmail: fact(PH.provided, 'PLACEHOLDER'),
-  /** Italian Rainforest contact — published on italian-innovation-map.vercel.app. */
-  rainforestEmail: fact('italianrainforest@rainmakers.it', 'VERIFIED', 'italian-innovation-map.vercel.app/en — Contact'),
+  /**
+   * Operational contact address for every mailto on the site, including Italian Rainforest updates (PRD §12).
+   * Replaces italianrainforest@rainmakers.it on this site; the Italian Rainforest site itself is out of scope.
+   */
+  contactEmail: fact('info@rainmakers.it', 'VERIFIED', 'PRD Rainmakers Website Optimization v2.0, §12'),
 };
 
 /** Only verified profiles go here (used in footer and schema.org sameAs). */
@@ -31,12 +56,18 @@ export const rainforest = {
   url: 'https://italian-innovation-map.vercel.app',
   urlFor: (locale: 'it' | 'en') => `https://italian-innovation-map.vercel.app/${locale}`,
   /**
+   * Section background (PRD §9.3) — the only place to change it. Path under /public, or null for the
+   * brand gradient fallback. Current file: the rainforest WebP supplied in the project folder on 2026-10-12
+   * ("WhatsApp Image 2026-10-12 at 10.19.17.webp"), 1600×900 — TO CONFIRM as the final asset and its licence.
+   */
+  background: '/brand/italian-rainforest-bg.webp' as string | null,
+  /**
    * Public figures shown on Italian Rainforest on the date below (VERIFIED, dated).
-   * Update `asOf` and the numbers at each release.
+   * Re-checked against the live map on 2026-10-12: unchanged. Update `asOf` and the numbers at each release.
    */
   stats: {
     status: 'VERIFIED' as const,
-    asOf: '2026-10-06',
+    asOf: '2026-10-12',
     activeOrganisations: 412,
     italy: 308,
     categories: [
@@ -52,20 +83,13 @@ export const rainforest = {
   },
 } as const;
 
-/**
- * Logo files (PRD §31). Set `available: true` once the files are in public/brand/.
- * Until then the Logo component renders a provisional wordmark.
- */
+/** Official white logo artwork and square mark supplied for the site. */
 export const brand = {
-  available: false,
+  available: true,
   files: {
-    white: '/brand/logo-standard-white.svg',
-    black: '/brand/logo-standard-black.svg',
-    color: '/brand/logo-standard-color.svg',
-    squareWhite: '/brand/logo-square-white.svg',
-    squareBlack: '/brand/logo-square-black.svg',
-    squareColor: '/brand/logo-square-color.svg',
-    squarePng: '/brand/logo-square-color.png',
+    white: '/brand/logo-standard-white.png',
+    squareWhite: '/brand/logo-mark-white.png',
+    squarePng: '/icon.png',
   },
 } as const;
 

@@ -4,7 +4,7 @@ export const connect: ConnectCopy = {
   eyebrow: 'Contact',
   title: 'Connect with Rainmakers',
   intro:
-    'Tell us who you are and what you’re looking for. It helps us point you to the most relevant people, communities and resources.',
+    'Tell us who you are and what you need: we’ll point you to the right people, communities and resources.',
   form: {
     firstName: 'First name',
     lastName: 'Last name',
@@ -47,7 +47,7 @@ export const connect: ConnectCopy = {
     text: 'Now discover the ecosystem around you.',
     nextTitle: 'Your next step',
     rainforestText: 'Explore who operates in Italy’s innovation ecosystem.',
-    communityText: 'Choose the community closest to your interests.',
+    communityText: 'Send us your startup project or CV to get in touch.',
     reset: 'Send another request',
   },
 };

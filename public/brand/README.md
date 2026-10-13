@@ -1,15 +1,7 @@
-# Brand assets — TODO_CONFIRM
+# Rainmakers logo assets
 
-Drop the official logo files here with these names (PRD §66):
+The supplied white PNG lockup is saved as `logo-standard-white.png`. Its square mark crop,
+`logo-mark-white.png`, is used in the site header and footer. The matching PNG favicon is
+generated at `app/icon.png`.
 
-| File | Used for |
-|---|---|
-| `logo-standard-white.svg` | Header and footer (dark background) |
-| `logo-standard-black.svg` | Light contexts (print, partner pages) |
-| `logo-standard-color.svg` | Light contexts |
-| `logo-square-white.svg` | Social avatars |
-| `logo-square-black.svg` | — |
-| `logo-square-color.png` (512×512) | schema.org `Organization.logo` |
-| `logo-square-color.svg` | Replace `app/icon.svg` (favicon) |
-
-Then update `components/Logo.tsx` (instructions in the file).
+Only the white artwork was supplied; black and color variants are not available.

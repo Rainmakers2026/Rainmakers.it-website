@@ -3,28 +3,22 @@ import { SECTION_IDS } from '@/content/types';
 import type { Community as CommunityItem } from '@/content/shared';
 import { isPlaceholder } from '@/content/governance';
 import { PhText } from '../PhText';
+import { CommunityJoin } from '../CommunityJoin';
 import { WhatsApp } from '../icons';
 import { SectionHeader, cssVars } from '../ui';
 
-/** 09 — Community / WhatsApp: conversion section, data-driven (PRD §16–17). */
+/** Community / WhatsApp (PRD §5.3 step 5), data-driven. Communities still without a confirmed name are not listed. */
 export function Community({ dict, locale, communities }: { dict: Dictionary; locale: Locale; communities: CommunityItem[] }) {
   const c = dict.community;
+  const listed = communities.filter((item) => !isPlaceholder(item.name[locale]));
   return (
     <section id={SECTION_IDS.community} className="section section--deep community" aria-labelledby="community-title">
       <div className="container">
         <SectionHeader eyebrow={c.eyebrow} title={c.title} intro={c.text} id="community-title" />
-        <div className="community__spaces reveal">
-          <span className="community__spaces-label">{c.spacesLabel}</span>
-          <ul className="tags">
-            {c.spaces.map((s) => (
-              <li key={s}>{s}</li>
-            ))}
-          </ul>
-        </div>
 
         <h3 className="h3 community__list-title reveal">{c.listTitle}</h3>
         <ul className="community__list">
-          {communities.map((item, i) => {
+          {listed.map((item, i) => {
             const name = item.name[locale];
             const description = item.description[locale];
             const canJoin = item.status === 'active' && !!item.whatsappUrl && !isPlaceholder(item.whatsappUrl);
@@ -42,22 +36,16 @@ export function Community({ dict, locale, communities }: { dict: Dictionary; loc
                   {description ? <PhText as="p" value={description} badge={dict.ui.placeholderBadge} /> : null}
                 </div>
                 {canJoin ? (
-                  <a
-                    className="btn btn--primary btn--block"
-                    href={item.whatsappUrl!}
-                    target="_blank"
-                    rel="noopener"
-                    data-track="whatsapp_click"
-                    data-location="community_section"
-                    data-community={item.slug}
-                  >
-                    <WhatsApp aria-hidden />
-                    <span>{c.join}</span>
-                    <span className="sr-only">
-                      {' '}
-                      — {name} {dict.ui.a11y.external}
-                    </span>
-                  </a>
+                  <>
+                    {/* Short request form → community_requests, then the link (PRD §10.2) */}
+                    <CommunityJoin slug={item.slug} name={name} joinLabel={c.join} copy={c.form} locale={locale} external={dict.ui.a11y.external} />
+                    <noscript>
+                      <a className="btn btn--primary btn--block" href={item.whatsappUrl!} target="_blank" rel="noopener">
+                        <WhatsApp aria-hidden />
+                        <span>{c.join}</span>
+                      </a>
+                    </noscript>
+                  </>
                 ) : (
                   <p className="community-card__status">
                     {item.status === 'full' ? c.full : item.status === 'coming_soon' ? c.comingSoon : null}
@@ -71,7 +59,7 @@ export function Community({ dict, locale, communities }: { dict: Dictionary; loc
 
         <p className="community__note reveal">
           {c.note}{' '}
-          <a href={`#${SECTION_IDS.connect}`} className="link-arrow link-arrow--down" data-track="contact_cta_click" data-location="community_note">
+          <a href="#connect-form" className="link-arrow link-arrow--down" data-track="contact_cta_click" data-location="community_note">
             {dict.ui.cta.connect}
           </a>
         </p>

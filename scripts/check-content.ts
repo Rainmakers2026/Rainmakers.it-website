@@ -36,7 +36,7 @@ shape(it, 'dict', en);
 for (const dict of [it, en]) {
   const values = dict.connect.form.profiles.map((o) => o.value).join(',');
   if (values !== PROFILE_TYPES.join(',')) fail(`${dict.locale}.connect.form.profiles differ from lib/options.ts`);
-  if (dict.network.nodes.length !== 7) fail(`${dict.locale}.network.nodes must list the 7 actor groups`);
+  if (dict.how.nodes.length !== 6) fail(`${dict.locale}.how.nodes must list the 6 network elements (PRD §8.2)`);
 }
 
 if (failures) {

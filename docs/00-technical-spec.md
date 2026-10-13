@@ -12,7 +12,7 @@ Principio di prodotto (§54): *Rainmakers is not just a company you discover. It
 | Area | v1 (PRD precedente) | v2 (questo PRD) |
 |---|---|---|
 | CTA primaria | "Entra in Rainmakers" → form | **Esplora l'ecosistema → Italian Rainforest** (§37) |
-| CTA secondaria | Esplora Rainforest | **Entra nella community → selezione community** |
+| CTA secondaria | Esplora Rainforest | **Join the Tribe → `/[locale]/join`** (modulo progetto startup o CV) |
 | CTA terziaria | Parla con Rainmakers (intento del form) | **Connettiti con Rainmakers → form** |
 | Community | 1 richiesta d'accesso generica via form | **Elenco community letto da Supabase** (`communities`), più community, link WhatsApp diretti, nessun hardcode (§16–17) |
 | Form | 6 obbligatori + blocco opzionale + 3 intenti | **Nome, cognome, email, azienda, ruolo, profilo (obbligatori); sito/LinkedIn e "cosa cerchi" facoltativi; consenso** (§18–19) |
@@ -36,15 +36,17 @@ Principio di prodotto (§54): *Rainmakers is not just a company you discover. It
 ```
 Browser ──► Vercel (Next.js 15, App Router, RSC)
               ├─ /it, /en            pagine statiche (SSG) + ISR 5 min per le community
+              ├─ /it/join, /it/news (+ /en)
               ├─ /it/privacy, /it/cookie (+ /en)
               ├─ /api/lead            Route Handler (Node) → Supabase RPC submit_lead()
+              ├─ /api/newsletter      Route Handler (Node) → newsletter_subscribers
               └─ opengraph-image      generata in build per lingua
 Supabase (Postgres, EU)
   ├─ leads                 scrittura solo via RPC (service key, server-side)
   ├─ communities           lettura pubblica delle righe attive (RLS) — fonte delle card community
   ├─ content               futuro CMS leggero (vuota)
   ├─ ecosystem_links       futuri link/risorse (vuota)
-  └─ newsletter_subscribers futuro (vuota)
+  └─ newsletter_subscribers iscrizioni newsletter (consenso, lingua e stato)
 GitHub ──► Vercel (preview per branch, production su main)
 ```
 

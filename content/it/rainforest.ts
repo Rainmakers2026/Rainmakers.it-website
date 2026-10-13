@@ -1,24 +1,11 @@
 import type { RainforestCopy } from '../types';
 
 export const rainforest: RainforestCopy = {
-  eyebrow: 'Italian Rainforest',
-  title: 'La tua porta d’ingresso all’ecosistema italiano dell’innovazione.',
-  tagline: 'Conosci l’ecosistema. Navigalo. Entrane a far parte.',
+  title: 'Italian Rainforest',
+  headline: 'Scopri l’ecosistema dietro le connessioni.',
   text:
-    'Italian Rainforest è la mappa e il database dell’ecosistema italiano dell’innovazione, creati da Rainmakers. Rende più facile scoprire, capire e navigare chi opera nell’ecosistema: dati consultabili, aggiornati con il contributo della community e disponibili come open data per uso non commerciale.',
-  formula: 'Rainmakers ti apre l’accesso. Italian Rainforest ti permette di esplorare.',
-  exploreLabel: 'Esplora',
-  explore: [
-    'investitori',
-    'incubatori e acceleratori',
-    'startup studio',
-    'corporate venture capital',
-    'community',
-    'istituzioni',
-    'spazi di coworking',
-    'programmi',
-    'altri innovation enabler',
-  ],
+    'Italian Rainforest è la mappa dell’ecosistema italiano dell’innovazione, creata da Rainmakers: uno strumento per esplorare investitori, incubatori, acceleratori e altre organizzazioni e scoprire nuove possibilità di connessione. Dati aperti per uso non commerciale.',
+  formula: 'Rainmakers ti apre l’accesso. Italian Rainforest ti fa esplorare. Le community ti fanno partecipare.',
   statsTitle: 'Cosa trovi oggi nella mappa',
   statsTotalLabel: 'organizzazioni attive mappate',
   statsItalyLabel: 'con sede in Italia',

@@ -1,14 +1,24 @@
 import type { Metadata } from 'next';
 import type { Dictionary, Locale } from '@/content/types';
 import { isPlaceholder } from '@/content/governance';
-import { brand, facts, rainforest, site, socialProfiles } from '@/content/shared';
+import { brand, facts, founderProfile, rainforest, site, socialProfiles } from '@/content/shared';
 import { ogLocale, otherLocale } from './i18n';
 
 export const localeUrl = (locale: Locale, path = '') => `${site.url}/${locale}${path}`;
 
+/**
+ * Page metadata with a self-referencing canonical and it/en/x-default alternates for `path`.
+ * Every page under [locale] must call this (Next.js merges metadata shallowly: a page that only sets
+ * title/description would inherit the homepage canonical). A string `title`/`description` in
+ * `overrides` is also used for Open Graph and Twitter.
+ */
 export function buildMetadata(dict: Dictionary, path = '', overrides: Partial<Metadata> = {}): Metadata {
   const locale = dict.locale;
   const url = localeUrl(locale, path);
+  const pageTitle = typeof overrides.title === 'string' ? overrides.title : null;
+  const pageDescription = typeof overrides.description === 'string' ? overrides.description : null;
+  const ogTitle = pageTitle ?? dict.meta.ogTitle;
+  const ogDescription = pageDescription ?? dict.meta.ogDescription;
   return {
     metadataBase: new URL(site.url),
     title: dict.meta.title,
@@ -23,12 +33,12 @@ export function buildMetadata(dict: Dictionary, path = '', overrides: Partial<Me
       type: 'website',
       siteName: site.name,
       url,
-      title: dict.meta.ogTitle,
-      description: dict.meta.ogDescription,
+      title: ogTitle,
+      description: ogDescription,
       locale: ogLocale(locale),
       alternateLocale: [ogLocale(otherLocale(locale))],
     },
-    twitter: { card: 'summary_large_image', title: dict.meta.ogTitle, description: dict.meta.ogDescription },
+    twitter: { card: 'summary_large_image', title: ogTitle, description: ogDescription },
     robots: { index: true, follow: true },
     formatDetection: { telephone: false, email: false, address: false },
     ...overrides,
@@ -36,13 +46,15 @@ export function buildMetadata(dict: Dictionary, path = '', overrides: Partial<Me
 }
 
 /**
- * schema.org graph (PRD §23–24) built ONLY from verified facts:
- * no address, VAT, email or social profiles until confirmed.
+ * schema.org graph (PRD §17.5) built ONLY from verified facts, consistent with the visible page:
+ * no address, VAT or unconfirmed profiles. The contact email is the operational address from PRD §12.
+ * No VideoObject: Google requires the upload date, which is not publicly verifiable here.
  */
 export function buildJsonLd(dict: Dictionary) {
   const locale = dict.locale;
   const lang = locale === 'it' ? 'it-IT' : 'en';
   const orgId = `${site.url}/#organization`;
+  const founderId = `${site.url}/#founder`;
   const websiteId = `${site.url}/#website`;
   const rainforestId = `${rainforest.url}/#dataset`;
   const pageUrl = localeUrl(locale);
@@ -54,9 +66,10 @@ export function buildJsonLd(dict: Dictionary) {
     name: site.name,
     alternateName: ['Rainmakers Italia', 'Rainmakers Italy', 'Nuvolab'],
     url: site.url,
-    description: dict.about.definition,
-    slogan: dict.about.mission,
-    founder: { '@type': 'Person', name: dict.about.founder.name, sameAs: 'https://www.linkedin.com/in/italianrainmaker' },
+    description: dict.benefits.definition,
+    founder: { '@id': founderId },
+    email: facts.contactEmail.value,
+    contactPoint: { '@type': 'ContactPoint', email: facts.contactEmail.value, contactType: 'customer support', availableLanguage: ['Italian', 'English'] },
     memberOf: { '@type': 'Organization', name: 'InnovUp' },
     foundingDate: String(facts.foundingYear.value),
     foundingLocation: { '@type': 'Place', name: 'Milano, Italia' },
@@ -72,6 +85,15 @@ export function buildJsonLd(dict: Dictionary) {
     '@context': 'https://schema.org',
     '@graph': [
       organization,
+      // Founder section (visible on the page). sameAs: verified profiles only — the Substack is still to be confirmed.
+      {
+        '@type': 'Person',
+        '@id': founderId,
+        name: dict.founder.name,
+        jobTitle: dict.founder.role,
+        worksFor: { '@id': orgId },
+        sameAs: [founderProfile.linkedinUrl, founderProfile.youtubeUrl],
+      },
       {
         '@type': 'Dataset',
         '@id': rainforestId,
