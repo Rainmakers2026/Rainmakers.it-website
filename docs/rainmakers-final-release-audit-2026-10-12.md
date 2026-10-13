@@ -281,3 +281,7 @@ TBT 319 → 161 ms; homepage JS unchanged (140 kB); CLS 0. Word count IT 1,146 /
 ### Checks
 `tsc` ✅ · eslint on changed code ✅ · `npm test` 96/96 ✅ (24 + 28 + 24 + 20) · production build ✅ ·
 screenshots 1440 / 1024 / 390 + popup + footer ✅.
+
+### Preview
+**https://rainmakers-fzpe4ydh6-rainmakers3.vercel.app** — commit `09e8699`, target `preview`, Ready; `/it`, `/en`,
+`/it/join`, sitemap → 200; `/api/review` deployed (GET → 405). No production deployment.
