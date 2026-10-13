@@ -213,6 +213,9 @@ review panel ("not configured" without Supabase). With credentials, follow `docs
   - Published at the team’s request. If an author withdraws consent, set that testimonial back to
     `TO_VERIFY` in `content/{it,en}/proof.ts` and it disappears.
   - `components/sections/Testimonials.tsx` (older client carousel) is no longer used; kept, not deleted.
+- **Footer social icons**: Facebook (`facebook.com/rainmakerssrl`, linked from the official rainmakers.it) as
+  an icon under the brand, also in the Organization `sameAs`. Instagram icon ready but hidden: no profile
+  URL is linked from rainmakers.it — add it in `content/shared.ts` → `socialProfiles` once confirmed.
 
 ### Lighthouse (mobile, local production builds, `/it`)
 | Version | Performance | Accessibility | Best practices | SEO | Notes |
@@ -232,6 +235,8 @@ hero markup or moving the reviews below a "show more" are the next levers.
 
 ### Release actions (approved 13 October 2026)
 - Branch `feat/website-optimization` created from `main`; work committed there (`main` untouched).
-- Pushed to GitHub; Vercel Preview: PREVIEW_STATUS
+- GitHub push **refused** (403: account `charliox` has no write access to
+  `Rainmakers2026/Rainmakers.it-website`). Preview created instead with `vercel deploy` (no `--prod`)
+  from a clean `git archive` of the commit (no local env files uploaded): PREVIEW_STATUS
 - **No production deployment.** Production blockers in section 6 still apply (Supabase, Brevo, legal
   texts, domain plan, live end-to-end tests).

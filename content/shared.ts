@@ -47,9 +47,12 @@ export const facts = {
   contactEmail: fact('info@rainmakers.it', 'VERIFIED', 'PRD Rainmakers Website Optimization v2.0, §12'),
 };
 
-/** Only verified profiles go here (used in footer and schema.org sameAs). */
-export const socialProfiles: { name: string; url: string }[] = [
-  // Facebook "rainmakerssrl" appears in 2021 site metadata — TO_VERIFY, not listed until confirmed.
+/** Only verified profiles go here (footer icons and schema.org sameAs). */
+export const socialProfiles: { name: string; url: string; icon: 'facebook' | 'instagram' }[] = [
+  // Linked from the official rainmakers.it header/footer (checked 2026-10-13)
+  { name: 'Facebook', url: 'https://www.facebook.com/rainmakerssrl/', icon: 'facebook' },
+  // Instagram: no profile is linked from rainmakers.it. Add it here once confirmed (the icon is ready):
+  // { name: 'Instagram', url: 'https://www.instagram.com/<handle>/', icon: 'instagram' },
 ];
 
 export const rainforest = {

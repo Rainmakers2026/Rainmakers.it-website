@@ -58,6 +58,19 @@ export const WhatsApp = (p: P) => (
 );
 
 /* Pillar / concept icons — simple, original line drawings */
+/** Brand marks for the footer social links (simplified, single colour). */
+export const Facebook = (p: P) => (
+  <svg {...base(p)} fill="currentColor" stroke="none">
+    <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21h3Z" />
+  </svg>
+);
+export const Instagram = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+  </svg>
+);
 export const IconNetwork = (p: P) => (
   <svg {...base(p)}>
     <circle cx="12" cy="5" r="2" />

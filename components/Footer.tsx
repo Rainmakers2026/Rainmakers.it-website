@@ -4,6 +4,9 @@ import { facts, rainforest, socialProfiles, substack } from '@/content/shared';
 import { navItems } from '@/lib/nav';
 import { Logo } from './Logo';
 import { NewsletterSignup } from './NewsletterSignup';
+import { Facebook, Instagram } from './icons';
+
+const socialIcons = { facebook: Facebook, instagram: Instagram };
 
 /**
  * Footer (PRD §48). No address or company data until confirmed as current.
@@ -19,6 +22,20 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
         <div className="site-footer__brand">
           <Logo variant="white" />
           <p>{f.tagline}</p>
+          {socialProfiles.length ? (
+            <ul className="social-links">
+              {socialProfiles.map((s) => {
+                const Icon = socialIcons[s.icon];
+                return (
+                  <li key={s.url}>
+                    <a href={s.url} target="_blank" rel="noopener me" aria-label={`Rainmakers — ${s.name} ${dict.ui.a11y.external}`}>
+                      <Icon aria-hidden width={20} height={20} />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
         </div>
 
         <nav aria-label={f.explore}>
@@ -49,14 +66,6 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
               <span className="muted">{f.emailLabel}: </span>
               <a href={`mailto:${facts.contactEmail.value}`}>{facts.contactEmail.value}</a>
             </li>
-            {socialProfiles.map((s) => (
-              <li key={s.url}>
-                <a href={s.url} target="_blank" rel="noopener me">
-                  {s.name}
-                  <span className="sr-only"> {dict.ui.a11y.external}</span>
-                </a>
-              </li>
-            ))}
             <li>
               <a href={substack.url} target="_blank" rel="noopener">
                 {substack.name} {f.onSubstack} ↗<span className="sr-only"> {dict.ui.a11y.external}</span>
