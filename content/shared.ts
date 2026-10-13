@@ -3,6 +3,7 @@
  * Sources: see docs/01-content-audit.md. Run `npm run check:placeholders` before release.
  */
 import { PH, fact } from './governance';
+import type { ContentStatus } from './governance';
 
 export const site = {
   name: 'Rainmakers',
@@ -47,13 +48,19 @@ export const facts = {
   contactEmail: fact('info@rainmakers.it', 'VERIFIED', 'PRD Rainmakers Website Optimization v2.0, §12'),
 };
 
-/** Only verified profiles go here (footer icons and schema.org sameAs). */
-export const socialProfiles: { name: string; url: string; icon: 'facebook' | 'instagram' }[] = [
+/**
+ * Footer social icons. Only VERIFIED profiles go into schema.org sameAs; PLACEHOLDER ones are shown as icons
+ * with a dummy link (listed by `npm run check:placeholders`) until the real URL is provided.
+ */
+export const socialProfiles: { name: string; url: string; icon: 'facebook' | 'instagram'; status: ContentStatus }[] = [
   // Linked from the official rainmakers.it header/footer (checked 2026-10-13)
-  { name: 'Facebook', url: 'https://www.facebook.com/rainmakerssrl/', icon: 'facebook' },
-  // Instagram: no profile is linked from rainmakers.it. Add it here once confirmed (the icon is ready):
-  // { name: 'Instagram', url: 'https://www.instagram.com/<handle>/', icon: 'instagram' },
+  { name: 'Facebook', url: 'https://www.facebook.com/rainmakerssrl/', icon: 'facebook', status: 'VERIFIED' },
+  // Not linked anywhere on rainmakers.it: replace PH.link with the profile URL and set status to 'VERIFIED'
+  { name: 'Instagram', url: PH.link, icon: 'instagram', status: 'PLACEHOLDER' },
 ];
+
+/** Where founders leave a review (e.g. the Google Business Profile "write a review" link). */
+export const reviewLink = fact(PH.link, 'PLACEHOLDER', undefined, 'Review platform link (e.g. Google Business Profile) to be provided');
 
 export const rainforest = {
   url: 'https://italian-innovation-map.vercel.app',

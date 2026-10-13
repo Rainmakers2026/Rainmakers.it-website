@@ -1,27 +1,31 @@
 import Image from 'next/image';
 import type { Dictionary } from '@/content/types';
 import { SECTION_IDS } from '@/content/types';
-import { facts } from '@/content/shared';
+import { reviewLink } from '@/content/shared';
+import { isPlaceholder } from '@/content/governance';
 import { cssVars, SectionHeader } from '../ui';
 import { ArrowRight } from '../icons';
+import { ReviewForm } from '../ReviewForm';
 
 /**
  * "Dicono di noi" (PRD §26): every VERIFIED testimonial, then a hook asking Tribe founders for a review.
- * Server-rendered, no client JS: cards slide in from alternating sides with CSS scroll-driven animations.
- * The review CTA opens a pre-filled email to the team (asks for consent to publish).
+ * Server-rendered, no client JS: cards slide in with CSS scroll-driven animations, then float, drip and
+ * catch a passing light (paused off-screen via data-fx). The CTA opens a native popover with the review form
+ * (POST /api/review → Supabase + email to info@rainmakers.it) and the review-platform link (placeholder until
+ * provided: content/shared.ts → reviewLink).
  */
 export function Reviews({ dict }: { dict: Dictionary }) {
   const p = dict.proof;
   const items = p.testimonials.filter((t) => t.status === 'VERIFIED');
-  const mail = `mailto:${facts.contactEmail.value}?subject=${encodeURIComponent(p.review.subject)}&body=${encodeURIComponent(p.review.body)}`;
+  const pendingLink = isPlaceholder(reviewLink.value);
   return (
-    <section id={SECTION_IDS.reviews} className="section section--base reviews" aria-labelledby="reviews-title">
+    <section id={SECTION_IDS.reviews} className="section section--base reviews" aria-labelledby="reviews-title" data-fx>
       <div className="container">
         <SectionHeader eyebrow={p.eyebrow} title={p.title} intro={p.intro} id="reviews-title" align="center" />
         {items.length ? (
           <ul className="reviews__grid">
             {items.map((r, i) => (
-              <li key={r.company} className={`review review--${i % 2 ? 'r' : 'l'}`} style={cssVars({ '--i': i % 3 })}>
+              <li key={r.company} className={`review review--${i % 2 ? 'r' : 'l'}`} style={cssVars({ '--i': i % 3, '--n': i })}>
                 <figure>
                   <span className="review__drop" aria-hidden />
                   <blockquote>
@@ -49,10 +53,20 @@ export function Reviews({ dict }: { dict: Dictionary }) {
             </svg>
           </span>
           <p className="review-cta__hook">{p.review.hook}</p>
-          <a className="btn btn--primary review-cta__btn" href={mail} data-track="review_cta_click" data-location="reviews">
+          <button type="button" className="btn btn--primary review-cta__btn" popoverTarget="review-pop" data-track="review_cta_click" data-location="reviews">
             <span>{p.review.cta}</span>
             <ArrowRight aria-hidden />
-          </a>
+          </button>
+        </div>
+
+        <div id="review-pop" popover="auto" className="review-pop" role="dialog" aria-labelledby="review-pop-title">
+          <button type="button" className="review-pop__close" popoverTarget="review-pop" popoverTargetAction="hide" aria-label={p.review.close}>
+            <span aria-hidden>×</span>
+          </button>
+          <span className="review-pop__drop" aria-hidden />
+          <h3 id="review-pop-title" className="review-pop__title">{p.review.popTitle}</h3>
+          <p className="review-pop__text">{p.review.popText}</p>
+          <ReviewForm copy={p.review.form} locale={dict.locale} external={dict.ui.a11y.external} platformUrl={pendingLink ? null : reviewLink.value} />
         </div>
       </div>
     </section>

@@ -13,6 +13,7 @@ export type AnalyticsEvent =
   | 'community_cta_click'
   | 'contact_cta_click'
   | 'review_cta_click'
+  | 'review_submit'
   | 'lead_form_start'
   | 'lead_form_submit'
   | 'lead_form_error'

@@ -7,6 +7,8 @@ import { PROFILE_TYPES, UTM_KEYS } from './options';
  * Error messages are stable codes, translated via connect.form.errors.
  */
 export type ErrorCode = 'required' | 'email' | 'url' | 'consent' | 'tooLong';
+/** The review form adds a minimum length. */
+export type ReviewErrorCode = ErrorCode | 'tooShort';
 /** Join the Tribe adds the file rules (lib/uploads.ts). */
 export type JoinErrorCode = ErrorCode | 'fileOrLink' | 'fileType' | 'fileTooLarge';
 
@@ -122,6 +124,24 @@ export const newsletterSchema = z.object({
   website: z.string().max(0).optional(),
   elapsedMs: z.number().int().nonnegative().optional(),
 });
+
+/** "Lascia una review" (POST /api/review → reviews, email to info@rainmakers.it). Privacy consent required. */
+export const reviewSchema = z.object({
+  locale: z.enum(locales),
+  name: required(120),
+  email: z.string({ required_error: 'required' }).trim().toLowerCase().min(1, 'required').max(254, 'tooLong').email('email'),
+  company: z.string().trim().max(120, 'tooLong').optional(),
+  role: z.string().trim().max(120, 'tooLong').optional(),
+  rating: z.number().int().min(1).max(5).optional(),
+  review: z.string({ required_error: 'required' }).trim().min(1, 'required').min(20, 'tooShort').max(1500, 'tooLong'),
+  publishConsent: z.boolean().optional(),
+  consent: z.literal(true, { errorMap: () => ({ message: 'consent' }) }),
+  idempotencyKey,
+  utm: z.record(z.enum(UTM_KEYS), z.string().max(200)).optional(),
+  company_website_hp: z.string().max(0).optional(),
+  elapsedMs: z.number().int().nonnegative().optional(),
+});
+export type ReviewSubmission = z.output<typeof reviewSchema>;
 
 /** Flattens zod issues into { field: code } (first issue per field). */
 export function toFieldErrors(error: z.ZodError): Record<string, ErrorCode> {

@@ -3463,18 +3463,20 @@ html:not(.js) .netmap__spoke {
   position: absolute;
   z-index: 0;
   top: 50%;
-  right: max(-40px, calc((100vw - 1440px) / 2));
-  width: min(64vw, 1040px);
+  /* kept to the right of the copy: the scene starts where the text column ends */
+  right: max(-64px, calc((100vw - 1440px) / 2 - 64px));
+  width: min(58vw, 900px);
   transform: translateY(-46%);
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 100%);
+  /* soft vignette on every side: the scene dissolves into the page instead of ending on a hard edge */
+  -webkit-mask-image: radial-gradient(ellipse 70% 66% at 56% 48%, #000 56%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 66% at 56% 48%, #000 56%, transparent 100%);
 }
 @media (max-width: 1100px) {
   .hero__art {
-    width: 64vw;
-    right: -8vw;
-    opacity: 0.8;
+    width: 60vw;
+    right: -10vw;
+    opacity: 0.85;
   }
 }
 /* Stacked: illustration on top, copy below (tablet portrait and phones) */
@@ -3490,8 +3492,8 @@ html:not(.js) .netmap__spoke {
     width: min(122vw, 760px);
     opacity: 1;
     transform: translateX(-50%);
-    -webkit-mask-image: linear-gradient(180deg, #000 58%, transparent 92%);
-    mask-image: linear-gradient(180deg, #000 58%, transparent 92%);
+    -webkit-mask-image: radial-gradient(ellipse 78% 72% at 50% 46%, #000 60%, transparent 100%);
+    mask-image: radial-gradient(ellipse 78% 72% at 50% 46%, #000 60%, transparent 100%);
   }
 }
 
@@ -4126,25 +4128,509 @@ html:not(.js) .netmap__spoke {
   }
 }
 
-/* Footer social icons */
-.social-links {
+/* Footer social icons: large, brand-coloured, labelled */
+.social {
+  margin-top: 24px;
+}
+.social__label {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.site-footer__brand .social__label {
+  margin-top: 0;
+  color: #fff;
+}
+/* side by side (overrides the footer list grid) */
+.site-footer .social-links {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .social-links a {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--line-strong);
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
   color: #fff;
-  transition: background 0.25s, border-color 0.25s, transform 0.25s var(--ease);
+  background: var(--grad-brand);
+  box-shadow: 0 8px 22px rgba(75, 97, 209, 0.35);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s;
 }
 .social-links a:hover,
 .social-links a:focus-visible {
-  background: var(--c-indigo);
-  border-color: var(--c-indigo);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 12px 28px rgba(75, 97, 209, 0.55);
+}
+.social-links a[data-placeholder] {
+  outline: 1.5px dashed rgba(255, 255, 255, 0.45);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   "Lascia una review" popup (native popover: no JavaScript)
+   ========================================================================== */
+.review-cta__btn {
+  cursor: pointer;
+  border: 0;
+  font: inherit;
+}
+.review-pop {
+  inset: 0;
+  margin: auto;
+  width: min(440px, calc(100vw - 32px));
+  height: fit-content;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 40px 30px 28px;
+  border: 1px solid rgba(123, 146, 232, 0.45);
+  border-radius: calc(var(--radius) + 8px);
+  color: var(--text-body);
+  text-align: center;
+  background: radial-gradient(380px 200px at 50% 0%, rgba(75, 97, 209, 0.35), transparent 70%), #0d1f33;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+}
+.review-pop::backdrop {
+  background: rgba(5, 12, 22, 0.72);
+}
+.review-pop:popover-open {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  animation: rm-pop-in 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+@keyframes rm-pop-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -24px, 0) scale(0.94);
+  }
+}
+.review-pop__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  background: transparent;
+  cursor: pointer;
+}
+.review-pop__close:hover,
+.review-pop__close:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+.review-pop__drop {
+  width: 26px;
+  height: 26px;
+  border-radius: 0 50% 50% 50%;
+  rotate: 45deg;
+  background: var(--grad-brand);
+  box-shadow: 0 8px 20px rgba(75, 97, 209, 0.5);
+}
+.review-pop__title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.review-pop__text {
+  margin: 0;
+  max-width: 34ch;
+  line-height: 1.55;
+}
+.review-pop__write {
+  margin-top: 6px;
+  min-width: 230px;
+}
+.review-pop__badge {
+  margin-top: -4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px dashed rgba(255, 255, 255, 0.45);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+.review-pop__email {
+  color: var(--c-periwinkle);
+  font-size: 0.92rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   Living reviews: each card floats like a leaf on water, its drop keeps dripping into a ripple,
+   and a spotlight passes from story to story. Compositor-only, paused off-screen.
+   ========================================================================== */
+.review {
+  animation: rm-float calc(6s + var(--n, 0) * 0.45s) ease-in-out infinite alternate;
+  animation-delay: calc(var(--n, 0) * -0.9s);
+}
+@keyframes rm-float {
+  from {
+    transform: translate3d(0, -5px, 0);
+  }
+  to {
+    transform: translate3d(0, 6px, 0);
+  }
+}
+/* the drop falls into the card… */
+.review__drop {
+  z-index: 1;
+  animation: rm-drip 4.2s cubic-bezier(0.55, 0, 0.9, 0.5) infinite;
+  animation-delay: calc(var(--n, 0) * 0.6s);
+}
+@keyframes rm-drip {
+  0%,
+  62% {
+    translate: 0 0;
+    opacity: 1;
+  }
+  74% {
+    translate: 0 26px;
+    opacity: 0;
+  }
+  75% {
+    translate: 0 -10px;
+    opacity: 0;
+  }
+  100% {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+/* …and ripples on the surface */
+.review figure::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: -4px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(123, 146, 232, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  animation: rm-drip-ring 4.2s ease-out infinite;
+  animation-delay: calc(var(--n, 0) * 0.6s);
+}
+@keyframes rm-drip-ring {
+  0%,
+  72% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  76% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+/* a spotlight passes from story to story: one card glows at a time (7 × 2 s) */
+.review figure::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1.5px rgba(123, 146, 232, 0.85), 0 0 46px rgba(75, 97, 209, 0.35);
+  opacity: 0;
+  animation: rm-spot 14s ease-in-out infinite;
+  animation-delay: calc(var(--n, 0) * 2s);
+}
+@keyframes rm-spot {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  4%,
+  10% {
+    opacity: 1;
+  }
+  15% {
+    opacity: 0;
+  }
+}
+/* hover: the card lifts towards you */
+.reviews__grid {
+  perspective: 1200px;
+}
+.review figure:hover {
+  transform: translate3d(0, -6px, 0) rotateX(4deg) scale(1.015);
+  box-shadow: 0 24px 50px rgba(5, 12, 22, 0.5);
+}
+.js .reviews:not(.is-active) .review,
+.js .reviews:not(.is-active) .review *,
+.js .reviews:not(.is-active) .review figure::before,
+.js .reviews:not(.is-active) .review figure::after {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .review,
+  .review__drop,
+  .review figure::before,
+  .review figure::after,
+  .review-pop:popover-open {
+    animation: none;
+  }
+  .review figure::after {
+    display: none;
+  }
+}
+
+/* Hero: cities pulse on the map (HTML overlay, compositor-only) */
+.rain-pulse {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201, 211, 247, 0.85);
+  opacity: 0;
+  animation: rm-pulse 3.2s ease-out infinite;
+  animation-delay: var(--d, 0s);
+}
+.rain-pulse--hub {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-color: #fff;
+  box-shadow: 0 0 18px rgba(123, 146, 232, 0.6);
+}
+@keyframes rm-pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.25);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+.js .rain-art:not(.is-active) .rain-pulse {
+  animation-play-state: paused;
+}
+
+/* ==========================================================================
+   Review form (inside the popover)
+   ========================================================================== */
+.review-pop {
+  width: min(560px, calc(100vw - 24px));
+  text-align: left;
+  padding: 36px clamp(18px, 4vw, 34px) 26px;
+}
+.review-pop__drop,
+.review-pop__title,
+.review-pop__text {
+  justify-self: center;
+  text-align: center;
+}
+.review-form {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  margin-top: 6px;
+}
+.review-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 520px) {
+  .review-form__row {
+    grid-template-columns: 1fr;
+  }
+}
+.review-form .field {
+  margin: 0;
+}
+.review-form textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+.review-form__count {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.55);
+}
+.field__opt {
+  font-weight: 400;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.55);
+}
+.review-form__rating {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.stars {
+  display: flex;
+  gap: 6px;
+}
+.star {
+  cursor: pointer;
+  color: rgba(201, 211, 247, 0.35);
+  transition: color 0.2s, transform 0.2s var(--ease);
+}
+.star svg {
+  display: block;
+  fill: currentColor;
+}
+.star.is-on {
+  color: #ffd27a;
+}
+.star:hover,
+.star:focus-within {
+  transform: scale(1.15);
+}
+.star:focus-within {
+  outline: 2px solid var(--c-periwinkle);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.review-form__platform {
+  justify-self: center;
+  font-size: 0.88rem;
+  color: var(--c-periwinkle);
+  text-underline-offset: 3px;
+}
+.review-form__platform[data-placeholder] {
+  opacity: 0.7;
+}
+.review-form--done {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 18px 0 6px;
+  text-align: center;
+}
+.review-form__done-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+/* thank-you splash: a drop landing in the umbrella */
+.review-form__splash {
+  width: 56px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--c-periwinkle);
+  animation: rm-thanks 1.2s ease-out both;
+}
+@keyframes rm-thanks {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   Text in motion: section titles rise word by word when they enter
+   ========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  .js .section-header .h2 .w {
+    display: inline-block;
+    opacity: 0;
+    transform: translate3d(0, 0.6em, 0) rotate(3deg);
+    transform-origin: 0 100%;
+    transition:
+      opacity 0.6s var(--ease),
+      transform 0.9s cubic-bezier(0.2, 0.85, 0.25, 1.15);
+    transition-delay: calc(var(--w, 0) * 70ms + 120ms);
+  }
+  .js .section-header.is-visible .h2 .w {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Keyword bands: Rainmakers words sliding sideways with the scroll
+   ========================================================================== */
+.kw-band {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(18px, 3vw, 34px) 0;
+  background: var(--bg-deep);
+  border-block: 1px solid rgba(123, 146, 232, 0.14);
+}
+.kw-band__track {
+  display: flex;
+  width: max-content;
+  gap: clamp(22px, 3vw, 40px);
+  padding-left: 4vw;
+}
+.kw-band__word {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(22px, 3vw, 40px);
+  font-size: clamp(2rem, 1.2rem + 3.6vw, 4.6rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  color: transparent;
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.kw-band__word--outline {
+  background: none;
+  -webkit-text-stroke: 1.5px rgba(201, 211, 247, 0.55);
+}
+.kw-band__mark {
+  flex: none;
+  color: var(--c-periwinkle);
+  opacity: 0.8;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .kw-band__track {
+      animation: rm-band linear both;
+      animation-timeline: view();
+    }
+    .kw-band--reverse .kw-band__track {
+      animation-name: rm-band-rev;
+    }
+  }
+}
+@keyframes rm-band {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-38%, 0, 0);
+  }
+}
+@keyframes rm-band-rev {
+  from {
+    transform: translate3d(-38%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
 }

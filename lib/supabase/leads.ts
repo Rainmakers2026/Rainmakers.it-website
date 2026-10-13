@@ -1,5 +1,5 @@
 import 'server-only';
-import type { CommunitySubmission, ContactSubmission, JoinSubmission } from '@/lib/validation';
+import type { CommunitySubmission, ContactSubmission, JoinSubmission, ReviewSubmission } from '@/lib/validation';
 import { CONSENT_VERSION } from '@/lib/options';
 import { authHeaders, supabaseConfig } from './rest';
 
@@ -12,7 +12,7 @@ export type StoreResult =
  * Without Supabase configuration: development accepts and logs (mock); production returns not_configured,
  * so a visitor is never told that an unsaved request was received.
  */
-async function rpc(fn: 'submit_contact' | 'submit_join_application' | 'submit_community_request', payload: Record<string, unknown>, idKey: string): Promise<StoreResult> {
+async function rpc(fn: 'submit_contact' | 'submit_join_application' | 'submit_community_request' | 'submit_review', payload: Record<string, unknown>, idKey: string): Promise<StoreResult> {
   const cfg = supabaseConfig('service');
   if (!cfg) {
     if (process.env.NODE_ENV !== 'production' || process.env.LEADS_MOCK === '1') {
@@ -99,4 +99,37 @@ export function submitJoinApplication(s: JoinSubmission, file: { path: string; n
 /** "Entra su WhatsApp" → community_requests. */
 export function submitCommunityRequest(s: CommunitySubmission) {
   return rpc('submit_community_request', { ...person(s), community_slug: s.community }, 'request_id');
+}
+
+/** "Lascia una review" → reviews (migration 0007). */
+export function submitReview(s: ReviewSubmission) {
+  return rpc(
+    'submit_review',
+    {
+      ...person({ locale: s.locale, firstName: s.name, email: s.email, utm: s.utm }),
+      company: s.company || null,
+      role: s.role || null,
+      rating: s.rating ?? null,
+      body: s.review,
+      publish_consent: s.publishConsent === true,
+      idempotency_key: s.idempotencyKey,
+    },
+    'review_id',
+  );
+}
+
+/** Records that the team email for a review was sent (best effort). */
+export async function markReviewNotified(id: string) {
+  const cfg = supabaseConfig('service');
+  if (!cfg) return;
+  try {
+    await fetch(`${cfg.url}/rest/v1/rpc/review_mark_notified`, {
+      method: 'POST',
+      headers: { ...authHeaders(cfg.key), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_id: id }),
+      cache: 'no-store',
+    });
+  } catch {
+    console.error('[review_mark_notified] network error');
+  }
 }

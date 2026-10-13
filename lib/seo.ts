@@ -79,7 +79,8 @@ export function buildJsonLd(dict: Dictionary) {
     owns: { '@id': rainforestId },
   };
   if (brand.available) organization.logo = { '@type': 'ImageObject', url: `${site.url}${brand.files.squarePng}` };
-  if (socialProfiles.length) organization.sameAs = socialProfiles.map((p) => p.url);
+  const verifiedProfiles = socialProfiles.filter((p) => p.status === 'VERIFIED');
+  if (verifiedProfiles.length) organization.sameAs = verifiedProfiles.map((p) => p.url);
 
   return {
     '@context': 'https://schema.org',

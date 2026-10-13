@@ -12,4 +12,5 @@ export const footer: FooterCopy = {
   emailLabel: 'Email',
   onSubstack: 'su Substack',
   language: 'Lingua',
+  follow: 'Seguici',
 };

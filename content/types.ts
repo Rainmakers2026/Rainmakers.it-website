@@ -67,6 +67,8 @@ export interface UiCopy {
     connect: string;
   };
   placeholderBadge: string;
+  /** Words of the scrolling keyword bands (decorative) */
+  keywords: string[];
   notFound: { title: string; text: string; back: string };
 }
 
@@ -214,13 +216,43 @@ export interface Testimonial {
   source: string;
 }
 
+/** "Lascia una review" popup form (POST /api/review). */
+export interface ReviewFormCopy {
+  name: string;
+  email: string;
+  company: string;
+  role: string;
+  optional: string;
+  rating: string;
+  ratingLabels: [string, string, string, string, string];
+  review: string;
+  reviewHint: string;
+  publishConsent: string;
+  consent: string;
+  privacy: string;
+  submit: string;
+  submitting: string;
+  successTitle: string;
+  successText: string;
+  orPlatform: string;
+  errors: { required: string; email: string; consent: string; tooLong: string; tooShort: string; summary: string; generic: string; rateLimited: string };
+}
+
 export interface ProofCopy {
   eyebrow: string;
   title: string;
   intro: string;
   sourceNote: string;
   /** "Leave a review" hook under the testimonials (opens an email to the team) */
-  review: { hook: string; cta: string; subject: string; body: string };
+  review: {
+    hook: string;
+    cta: string;
+    /** Popup opened by the CTA */
+    popTitle: string;
+    popText: string;
+    close: string;
+    form: ReviewFormCopy;
+  };
   testimonials: Testimonial[];
 }
 
@@ -331,6 +363,8 @@ export interface FooterCopy {
   /** Follows the Substack name ("Italian Rainmaker"), e.g. "su Substack". */
   onSubstack: string;
   language: string;
+  /** Label above the social icons */
+  follow: string;
 }
 
 export interface LegalPageCopy {

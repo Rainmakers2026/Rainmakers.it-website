@@ -7,5 +7,5 @@ export const hero: HeroCopy = {
   lead: 'Rainmakers connette imprenditori, competenze e opportunità per aiutarti a fare il prossimo passo.',
   secondaryCta: 'Scopri come possiamo aiutarti',
   visualLabel:
-    'Illustrazione: sopra lo skyline di Milano, una nuvola fatta di connessioni fa piovere luce su un gruppo di imprenditori che la raccolgono con ombrelli capovolti, il simbolo di Rainmakers; nascono germogli e un giovane albero, e lungo un sentiero illuminato arrivano i clienti.',
+    'Illustrazione: l’Italia vista dall’orbita lungo la curva della Terra, con le città illuminate e collegate a Milano; una nuvola sorge dall’orizzonte e fa piovere su un gruppo di imprenditori con gli ombrelli capovolti, il simbolo di Rainmakers, mentre i clienti arrivano verso di loro.',
 };

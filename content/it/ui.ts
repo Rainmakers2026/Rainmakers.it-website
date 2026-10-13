@@ -26,6 +26,7 @@ export const ui: UiCopy = {
     connect: 'Connettiti con Rainmakers',
   },
   placeholderBadge: 'Da completare',
+  keywords: ['Clienti', 'Opportunità', 'Network', 'Competenze', 'Investitori', 'Partner', 'Crescita', 'Community'],
   notFound: {
     title: 'Pagina non trovata',
     text: 'La pagina che cerchi non esiste o è stata spostata.',

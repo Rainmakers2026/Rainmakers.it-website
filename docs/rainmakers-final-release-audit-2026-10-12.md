@@ -243,3 +243,41 @@ hero markup or moving the reviews below a "show more" are the next levers.
   Deployment Protection; no Preview env vars, so forms show honest "not configured" errors.
 - **No production deployment.** Production blockers in section 6 still apply (Supabase, Brevo, legal
   texts, domain plan, live end-to-end tests).
+
+## 10. Update — 13 October 2026 (afternoon): hero from orbit, review form, social, motion
+
+### What changed
+- **Hero illustration** (`scripts/generate-art.cjs`, reproducible): Italy seen from orbit in true perspective
+  (camera ~760 km above the Tyrrhenian Sea looking north), the Earth's curved horizon with a brand-coloured
+  dawn, converging meridians/parallels, glowing coastline, city lights connected to Milan (the hub), a cloud
+  rising over the horizon (no logo inside), a crowd of small rainmakers with the inside-out umbrella, clients
+  walking in. Animated: rain into every umbrella, splashes, cities pulsing (HTML overlay, compositor-only).
+  Soft radial vignette instead of hard edges; positioned to the right of the copy (no overlap at 1024–1440).
+- **"Dicono di noi" reviews**: verified identical to the initial project texts (IT/EN, names, companies).
+  Differences vs the live rainmakers.it: CrowdChicken (IT/EN) shortened, Patrick (EN) reworded — kept as
+  provided. Cards now float, drip into a ripple, and a spotlight passes from card to card; paused off-screen.
+- **Review form** (popup, native popover): name, email, company, role, 1–5 stars, review (20–1500 chars),
+  consent to publish, privacy consent, honeypot, idempotency. `POST /api/review` → table `reviews`
+  (**migration 0007**, rollback `supabase/rollback/0007_down.sql`) **and** email to **info@rainmakers.it** via
+  Brevo (reply-to = author; never a marketing list). Succeeds if at least one destination received it.
+  6 new API tests (28 total). Review-platform link: placeholder (`content/shared.ts → reviewLink`).
+- **Footer social icons** side by side, larger, labelled "Seguici / Follow us": Facebook (verified) and
+  Instagram (placeholder link, dashed outline, excluded from `sameAs`) — both listed by `check:placeholders`.
+- **Text & scroll motion**: section titles rise word by word; two keyword bands (Clienti, Opportunità,
+  Network…) slide sideways with the scroll (scroll-driven, compositor-only, off with reduced motion).
+
+### Database
+`supabase/bootstrap/new-project_0001-0007.sql` = migrations 0001–0007 in one transaction, for the empty
+Supabase project now linked to Vercel (to be run in the SQL Editor). Supabase env vars are currently scoped to
+**Production only** on Vercel: add the **Preview** scope to test forms on previews.
+
+### Lighthouse (mobile, local production builds, `/it`, 3 interleaved runs)
+| Version | Performance | Accessibility | Best practices | SEO |
+|---|---|---|---|---|
+| Phase 8 | 87 (81–91) | 100 | 96 | 100 |
+| Now | **86 (85–87)** | 100 | 96 | 100 |
+TBT 319 → 161 ms; homepage JS unchanged (140 kB); CLS 0. Word count IT 1,146 / EN 1,170.
+
+### Checks
+`tsc` ✅ · eslint on changed code ✅ · `npm test` 96/96 ✅ (24 + 28 + 24 + 20) · production build ✅ ·
+screenshots 1440 / 1024 / 390 + popup + footer ✅.

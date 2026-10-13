@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Dictionary, Locale } from '@/content/types';
 import { facts, rainforest, socialProfiles, substack } from '@/content/shared';
+import { isPlaceholder } from '@/content/governance';
 import { navItems } from '@/lib/nav';
 import { Logo } from './Logo';
 import { NewsletterSignup } from './NewsletterSignup';
@@ -23,18 +24,28 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
           <Logo variant="white" />
           <p>{f.tagline}</p>
           {socialProfiles.length ? (
-            <ul className="social-links">
-              {socialProfiles.map((s) => {
-                const Icon = socialIcons[s.icon];
-                return (
-                  <li key={s.url}>
-                    <a href={s.url} target="_blank" rel="noopener me" aria-label={`Rainmakers — ${s.name} ${dict.ui.a11y.external}`}>
-                      <Icon aria-hidden width={20} height={20} />
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="social">
+              <p className="social__label">{f.follow}</p>
+              <ul className="social-links">
+                {socialProfiles.map((s) => {
+                  const Icon = socialIcons[s.icon];
+                  // Placeholder profiles keep a dummy link until the real URL is provided (content/shared.ts)
+                  const pending = isPlaceholder(s.url);
+                  return (
+                    <li key={s.name}>
+                      <a
+                        className={`social-links__${s.icon}`}
+                        href={pending ? '#social-link-to-be-provided' : s.url}
+                        {...(pending ? { 'data-placeholder': 'true', title: dict.ui.placeholderBadge } : { target: '_blank', rel: 'noopener me' })}
+                        aria-label={pending ? `Rainmakers — ${s.name}` : `Rainmakers — ${s.name} ${dict.ui.a11y.external}`}
+                      >
+                        <Icon aria-hidden width={24} height={24} />
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           ) : null}
         </div>
 

@@ -24,6 +24,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.includes('/rest/v1/communities')) return new Response('[]', { status: 200 }); // empty → static fallback list
   if (url.includes('/rest/v1/rpc/')) return rpcResponse();
   if (url.includes('/storage/v1/object')) return new Response('{}', { status: 200 });
+  if (url.startsWith('https://api.brevo.com/')) return new Response('{"messageId":"m1"}', { status: 201 });
   throw new Error(`unexpected fetch ${url}`);
 }) as typeof fetch;
 
@@ -72,6 +73,7 @@ async function main() {
   const lead = await import('../app/api/lead/route');
   const joinRoute = await import('../app/api/join/route');
   const community = await import('../app/api/community/route');
+  const reviewRoute = await import('../app/api/review/route');
   const post = (path: string, body: BodyInit, h: Record<string, string> = {}) => new Request(`http://localhost${path}`, { method: 'POST', headers: headers(h), body });
 
   // ── /api/lead (Connettiti con Rainmakers) ──
@@ -217,6 +219,78 @@ async function main() {
   await test('community: consent required', async () => {
     const r = await community.POST(post('/api/community', JSON.stringify(req({ consent: false }))));
     assert.equal(r.status, 422);
+  });
+
+  // ── /api/review ("Lascia una review" popup) ──
+  const review = (over: Record<string, unknown> = {}) => ({
+    locale: 'it', name: 'Giulia Rossi', email: 'giulia@example.com', company: 'Acme', rating: 5,
+    review: 'Rainmakers ci ha aperto porte che da soli non avremmo trovato.', publishConsent: true, consent: true,
+    elapsedMs: 5000, idempotencyKey: key(), ...over,
+  });
+  const withBrevo = async (fn: () => Promise<void>) => {
+    process.env.BREVO_API_KEY = 'xkeysib-test-only';
+    process.env.BREVO_FROM_EMAIL = 'noreply@rainmakers.it';
+    try {
+      await fn();
+    } finally {
+      delete process.env.BREVO_API_KEY;
+      delete process.env.BREVO_FROM_EMAIL;
+    }
+  };
+  const reviewOk = () => new Response(JSON.stringify({ review_id: 'rv1', duplicate: false }), { status: 200 });
+
+  await test('review: too short / no consent → 422 with field codes, nothing stored', async () => {
+    const r = await reviewRoute.POST(post('/api/review', JSON.stringify(review({ review: 'Ottimo', consent: false }))));
+    assert.equal(r.status, 422);
+    const b = (await r.json()) as { fields: Record<string, string> };
+    assert.equal(b.fields.review, 'tooShort');
+    assert.equal(b.fields.consent, 'consent');
+    assert.equal(calls.length, 0);
+  });
+  await test('review: honeypot → fake success, nothing stored or emailed', async () => {
+    const r = await reviewRoute.POST(post('/api/review', JSON.stringify(review({ company_website_hp: 'spam' }))));
+    assert.equal(r.status, 200);
+    assert.equal(calls.length, 0);
+  });
+  await test('review: valid → stored, emailed to info@rainmakers.it (reply-to author), marked notified', async () => {
+    rpcResponse = reviewOk;
+    await withBrevo(async () => {
+      const r = await reviewRoute.POST(post('/api/review', JSON.stringify(review())));
+      assert.equal(r.status, 200);
+      assert.deepEqual(await r.json(), { ok: true, stored: true, emailed: true });
+    });
+    assert.ok(calls[0].url.endsWith('/rest/v1/rpc/submit_review'));
+    const stored = JSON.parse(calls[0].body!).p;
+    assert.equal(stored.body.startsWith('Rainmakers ci ha'), true);
+    assert.equal(stored.publish_consent, true);
+    assert.equal(stored.rating, 5);
+    const mail = calls.find((c) => c.url === 'https://api.brevo.com/v3/smtp/email');
+    assert.ok(mail, 'team email sent');
+    const m = JSON.parse(mail!.body!);
+    assert.deepEqual(m.to, [{ email: 'info@rainmakers.it' }]);
+    assert.deepEqual(m.replyTo, { email: 'giulia@example.com' });
+    assert.ok(!calls.some((c) => c.url.includes('/contacts')), 'never added to a marketing list');
+    assert.ok(calls.some((c) => c.url.endsWith('/rest/v1/rpc/review_mark_notified')));
+  });
+  await test('review: Brevo not configured → still stored, honest emailed:false', async () => {
+    rpcResponse = reviewOk;
+    const r = await reviewRoute.POST(post('/api/review', JSON.stringify(review())));
+    assert.deepEqual(await r.json(), { ok: true, stored: true, emailed: false });
+    assert.ok(!calls.some((c) => c.url.includes('brevo')));
+  });
+  await test('review: duplicate submission → success, no second email', async () => {
+    rpcResponse = () => new Response(JSON.stringify({ review_id: 'rv1', duplicate: true }), { status: 200 });
+    await withBrevo(async () => {
+      const r = await reviewRoute.POST(post('/api/review', JSON.stringify(review())));
+      assert.equal(r.status, 200);
+    });
+    assert.ok(!calls.some((c) => c.url.includes('brevo')));
+  });
+  await test('review: database error → 500, review text not logged', async () => {
+    rpcResponse = () => new Response('{"message":"boom"}', { status: 500 });
+    const r = await reviewRoute.POST(post('/api/review', JSON.stringify(review())));
+    assert.equal(r.status, 500);
+    assert.ok(!logs.join(' ').includes('porte che da soli'));
   });
 
   // ── Secrets never leave the server ──

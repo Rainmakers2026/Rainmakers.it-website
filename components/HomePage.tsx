@@ -18,6 +18,7 @@ import { Rainforest } from './sections/Rainforest';
 import { Faq } from './sections/Faq';
 import { Reviews } from './sections/Reviews';
 import { FinalCta } from './sections/FinalCta';
+import { KeywordBand } from './visuals/KeywordBand';
 
 /**
  * One-page narrative (PRD §5.3): value proposition → benefits → proof (founder, track record)
@@ -34,6 +35,7 @@ export function HomePage({ dict, locale, communities }: { dict: Dictionary; loca
       <Header dict={headerCopy(dict)} locale={locale} />
       <main id="main" tabIndex={-1}>
         <Hero dict={dict} />
+        <KeywordBand words={dict.ui.keywords} />
         <Benefits dict={dict} />
         <Founder dict={dict} locale={locale} />
         <TrackRecord dict={dict} locale={locale} />
@@ -42,6 +44,7 @@ export function HomePage({ dict, locale, communities }: { dict: Dictionary; loca
         <Rainforest dict={dict} locale={locale} />
         <Faq dict={dict} />
         <Reviews dict={dict} />
+        <KeywordBand words={dict.ui.keywords} reverse />
         <FinalCta dict={dict} locale={locale} />
       </main>
       <Footer dict={dict} locale={locale} />

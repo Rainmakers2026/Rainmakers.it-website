@@ -104,136 +104,189 @@ function walker(x, y, k) {
 }
 
 // ───────────────────────────── HERO (1200 × 900) ─────────────────────────────
+// Italy seen at night: a glowing map with Rainmakers umbrellas pinned on the cities, Milan (home since 2011)
+// as the hub of the network; a cloud over the north rains opportunities on a crowd of small rainmakers
+// holding the inside-out umbrella, while clients walk towards them along a lit path.
+
+/** Approximate Italian coastline / borders (lon, lat). Simplified on purpose: a recognisable silhouette. */
+const ITALY = {
+  main: [
+    [7.53, 43.79], [8.2, 43.95], [8.9, 44.41], [9.5, 44.22], [9.85, 44.07], [10.25, 43.85], [10.3, 43.5], [10.5, 42.95],
+    [11.1, 42.55], [11.8, 42.1], [12.25, 41.75], [12.6, 41.45], [13.05, 41.25], [13.6, 41.22], [14.0, 40.98],
+    [14.25, 40.82], [14.45, 40.62], [14.8, 40.65], [15.0, 40.35], [15.5, 40.05], [15.75, 39.85], [16.05, 39.3],
+    [16.1, 38.85], [15.9, 38.7], [15.65, 38.25], [15.65, 37.97], [16.05, 37.93], [16.55, 38.42], [16.6, 38.8],
+    [17.15, 39.05], [17.1, 39.42], [16.6, 39.7], [16.55, 39.95], [17.2, 40.45], [17.75, 40.3], [18.05, 40.05],
+    [18.36, 39.8], [18.5, 40.15], [18.0, 40.65], [17.4, 40.95], [16.85, 41.13], [16.05, 41.45], [15.9, 41.6],
+    [16.2, 41.9], [15.95, 41.95], [15.1, 41.95], [14.6, 42.15], [14.2, 42.47], [13.85, 42.9], [13.6, 43.5],
+    [13.0, 43.85], [12.57, 44.06], [12.28, 44.42], [12.5, 44.95], [12.2, 45.25], [12.35, 45.45], [13.1, 45.7],
+    [13.77, 45.65], [13.7, 46.05], [13.5, 46.45], [12.7, 46.65], [12.1, 46.95], [11.5, 47.0], [10.45, 46.85],
+    [10.1, 46.4], [9.3, 46.5], [9.0, 45.85], [8.7, 46.1], [8.4, 46.45], [7.86, 45.92], [7.0, 45.85], [6.8, 45.5],
+    [7.1, 45.2], [6.65, 44.9], [6.95, 44.55], [6.95, 44.2], [7.53, 43.79],
+  ],
+  sicily: [
+    [15.55, 38.27], [15.25, 37.85], [15.1, 37.5], [15.3, 37.05], [15.1, 36.68], [14.25, 37.06], [13.58, 37.28],
+    [12.6, 37.65], [12.45, 38.02], [13.36, 38.15], [14.0, 38.04], [14.8, 38.15], [15.55, 38.27],
+  ],
+  sardinia: [
+    [9.2, 41.25], [9.6, 40.95], [9.75, 40.35], [9.65, 39.6], [9.55, 39.15], [9.1, 39.2], [8.6, 38.9], [8.4, 39.1],
+    [8.45, 39.75], [8.4, 40.4], [8.2, 40.6], [8.2, 40.92], [8.8, 40.95], [9.2, 41.25],
+  ],
+};
+const CITIES = [
+  ['Milano', 9.19, 45.46, 'hub'], ['Torino', 7.68, 45.07], ['Genova', 8.93, 44.41], ['Venezia', 12.33, 45.44],
+  ['Bologna', 11.34, 44.49], ['Firenze', 11.25, 43.77], ['Roma', 12.5, 41.9], ['Napoli', 14.27, 40.85],
+  ['Bari', 16.87, 41.12], ['Ancona', 13.5, 43.6], ['Trento', 11.12, 46.07], ['Cagliari', 9.11, 39.22],
+  ['Palermo', 13.36, 38.12], ['Catania', 15.09, 37.5], ['Pescara', 14.2, 42.46], ['Cosenza', 16.25, 39.3],
+];
+
 function hero() {
   const W = 1200;
   const H = 900;
   const parts = [];
-  // stars / particles
+
+  // ── Camera in orbit over the Tyrrhenian Sea, looking north towards the Alps (true perspective) ──
+  const ALT = 0.12; // in Earth radii (~760 km)
+  const rad = (d) => (d * Math.PI) / 180;
+  const vec = (lon, lat) => [Math.cos(rad(lat)) * Math.cos(rad(lon)), Math.cos(rad(lat)) * Math.sin(rad(lon)), Math.sin(rad(lat))];
+  const sub = (a, b) => a.map((v, i) => v - b[i]);
+  const dot = (a, b) => a.reduce((s, v, i) => s + v * b[i], 0);
+  const sc = (a, k) => a.map((v) => v * k);
+  const norm = (a) => sc(a, 1 / Math.hypot(...a));
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const camSurf = vec(13, 31);
+  const cam = sc(camSurf, 1 + ALT);
+  const fwd = norm(sub(vec(11, 48), cam));
+  const right = norm(cross(fwd, camSurf));
+  const up = cross(right, fwd);
+  const raw = (p) => {
+    const v = sub(p, cam);
+    const z = dot(v, fwd);
+    return [dot(v, right) / z, dot(v, up) / z];
+  };
+  const m0 = raw(vec(9.19, 45.46));
+  const s0 = raw(vec(15.1, 36.7));
+  const F = 440 / (m0[1] - s0[1]);
+  const X0 = 560 - F * m0[0];
+  const Y0 = 318 + F * m0[1];
+  const toXY = (q) => [X0 + F * q[0], Y0 - F * q[1]];
+  const P = ([lon, lat]) => toXY(raw(vec(lon, lat)));
+  const seen = ([lon, lat]) => dot(vec(lon, lat), cam) > 1; // on the hemisphere cap visible from the camera
+  const pathOf = (pts) => `M${pts.map((p) => P(p).map(f).join(',')).join(' L')} Z`;
+
+  // horizon (limb): circle of tangency, projected
+  const c0 = sc(camSurf, 1 / (1 + ALT));
+  const rr = Math.sqrt(1 - 1 / (1 + ALT) ** 2);
+  const u = norm(cross(camSurf, [0, 0, 1]));
+  const w = cross(camSurf, u);
+  const limb = [];
+  for (let t = 0; t < 360; t += 1.5) {
+    const p = c0.map((v, i) => v + rr * (Math.cos(rad(t)) * u[i] + Math.sin(rad(t)) * w[i]));
+    if (dot(sub(p, cam), fwd) > 0) limb.push(toXY(raw(p)));
+  }
+  const hz = limb.filter(([x, y]) => x > -300 && x < W + 300 && y > -300 && y < H).sort((a, b) => a[0] - b[0]);
+  const hzD = hz.map((p) => p.map(Math.round).join(',')).join(' L');
+  const hzMid = hz.reduce((m, p) => (p[1] < m ? p[1] : m), Infinity);
+
+  // space
   for (let i = 0; i < 70; i++) {
     const x = rand() * W;
-    const y = rand() * 620;
-    parts.push(`<circle cx="${f(x)}" cy="${f(y)}" r="${f(0.6 + rand() * 1.4)}" fill="${C.light}" opacity="${f(0.15 + rand() * 0.45)}"/>`);
+    const y = rand() * (hzMid + 30);
+    parts.push(`<circle cx="${f(x)}" cy="${f(y)}" r="${f(0.5 + rand() * 1.3)}" fill="${C.light}" opacity="${f(0.15 + rand() * 0.5)}"/>`);
   }
-  // faint perspective grid (map-like, as in Italian Rainforest)
-  const grid = [];
-  for (let i = 0; i <= 10; i++) grid.push(`<path d="M${f(60 + i * 108)},120 L${f(20 + i * 116)},760" />`);
-  for (let j = 0; j <= 5; j++) grid.push(`<path d="M40,${f(150 + j * 110)} Q600,${f(130 + j * 110)} 1160,${f(150 + j * 110)}" />`);
-  parts.push(`<g stroke="${C.peri}" stroke-opacity=".07" stroke-width="1" fill="none">${grid.join('')}</g>`);
+  // the Earth below the horizon, with a dawn of brand light along the limb
+  parts.push(`<path d="M${hzD} L${W + 300},${H + 10} L-300,${H + 10} Z" fill="url(#earth)"/>`);
+  parts.push(`<path d="M${hzD}" fill="none" stroke="${C.cyan}" stroke-opacity=".18" stroke-width="34"/>`);
+  parts.push(`<path d="M${hzD}" fill="none" stroke="${C.peri}" stroke-opacity=".35" stroke-width="10"/>`);
+  parts.push(`<path d="M${hzD}" fill="none" stroke="#e6ecff" stroke-opacity=".9" stroke-width="1.6"/>`);
+  parts.push(`<ellipse cx="${f(W * 0.62)}" cy="${f(hzMid + 6)}" rx="520" ry="60" fill="url(#dawn)"/>`);
 
-  // ── The cloud: a network of people and connections ──
-  const cloudCircles = [
-    [420, 250, 78], [505, 200, 100], [625, 168, 120], [748, 196, 104], [842, 248, 76], [560, 262, 86], [700, 262, 92],
-  ];
+  // graticule converging to the horizon
+  const lines = [];
+  const poly = (pts) => {
+    const vis = pts.filter(seen);
+    if (vis.length < 2) return;
+    lines.push(`<path d="M${vis.map((p) => P(p).map(Math.round).join(',')).join(' L')}"/>`);
+  };
+  for (let lon = -6; lon <= 34; lon += 2) poly(Array.from({ length: 28 }, (_, i) => [lon, 26 + i * 2.2]));
+  for (let lat = 28; lat <= 80; lat += 2) poly(Array.from({ length: 40 }, (_, i) => [-30 + i * 1.8, lat]));
+  parts.push(`<g fill="none" stroke="${C.light}" stroke-opacity=".08" stroke-width="1">${lines.join('')}</g>`);
+
+  // ── Italy: halo, land, coastline, night texture ──
+  const land = [ITALY.main, ITALY.sicily, ITALY.sardinia].map(pathOf).join(' ');
+  parts.push(`<path d="${land}" fill="none" stroke="${C.indigo}" stroke-opacity=".3" stroke-width="16" stroke-linejoin="round"/>`);
+  parts.push(`<path d="${land}" fill="url(#italy)" stroke="#dfe6ff" stroke-opacity=".9" stroke-width="1.6" stroke-linejoin="round"/>`);
+  parts.push(`<path d="${land}" fill="url(#mapDots)" opacity=".45"/>`);
+
+  // city lights: a warm-white core with a small cluster around it (life, business)
+  const hub = P([9.19, 45.46]);
+  const pulses = [];
+  const arcs = [];
+  for (const [, lon, lat, kind] of CITIES) {
+    const [x, y] = P([lon, lat]);
+    if (y > H - 10 || x < 0 || x > W) continue;
+    pulses.push({ x: f(x), y: f(y), hub: kind === 'hub' });
+    const cluster = Array.from({ length: kind === 'hub' ? 9 : 4 }, () => [x + (rand() - 0.5) * 18, y + (rand() - 0.5) * 9]);
+    parts.push(`<g fill="#fff4d6">${cluster.map(([a, b]) => `<circle cx="${f(a)}" cy="${f(b)}" r="${f(0.7 + rand() * 0.9)}" opacity="${f(0.5 + rand() * 0.4)}"/>`).join('')}</g>`);
+    parts.push(`<circle cx="${f(x)}" cy="${f(y)}" r="${kind === 'hub' ? 26 : 10}" fill="url(#glowSm)"/><circle cx="${f(x)}" cy="${f(y)}" r="${kind === 'hub' ? 4.5 : 2.4}" fill="${C.white}"/>`);
+    if (kind === 'hub') continue;
+    const mx = (hub[0] + x) / 2;
+    const my = Math.min(hub[1], y) - 28 - Math.abs(x - hub[0]) * 0.1;
+    arcs.push(`<path d="M${f(hub[0])},${f(hub[1])} Q${f(mx)},${f(my)} ${f(x)},${f(y)}"/>`);
+  }
+  parts.push(`<g fill="none" stroke="url(#arc)" stroke-width="1.4" stroke-linecap="round">${arcs.join('')}</g>`);
+  // Milan, the hub: Rainmakers' umbrella planted where it all started (2011)
+  parts.push(umbrella(hub[0], hub[1] - 20, 26).svg);
+
+  // ── The cloud rising over the horizon (no mark inside: it is the network itself) ──
+  const cloudCircles = [[262, 214, 52], [330, 178, 70], [420, 160, 82], [510, 176, 70], [578, 212, 50], [380, 222, 60], [470, 224, 62]];
   parts.push(`<g>${cloudCircles.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r + 46}" fill="url(#cloudGlow)"/>`).join('')}</g>`);
   parts.push(`<g>${cloudCircles.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#cloud)"/>`).join('')}</g>`);
-  // cloud underside flat edge
-  parts.push(`<path d="M352,300 C470,322 760,322 908,300" stroke="${C.light}" stroke-opacity=".5" stroke-width="2" fill="none" stroke-linecap="round"/>`);
-  // nodes + edges inside the cloud
-  const nodes = [];
-  for (let i = 0; i < 34; i++) {
-    const [cx, cy, r] = cloudCircles[i % cloudCircles.length];
-    const a = rand() * Math.PI * 2;
-    const d = Math.sqrt(rand()) * r * 0.78;
-    nodes.push([cx + Math.cos(a) * d, Math.min(cy + Math.sin(a) * d, 292)]);
-  }
-  const edges = [];
-  nodes.forEach((n, i) => {
-    const near = nodes.map((m, j) => [j, Math.hypot(m[0] - n[0], m[1] - n[1])]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]).slice(0, 2);
-    for (const [j] of near) if (i < j) edges.push(`<line x1="${f(n[0])}" y1="${f(n[1])}" x2="${f(nodes[j][0])}" y2="${f(nodes[j][1])}"/>`);
-  });
-  parts.push(`<g stroke="${C.light}" stroke-opacity=".38" stroke-width="1.2">${edges.join('')}</g>`);
-  parts.push(`<g fill="${C.white}">${nodes.map(([x, y], i) => `<circle cx="${f(x)}" cy="${f(y)}" r="${i % 5 === 0 ? 4.2 : 2.4}" opacity="${i % 5 === 0 ? 0.95 : 0.7}"/>`).join('')}</g>`);
-  // hubs inside the cloud: small Rainmakers marks (as on the Italian Rainforest map)
-  const hubs = [[505, 205, 30], [628, 158, 38], [752, 210, 30]];
-  for (const [x, y, w] of hubs) {
-    parts.push(`<circle cx="${x}" cy="${y + 6}" r="${w * 0.95}" fill="url(#halo)"/>`);
-    parts.push(umbrella(x, y, w).svg);
-  }
+  // rim light from the dawn on the top of the cloud
+  parts.push(`<g fill="none" stroke="#e6ecff" stroke-opacity=".35" stroke-width="1.6">${cloudCircles.slice(0, 5).map(([x, y, r]) => `<path d="M${f(x - r * 0.7)},${f(y - r * 0.7)} A${r},${r} 0 0 1 ${f(x + r * 0.7)},${f(y - r * 0.7)}"/>`).join('')}</g>`);
+  parts.push(`<path d="M214,256 C320,276 520,276 624,256" stroke="${C.light}" stroke-opacity=".55" stroke-width="2" fill="none" stroke-linecap="round"/>`);
+  // a few glints of light inside the cloud: opportunities forming
+  parts.push(`<g fill="#fff">${[[350, 196], [418, 178], [482, 204], [300, 228], [540, 230], [440, 236]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i % 2 ? 1.6 : 2.3}" opacity=".85"/>`).join('')}</g>`);
 
-  // ── Wind from the left: what turns the umbrellas inside out ──
-  parts.push(`<g fill="none" stroke="${C.peri}" stroke-linecap="round" stroke-opacity=".45" stroke-width="2.2">
-<path d="M40,430 C120,410 170,452 250,428 C290,416 300,392 282,380"/>
-<path d="M70,486 C160,470 210,506 300,486"/>
-<path d="M30,540 C110,528 150,560 230,546 C262,540 270,524 258,516"/></g>`);
-
-  // ── Milan on the horizon, behind the ridge ──
-  parts.push(skyline(800, 92, 1.05, 0.9));
-  parts.push(skyline(806, 860, 0.8, 0.6));
-
-  // ── The hill / ridge ──
-  parts.push(`<path d="M0,808 C260,742 940,742 1200,808 L1200,900 L0,900 Z" fill="url(#hill)"/>`);
-  parts.push(`<path d="M0,808 C260,742 940,742 1200,808" stroke="${C.peri}" stroke-opacity=".12" stroke-width="14" fill="none"/>`);
-  parts.push(`<path d="M0,808 C260,742 940,742 1200,808" stroke="${C.peri}" stroke-opacity=".6" stroke-width="2" fill="none"/>`);
-
-  // ── People holding inside-out umbrellas (the Rainmakers mark) ──
-  const crowd = [
-    // [x, headY, scale, umbrellaWidth, armSide, umbrellaOffsetX]
-    [372, 640, 0.92, 92, -1, -34],
-    [497, 612, 1.0, 102, -1, -24],
-    [628, 590, 1.12, 132, 1, 26],
-    [762, 612, 1.0, 102, 1, 24],
-    [884, 640, 0.92, 92, 1, 34],
-  ];
+  // ── Foreground: a shore with a crowd of small rainmakers (bottom left, over the Tyrrhenian) ──
+  parts.push(`<path d="M-10,812 C160,770 520,762 760,812 C820,826 860,860 880,910 L-10,910 Z" fill="url(#hill)"/>`);
+  parts.push(`<path d="M-10,812 C160,770 520,762 760,812 C820,826 860,860 880,910" stroke="${C.peri}" stroke-opacity=".14" stroke-width="14" fill="none"/>`);
+  parts.push(`<path d="M-10,812 C160,770 520,762 760,812 C820,826 860,860 880,910" stroke="${C.peri}" stroke-opacity=".65" stroke-width="2" fill="none"/>`);
+  const back = [150, 222, 294, 366, 438, 510, 582].map((x, i) => [x, 744 + Math.abs(i - 3) * 3, 0.36, 42, i < 3 ? -1 : 1, i < 3 ? -5 : 5]);
+  const front = [186, 258, 330, 402, 474, 546, 618].map((x, i) => [x, 808 + Math.abs(i - 3) * 4, 0.46, 50, i < 3 ? -1 : 1, i < 3 ? -7 : 7]);
   const overlay = [];
-  // umbrellas first (behind people's arms), halos around the central rainmaker
-  const umbrellas = crowd.map(([x, headY, s, uw, , off]) => {
-    const cx = x + off;
-    const rimY = headY - 150 * s;
-    return { ...umbrella(cx, rimY, uw), cx };
-  });
-  parts.push(`<g>${umbrellas.map((u) => `<path d="M${f(u.cx - 10)},318 L${f(u.cx + 10)},318 L${f(u.cx + u.w * 0.48)},${f(u.rimY - 4)} L${f(u.cx - u.w * 0.48)},${f(u.rimY - 4)} Z" fill="url(#shaft)"/>`).join('')}</g>`);
-  const main = umbrellas[2];
-  for (const r of [86, 124, 164]) parts.push(`<circle cx="${f(main.cx)}" cy="${f(main.rimY + 26)}" r="${r}" fill="none" stroke="${C.light}" stroke-opacity="${f(0.32 - r / 900)}" stroke-width="1.4"/>`);
-  for (const u of umbrellas) {
-    parts.push(`<ellipse cx="${f(u.cx)}" cy="${f(u.rimY + 14)}" rx="${f(u.w * 0.75)}" ry="${f(u.w * 0.55)}" fill="url(#halo)"/>`);
-    parts.push(u.svg);
-    // collected light: sparkles resting in the bowl (prosperity, opportunities)
-    parts.push(`<g fill="${C.white}">${[-0.22, 0, 0.2].map((k, i) => `<circle cx="${f(u.cx + k * u.w)}" cy="${f(u.rimY - 4 - (i === 1 ? 6 : 0))}" r="${i === 1 ? 2.6 : 1.8}" opacity=".9"/>`).join('')}</g>`);
-    overlay.push({ x: u.cx, rimY: u.rimY, w: u.w });
-  }
-  // light flowing from each umbrella down through the people into the ground → roots
-  const roots = [];
-  crowd.forEach(([x], i) => {
-    const gx = x + (i - 2) * 6;
-    roots.push(`<path d="M${gx},806 C${gx - 30},830 ${gx - 50},852 ${gx - 80},876"/><path d="M${gx},806 C${gx + 24},836 ${gx + 40},858 ${gx + 70},884"/><path d="M${gx},806 V884"/>`);
-  });
-  void roots; // hidden behind the figures: not drawn
-  crowd.forEach(([x, headY, s, , side], i) => {
-    parts.push(person(x, headY, s, { arm: umbrellas[i].grip, armSide: side }));
-  });
+  const drawRow = (row) => {
+    const us = row.map(([x, headY, s, uw, , off]) => ({ ...umbrella(x + off, headY - 150 * s, uw), cx: x + off }));
+    for (const uu of us) {
+      parts.push(`<ellipse cx="${f(uu.cx)}" cy="${f(uu.rimY + 6)}" rx="${f(uu.w * 0.72)}" ry="${f(uu.w * 0.5)}" fill="url(#halo)"/>`);
+      parts.push(uu.svg);
+      parts.push(`<g fill="${C.white}">${[-0.2, 0, 0.18].map((k, i) => `<circle cx="${f(uu.cx + k * uu.w)}" cy="${f(uu.rimY - 3 - (i === 1 ? 3 : 0))}" r="${i === 1 ? 1.7 : 1.2}" opacity=".9"/>`).join('')}</g>`);
+      if (uu.cx > 230 && uu.cx < 610) overlay.push({ x: uu.cx, rimY: uu.rimY, w: uu.w });
+    }
+    row.forEach(([x, headY, s, , side], i) => parts.push(person(x, headY, s, { arm: us[i].grip, armSide: side })));
+  };
+  drawRow(back);
+  drawRow(front);
+  for (const [x, y, h, s] of [[72, 806, 28, 0.75], [104, 800, 36, 0.85], [676, 806, 28, 0.75]]) parts.push(sprout(x, y, h, s));
 
-  // ── Growth: shoots between people and a young tree of light on the right (→ Italian Rainforest) ──
-  for (const [x, y, h, s] of [[176, 792, 34, 0.85], [236, 784, 44, 1], [286, 780, 28, 0.75], [978, 784, 36, 0.9]]) parts.push(sprout(x, y, h, s));
-  const tx = 1060;
-  const ty = 800;
-  const branches = [
-    `M${tx},${ty} C${tx},${ty - 60} ${tx - 4},${ty - 110} ${tx},${ty - 170}`,
-    `M${tx},${ty - 70} C${tx - 30},${ty - 90} ${tx - 50},${ty - 120} ${tx - 64},${ty - 150}`,
-    `M${tx},${ty - 96} C${tx + 30},${ty - 112} ${tx + 48},${ty - 140} ${tx + 58},${ty - 168}`,
-    `M${tx},${ty - 140} C${tx - 18},${ty - 156} ${tx - 26},${ty - 178} ${tx - 30},${ty - 198}`,
-    `M${tx},${ty - 150} C${tx + 16},${ty - 170} ${tx + 22},${ty - 192} ${tx + 22},${ty - 214}`,
-  ];
-  parts.push(`<g stroke="${C.mint}" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".85">${branches.map((d) => `<path d="${d}"/>`).join('')}</g>`);
-  const leaves = [[tx - 64, ty - 150], [tx + 58, ty - 168], [tx - 30, ty - 198], [tx + 22, ty - 214], [tx, ty - 170], [tx - 40, ty - 124], [tx + 36, ty - 134]];
-  parts.push(`<g>${leaves.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i % 3 === 0 ? 26 : 18}" fill="url(#glowLeaf)"/>`).join('')}</g>`);
-  parts.push(`<g>${leaves.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i % 3 === 0 ? 9 : 6}" fill="${i % 2 ? C.cyan : C.mint}" opacity=".85"/>`).join('')}</g>`);
+  // clients walking in from the right along a lit path, towards the rainmakers
+  parts.push(`<path d="M1210,872 C1080,860 900,846 720,834" stroke="${C.peri}" stroke-opacity=".55" stroke-width="2" stroke-dasharray="1 8" stroke-linecap="round" fill="none"/>`);
+  for (const [x, y, k] of [[760, 838, 0.72], [824, 843, 0.78], [892, 849, 0.84], [966, 855, 0.9], [1044, 862, 0.96]]) parts.push(walker(x, y, k));
 
-  // ── Clients on their way to the entrepreneurs, along a lit path ──
-  parts.push(`<path d="M1200,872 C1120,864 1060,846 990,826" stroke="${C.peri}" stroke-opacity=".5" stroke-width="2" stroke-dasharray="1 8" stroke-linecap="round" fill="none"/>`);
-  for (const [x, y, k] of [[1004, 832, 0.9], [1052, 848, 1], [1104, 860, 1.1], [1160, 870, 1.2]]) parts.push(walker(x, y, k));
-
-  // ── Faint dotted rain trajectories from the cloud to each umbrella (animated drops follow them) ──
-  const trails = overlay.map((o) => `<path d="M${f(o.x)},312 L${f(o.x)},${f(o.rimY - 18)}" />`);
-  parts.push(`<g stroke="${C.light}" stroke-opacity=".28" stroke-width="1.6" stroke-dasharray="2 9" stroke-linecap="round">${trails.join('')}</g>`);
+  // faint rain trails from the cloud (the animated drops follow them)
+  parts.push(`<g stroke="${C.light}" stroke-opacity=".2" stroke-width="1.4" stroke-dasharray="2 9" stroke-linecap="round">${overlay.map((o) => `<path d="M${f(o.x)},270 L${f(o.x)},${f(o.rimY - 12)}"/>`).join('')}</g>`);
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="t d">
 <title id="t">Rainmakers</title>
-<desc id="d">Over the Milan skyline, a cloud made of connections pours light on entrepreneurs who hold umbrellas turned inside out — the Rainmakers mark — and collect it; shoots and a young tree grow, and clients walk towards them along a lit path.</desc>
-${defs()}
+<desc id="d">Italy seen from orbit at night, along the curve of the Earth: its cities glow and are connected to Milan; a cloud rising over the horizon rains on a crowd of small entrepreneurs holding umbrellas turned inside out — the Rainmakers mark — while clients walk towards them along a lit path.</desc>
+${defs(`<linearGradient id="italy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c43a0" stop-opacity=".55"/><stop offset="1" stop-color="#1b3a5c" stop-opacity=".75"/></linearGradient>
+  <pattern id="mapDots" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r=".9" fill="${C.light}" opacity=".55"/></pattern>
+  <linearGradient id="earth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17305a"/><stop offset=".18" stop-color="#0e2240"/><stop offset="1" stop-color="#0a1828"/></linearGradient>
+  <radialGradient id="dawn"><stop offset="0" stop-color="#bfe9ff" stop-opacity=".35"/><stop offset=".5" stop-color="${C.cyan}" stop-opacity=".12"/><stop offset="1" stop-color="${C.cyan}" stop-opacity="0"/></radialGradient>
+  <linearGradient id="arc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".6"/><stop offset="1" stop-color="${C.peri}" stop-opacity=".25"/></linearGradient>`)}
 ${parts.join('\n')}
 </svg>`;
   fs.writeFileSync(`${out}/hero-rainmakers.svg`, svg);
-  return { W, H, overlay, cloudBottom: 312 };
+  return { W, H, overlay, pulses, cloudBottom: 270 };
 }
 
 // ───────────────────── BENEFITS: shelter vs harvest (1000 × 560) ─────────────────────

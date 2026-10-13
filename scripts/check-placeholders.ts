@@ -6,7 +6,7 @@
 import it from '../content/it';
 import en from '../content/en';
 import { isPlaceholder } from '../content/governance';
-import { brand, communitiesFallback, facts } from '../content/shared';
+import { brand, communitiesFallback, facts, reviewLink, socialProfiles } from '../content/shared';
 import { tribe } from '../content/data/tribe';
 
 const found: string[] = [];
@@ -23,6 +23,8 @@ walk(en, 'en');
 for (const [k, f] of Object.entries(facts)) if (f.status !== 'VERIFIED') found.push(`facts.${k}: ${f.status}${f.note ? ` — ${f.note}` : ''}`);
 for (const d of [it, en])
   d.proof.testimonials.forEach((t, i) => t.status !== 'VERIFIED' && found.push(`${d.locale}.proof.testimonials[${i}] (${t.company}): ${t.status} — hidden until verified`));
+socialProfiles.forEach((s) => s.status !== 'VERIFIED' && found.push(`socialProfiles.${s.name}: ${s.status} — ${s.url}`));
+if (reviewLink.status !== 'VERIFIED') found.push(`reviewLink: ${reviewLink.status} — ${reviewLink.note}`);
 communitiesFallback.forEach((c) => {
   if (!c.whatsappUrl) found.push(`communitiesFallback.${c.slug}: [WHATSAPP COMMUNITY LINK TO BE PROVIDED]`);
   if (isPlaceholder(c.name.it)) found.push(`communitiesFallback.${c.slug}: name to be provided`);

@@ -85,3 +85,38 @@ export function joinReceivedEmail(locale: Locale, kind: 'pitch' | 'cv', firstNam
       ];
   return { subject: title, html: layout(locale, title, p), text: text(title, p) };
 }
+
+/** Team notification for a new review (sent to info@rainmakers.it, reply-to = the author). Italian: internal. */
+export function reviewNotificationEmail(r: {
+  name: string;
+  email: string;
+  company?: string;
+  role?: string;
+  rating?: number;
+  review: string;
+  publishConsent: boolean;
+  locale: Locale;
+}): EmailContent {
+  const stars = r.rating ? `${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)} (${r.rating}/5)` : '—';
+  const who = [r.company, r.role].filter(Boolean).join(' · ') || '—';
+  const rows: [string, string][] = [
+    ['Nome', r.name],
+    ['Email', r.email],
+    ['Azienda / ruolo', who],
+    ['Valutazione', stars],
+    ['Pubblicabile sul sito', r.publishConsent ? 'Sì (nome e azienda)' : 'No'],
+    ['Lingua', r.locale.toUpperCase()],
+  ];
+  const title = `Nuova review da ${r.name}`;
+  const quote = esc(r.review).replace(/\n/g, '<br>');
+  const paragraphs = [
+    ...rows.map(([k, v]) => `<strong>${k}:</strong> ${esc(v)}`),
+    `<span style="display:block;border-left:3px solid #7b92e8;padding:8px 14px;background:#f5f7ff">${quote}</span>`,
+    'Rispondi a questa email per scrivere direttamente all’autore. La review è salvata anche in Supabase (tabella reviews, stato "new").',
+  ];
+  return {
+    subject: `⭐ Nuova review sul sito — ${r.name}${r.company ? ` (${r.company})` : ''}`,
+    html: layout('it', title, paragraphs),
+    text: text(title, [...rows.map(([k, v]) => `${k}: ${v}`), '', r.review]),
+  };
+}

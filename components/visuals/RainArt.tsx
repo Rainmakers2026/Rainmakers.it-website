@@ -30,6 +30,7 @@ export function RainArt({
   dropsPerTarget = 2,
   priority = false,
   markup,
+  pulses = [],
   className = '',
 }: {
   src: string;
@@ -43,6 +44,8 @@ export function RainArt({
   priority?: boolean;
   /** Inline SVG markup (above the fold: paints with the HTML, no request, not an LCP image) */
   markup?: string;
+  /** Glowing points (cities) that pulse: viewBox coordinates; hub = bigger, double ring */
+  pulses?: { x: number; y: number; hub?: boolean }[];
   className?: string;
 }) {
   const drops = targets.flatMap((t, i) =>
@@ -81,6 +84,13 @@ export function RainArt({
         />
       )}
       <div className="rain-art__fx" aria-hidden>
+        {pulses.map((p, i) => (
+          <span
+            key={`p-${i}`}
+            className={`rain-pulse${p.hub ? ' rain-pulse--hub' : ''}`}
+            style={{ left: pct(p.x / width), top: pct(p.y / height), '--d': `${-((i * 0.77) % 3.2)}s` } as CSSProperties}
+          />
+        ))}
         {drops.map((d) => (
           <span
             key={d.key}
@@ -100,19 +110,43 @@ export function RainArt({
   );
 }
 
-/** Coordinates of public/art/hero-rainmakers.svg (1200 × 900); rendered inline (heroArtMarkup.ts). */
+/** Coordinates of public/art/hero-rainmakers.svg (1200 × 900, from scripts/generate-art.cjs); rendered inline (heroArtMarkup.ts). */
 export const HERO_ART = {
   src: '/art/hero-rainmakers.svg',
   markup: HERO_SVG_INNER,
   width: 1200,
   height: 900,
-  from: 312,
+  from: 270,
+  dropsPerTarget: 1,
   targets: [
-    { x: 338, rimY: 502, w: 92 },
-    { x: 473, rimY: 462, w: 102 },
-    { x: 654, rimY: 422, w: 132 },
-    { x: 786, rimY: 462, w: 102 },
-    { x: 918, rimY: 502, w: 92 },
+    { x: 289, rimY: 693, w: 42 },
+    { x: 371, rimY: 690, w: 42 },
+    { x: 443, rimY: 693, w: 42 },
+    { x: 515, rimY: 696, w: 42 },
+    { x: 587, rimY: 699, w: 42 },
+    { x: 251, rimY: 747, w: 50 },
+    { x: 323, rimY: 743, w: 50 },
+    { x: 409, rimY: 739, w: 50 },
+    { x: 481, rimY: 743, w: 50 },
+    { x: 553, rimY: 747, w: 50 },
+  ],
+  pulses: [
+    { x: 560, y: 318, hub: true },
+    { x: 484.7, y: 325.2 },
+    { x: 531.8, y: 339.5 },
+    { x: 705.2, y: 321.7 },
+    { x: 652.2, y: 340.1 },
+    { x: 641.9, y: 357.2 },
+    { x: 701.7, y: 416.8 },
+    { x: 819.5, y: 464.8 },
+    { x: 994.6, y: 464.7 },
+    { x: 762.5, y: 366.4 },
+    { x: 653.1, y: 308.6 },
+    { x: 423, y: 529.9 },
+    { x: 758, y: 619.4 },
+    { x: 927.8, y: 680.7 },
+    { x: 806, y: 402.6 },
+    { x: 990.9, y: 555.6 },
   ],
 };
 

@@ -46,8 +46,15 @@ export function SectionHeader({ eyebrow, title, id, intro, align = 'left' }: Hea
   return (
     <header className={`section-header section-header--${align} reveal`}>
       <p className="eyebrow">{eyebrow}</p>
+      {/* Words are wrapped so they can rise one by one (CSS); the heading text itself is unchanged */}
       <h2 id={id} className="h2">
-        {title}
+        {title.split(' ').map((word, i) => (
+          <span key={i}>
+            <span className="w" style={{ '--w': i } as CSSProperties}>
+              {word}
+            </span>{' '}
+          </span>
+        ))}
       </h2>
       {intro ? <p className="lead">{intro}</p> : null}
     </header>
