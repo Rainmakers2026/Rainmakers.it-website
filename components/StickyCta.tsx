@@ -16,10 +16,11 @@ export function StickyCta({ label, href }: { label: string; href: string }) {
     if (!hero || !target || !('IntersectionObserver' in window)) return;
     let heroVisible = true;
     let targetVisible = false;
+    // Hidden on the hero and from the moment the target section enters the screen until the end of the page
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (e.target === hero) heroVisible = e.isIntersecting;
-        if (e.target === target) targetVisible = e.isIntersecting;
+        if (e.target === target) targetVisible = e.isIntersecting || e.boundingClientRect.top < 0;
       }
       setVisible(!heroVisible && !targetVisible);
     });

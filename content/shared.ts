@@ -22,11 +22,11 @@ export const substack = {
 
 /**
  * Founder section assets (PRD §6).
- * `photo`: path under /public of the official, team-approved photo (square, ≥ 800 px).
- * Leave null to show the circular placeholder — never use a generated or unapproved image.
+ * `photo`: path under /public of the official, team-approved photo (square).
+ * Current file: supplied by the team on 2026-10-19 (original in assets-src/founder/), cropped square around the face.
  */
 export const founderProfile = {
-  photo: null as string | null,
+  photo: '/brand/francesco-inguscio.webp' as string | null,
   linkedinUrl: 'https://www.linkedin.com/in/italianrainmaker',
   /** Channel "Italian Rainmaker" — author of the video below (YouTube oEmbed). */
   youtubeUrl: 'https://www.youtube.com/@InguscioFrancesco1981',
@@ -52,11 +52,15 @@ export const facts = {
  * Footer social icons. Only VERIFIED profiles go into schema.org sameAs; PLACEHOLDER ones are shown as icons
  * with a dummy link (listed by `npm run check:placeholders`) until the real URL is provided.
  */
-export const socialProfiles: { name: string; url: string; icon: 'facebook' | 'instagram'; status: ContentStatus }[] = [
+export const socialProfiles: { name: string; url: string; icon: 'facebook' | 'instagram' | 'linkedin' | 'x'; status: ContentStatus }[] = [
   // Linked from the official rainmakers.it header/footer (checked 2026-10-13)
   { name: 'Facebook', url: 'https://www.facebook.com/rainmakerssrl/', icon: 'facebook', status: 'VERIFIED' },
+  // Company page supplied by the team on 2026-10-26
+  { name: 'LinkedIn', url: 'https://www.linkedin.com/company/rainmakerssrl/', icon: 'linkedin', status: 'VERIFIED' },
   // Not linked anywhere on rainmakers.it: replace PH.link with the profile URL and set status to 'VERIFIED'
   { name: 'Instagram', url: PH.link, icon: 'instagram', status: 'PLACEHOLDER' },
+  // X icon added on 2026-11-10: replace PH.link with the profile URL and set status to 'VERIFIED'
+  { name: 'X', url: PH.link, icon: 'x', status: 'PLACEHOLDER' },
 ];
 
 /** Where founders leave a review (e.g. the Google Business Profile "write a review" link). */
@@ -66,11 +70,10 @@ export const rainforest = {
   url: 'https://italian-innovation-map.vercel.app',
   urlFor: (locale: 'it' | 'en') => `https://italian-innovation-map.vercel.app/${locale}`,
   /**
-   * Section background (PRD §9.3) — the only place to change it. Path under /public, or null for the
-   * brand gradient fallback. Current file: the rainforest WebP supplied in the project folder on 2026-10-12
-   * ("WhatsApp Image 2026-10-12 at 10.19.17.webp"), 1600×900 — TO CONFIRM as the final asset and its licence.
+   * Section background (PRD §9.3). Path under /public, or null for the brand gradient with glowing nodes.
+   * The rainforest photo with the animated rain moved to "Cosa fa Rainmakers" (visuals.whatBackground) on 2026-10-19.
    */
-  background: '/brand/italian-rainforest-bg.webp' as string | null,
+  background: null as string | null,
   /**
    * Public figures shown on Italian Rainforest on the date below (VERIFIED, dated).
    * Re-checked against the live map on 2026-10-12: unchanged. Update `asOf` and the numbers at each release.
@@ -92,6 +95,28 @@ export const rainforest = {
     ],
   },
 } as const;
+
+/**
+ * Photographic images requested in the Figma review (2026-10-15). Path under /public, or null to fall back to
+ * the line illustrations. Files supplied by the team on 2026-10-15 (1280×720; the umbrella is cropped to 5:3 around
+ * the subject), served unoptimized to avoid a second compression.
+ */
+export const visuals = {
+  /** Hero background ("sfondo più naturale come per Rainforest"): rainy forest under storm clouds, landscape ≥ 1920 px wide. */
+  heroBackground: '/brand/hero-rainforest.webp' as string | null,
+  /**
+   * "Perché Rainmakers" image: "Innovation is a state of mind" (chalk drawing on black, supplied 2026-10-19; original
+   * in assets-src/). Since 2026-11-10 the same drawing traced to vectors, in the site colours and lightly animated, on
+   * a transparent background (scripts/generate-mind-art.cjs); the plain image is /brand/innovation-state-of-mind.webp.
+   * MindArt (components/visuals/MindArt.tsx) is used when this is null. Previous image: /brand/benefits-umbrella.webp.
+   */
+  benefitsImage: '/brand/innovation-state-of-mind.svg' as string | null,
+  /**
+   * Italian Rainforest ("Come") background: the rainforest WebP supplied on 2026-10-12, 1600×900. Back here on
+   * 2026-10-26 from "Cosa fa Rainmakers". Null → brand gradient.
+   */
+  rainforestBackground: '/brand/italian-rainforest-bg.webp' as string | null,
+};
 
 /** Official white logo artwork and square mark supplied for the site. */
 export const brand = {

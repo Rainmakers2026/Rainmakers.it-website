@@ -6,7 +6,8 @@ import { benefits } from './benefits';
 import { founder } from './founder';
 import { track } from './track';
 import { how } from './how';
-import { community } from './community';
+import { what } from './what';
+import { mantras } from './mantras';
 import { rainforest } from './rainforest';
 import { proof } from './proof';
 import { connect } from './connect';
@@ -24,7 +25,8 @@ const en: Dictionary = {
   founder,
   track,
   how,
-  community,
+  what,
+  mantras,
   rainforest,
   proof,
   connect,

@@ -8,12 +8,8 @@ import type { ProofCopy } from '../types';
 const source = 'rainmakers.it (2021)';
 
 export const proof: ProofCopy = {
-  eyebrow: 'Dalla Tribe',
   title: 'Dicono di noi',
-  intro: 'Founder che hanno fatto piovere opportunità con Rainmakers, nelle loro parole.',
-  sourceNote: 'Testimonianze pubblicate su rainmakers.it.',
   review: {
-    hook: 'Hai fatto parte della Tribe? La tua storia può ispirare il prossimo founder.',
     cta: 'Lascia una review',
     popTitle: 'Racconta la tua esperienza',
     popText: 'Bastano due minuti: la tua review aiuta altri founder a capire se Rainmakers fa per loro.',
@@ -47,6 +43,14 @@ export const proof: ProofCopy = {
         rateLimited: 'Troppi invii ravvicinati. Riprova tra qualche minuto.',
       },
     },
+  },
+  carousel: {
+    label: 'Review dei founder',
+    prev: 'Review precedente',
+    next: 'Review successiva',
+    goTo: 'Review {n} di {total}',
+    pause: 'Metti in pausa lo scorrimento',
+    play: 'Riprendi lo scorrimento',
   },
   testimonials: [
     {

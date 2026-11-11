@@ -18,6 +18,7 @@ CTA system: **Explore the ecosystem** (→ Italian Rainforest) · **Join the com
 | `docs/01-content-audit.md` | Old site / Nuvolab / Rainforest audit: KEEP · REWRITE · REPURPOSE · REMOVE · VERIFY |
 | `docs/02-prd-review.md` | Decisions taken where the PRD was open, and the questions still to answer |
 | `docs/03-copy-deck.md` | All copy IT/EN side by side (generated: `npm run copy:export`) |
+| `docs/crm/README.md` | CRM "Rainmakers OS": forms → Supabase, Brevo and Airtable mapping, env vars, deploy, checklist (IT) |
 
 ## Quick start
 
@@ -48,14 +49,18 @@ Supabase is empty: the migration creates structure only, never data.
 | `content`, `ecosystem_links` | Future | Public read of `published` rows only |
 | `newsletter_subscribers` | Future | No public access |
 
-### Airtable lead sync
+### CRM "Rainmakers OS" (2026-11-11)
 
-The pitch and CV forms always submit through `/api/lead` and save to Supabase. To mirror each accepted submission to Airtable, configure the server-only `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `AIRTABLE_PITCH_TABLE_ID` and `AIRTABLE_CV_TABLE_ID` values in the deployment environment. Use an Airtable personal access token with record read/write access. Create both tables with text fields `First name`, `Last name`, `Email`, `Company`, `Role`, `Website or LinkedIn`, `Profile type`, `Interest`, `Language`, `Startup name`, `Company incorporated?`, `Incorporation year`, `City / Province`, `Sector`, `Websites`, `Service of interest`, `Other service`; add a checkbox field named `Consent`. The endpoint reports a partial submission if Airtable is not configured or sync fails, while preserving the successfully stored Rainmakers lead.
+Every form feeds one CRM in Supabase (`supabase/migrations/0010_crm.sql`): contacts deduplicated by email, organisations by website domain or name, one `form_submissions` row per request with its source, UTM and privacy version, editorial interests, consent events, and the only newsletter, **Gocce di Innovazione**, with double opt-in and a signed unsubscribe link. The forms share one schema (`lib/crm/schema.ts`) and one vocabulary (`lib/crm/taxonomy.ts`, checked against the SQL by `npm run test:crm`).
+
+Transactional emails stay on: the double opt-in confirmation, the welcome, the acknowledgement to the visitor and the team notification (the four "Come vuoi iniziare?" forms to `JOIN_NOTIFY_EMAIL`, default info@rainmakers.it; reviews to `FORMS_NOTIFY_EMAIL`; confirmed subscriptions to `NEWSLETTER_NOTIFY_EMAIL`, both default tools@nuvolab.com). The syncs to Brevo lists and Airtable are **prepared but off** (`lib/crm/sync.ts`): every change is queued in `external_sync_status` and nothing leaves the server until `CRM_SYNC_BREVO_ENABLED` / `CRM_SYNC_AIRTABLE_ENABLED` are set with their credentials.
+
+Setup, field mapping (Supabase → Brevo, Supabase → Airtable), environment variables, deploy steps and the manual checklist: **`docs/crm/README.md`**. The tables of 0001–0009 are kept untouched (read-only for the site). The "Contatti" mini form doesn't go through the server: it opens an email to info@nuvolab.com (`content/shared.ts → facts.otherInquiriesEmail`).
 
 ## Deploy on Vercel
 
 1. Import the repo → framework auto-detected (Next.js). Region `fra1` is set in `vercel.json`.
-2. Env vars: `NEXT_PUBLIC_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`; optionally add the Airtable variables above to enable the mirror.
+2. Env vars: `NEXT_PUBLIC_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, the Brevo sender variables, `NEWSLETTER_LINK_SECRET` and `CRON_SECRET` (full list in `.env.example` and `docs/crm/README.md`). Apply `supabase/migrations/0010_crm.sql` before deploying this version: the forms write through its functions.
 3. Enable **Web Analytics** in the Vercel project (cookieless; custom events need a plan that supports them).
 4. Point `www.rainmakers.it` to Vercel; redirect the apex domain to `www`.
 

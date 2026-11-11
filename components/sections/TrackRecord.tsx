@@ -1,220 +1,216 @@
 import type { Dictionary, Locale } from '@/content/types';
 import { SECTION_IDS } from '@/content/types';
-import { tribe, type TribeCompany } from '@/content/data/tribe';
+import { tribe } from '@/content/data/tribe';
 import { advisory, type AdvisoryProject } from '@/content/data/advisory';
-import { fillTokens, formatNumber } from '@/lib/i18n';
-import { Explorer, type ExplorerItem, type Tone } from '../explorer/Explorer';
-import { SectionHeader, cssVars } from '../ui';
-
-const initials = (name: string) =>
-  name
-    .replace(/[^\p{L}\p{N}\s+&]/gu, ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase();
-
-/** Stable hue per name so avatars keep their colour across renders and languages. */
-const hue = (name: string) => {
-  let h = 0;
-  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
-  return 200 + (h % 60); // stay within the brand's blue range (200–260)
-};
+import { giveback } from '@/content/data/giveback';
+import { advisoryLogoFiles, givebackLogoFiles, logoBox, tribeLogoFiles, whiteLogo } from '@/content/data/logos';
+import { formatNumber } from '@/lib/i18n';
+import { LogoGrid, type LogoCardItem, type SizedLogo } from '../explorer/LogoGrid';
+import { SectionHeader } from '../ui';
 
 const host = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-const tribeFavicons: Record<string, string> = {
-  'startup-geeks': 'startupgeeks.webp',
-  trovabando: 'trovabando.webp',
-  easysea: 'easysea.webp',
-  noonic: 'noonic.webp',
-  'future-fashion': 'DIS.webp',
-  designwanted: 'designwanted.webp',
-  verbalizza: 'verbalizza.webp',
-  zanze: 'zanzexvi.webp',
-  kampaay: 'kampaay.webp',
-  mapadore: 'mapadore.webp',
-  ncode: 'ncode.webp',
-  'coppa-landini': 'coppalandini.webp',
-  crowdchicken: 'crowdchicken.webp',
-  'this-is-not-a-sushi-bar': 'thisisnotsushibar.webp',
-  backbone: 'backbone.webp',
-  'chi-odia-paga': 'chiodiapaga.webp',
-  'robo-for-it': 'robo4it.webp',
-  fornace: 'fornacestudio.webp',
-  bidtotrip: 'bidtotrip.webp',
-  startuphome: 'startuphome.webp',
-  instilla: 'instilla.webp',
-  gellify: 'gellify.webp',
-  'startup-wise-guys': 'startupwiseguys.webp',
-};
+/** Alphabetical, case- and accent-insensitive (team request, 2026-10-19). */
+const byName = (a: string, b: string) => a.localeCompare(b, 'it', { sensitivity: 'base' });
 
-const advisoryFavicons: Record<string, string> = {
-  '360-capital': '360capitalpartners.webp',
-  agos: 'agos.webp',
-  antea: 'antea.tech.webp',
-  // Keyed by the data slug (content/data/advisory.ts); the file name keeps the supplied spelling
-  assolombarda: 'assolombardia.webp',
-  'art-er': 'art-er.webp',
-  'cciaa-milano': 'innovhub.webp',
-  'cdp-vc': 'cdpventurecapital.webp',
-  coeso: 'coeso.webp',
-  'confindustria-veneto': 'confindustriaveneto.webp',
-  'confindustria-verona': 'confindustriaverona.webp',
-  'credit-agricole': 'credit-agricole-levillagebyca.webp',
-  electrolux: 'electrolux.webp',
-  ey: 'ey.webp',
-  feduf: 'feduf.webp',
-  finservice: 'gruppofinservice.webp',
-  'intesa-off': 'intesasanpaolo.webp',
-  'intesa-adottup': 'intesasanpaolo.webp',
-  oltre: 'oltreimpact.webp',
-  rcs: 'corrieredellasera.webp',
-  siamosoci: 'mamacrowd.webp',
-  startupitalia: 'startupitalia.webp',
-  'talent-garden': 'talentgarden.webp',
-  'tetra-pak': 'tetrapak.webp',
-  unicredit: 'unicreditstartlab.webp',
-  bicocca: 'ibicocca.unimib.webp',
-  vita: 'vita.webp',
-};
-
-/**
- * Logos that are light-on-transparent (invisible on white) or supplied on their own dark background:
- * shown on a neutral dark plate instead of white. Checked visually against the supplied files.
- */
-const darkPlateLogos = new Set(['easysea', 'gellify', 'fornace', 'noonic', 'antea', 'oltre']);
-
-function tribeItems(dict: Dictionary, locale: Locale): ExplorerItem[] {
-  const t = dict.track;
-  const f = t.explorer.fields;
-  return tribe.map((c: TribeCompany) => {
-    const sector = c.sector?.[locale];
-    const metrics = [
-      ...(c.fte != null ? [{ label: f.fte, value: formatNumber(c.fte, locale) }] : []),
-      ...(c.revenueK != null ? [{ label: `${f.revenue} ${t.explorer.revenueUnit}`, value: formatNumber(c.revenueK, locale) }] : []),
-    ];
-    const facts = [
-      { label: f.status, value: t.tribe.statusLabels[c.status] },
-      ...(sector ? [{ label: f.sector, value: sector }] : []),
-      ...(c.city ? [{ label: f.city, value: c.city }] : []),
-      ...(c.founded ? [{ label: f.founded, value: String(c.founded) }] : []),
-      ...(c.fte != null ? [{ label: `${f.fte} (2023)`, value: formatNumber(c.fte, locale) }] : []),
-      ...(c.revenueK != null ? [{ label: `${f.revenue} (2023)`, value: `${formatNumber(c.revenueK, locale)} ${t.explorer.revenueUnit}` }] : []),
-      ...(c.website ? [{ label: t.explorer.website, value: host(c.website) }] : []),
-    ];
-    return {
-      id: c.slug,
-      name: c.name,
-      initials: initials(c.name),
-      favicon: tribeFavicons[c.slug] ? `/brand/The-Tribe-companies-favicons/${tribeFavicons[c.slug]}` : undefined,
-      faviconTone: darkPlateLogos.has(c.slug) ? 'dark' : 'light',
-      hue: hue(c.name),
-      badge: { label: t.tribe.statusLabels[c.status], tone: c.status as Tone },
-      location: c.city ?? undefined,
-      year: c.founded ?? undefined,
-      tags: sector ? [sector] : [],
-      metrics,
-      summary: c.summary[locale],
-      description: c.description[locale],
-      facts,
-      note: c.note?.[locale],
-      url: c.website ?? undefined,
-      filter: c.status,
-      size: c.revenueK ?? c.fte ?? undefined,
-      search: [c.name, sector, c.city, c.summary[locale]].filter(Boolean).join(' ').toLowerCase(),
-    };
-  });
+/** White logo sized to the same visual weight on the card and in the dialog. */
+function sized(file: string | undefined): SizedLogo | undefined {
+  const logo = whiteLogo(file);
+  if (!logo) return undefined;
+  return {
+    ...logo,
+    card: logoBox(logo, 15500, 240, 96),
+    dialog: logoBox(logo, 21000, 300, 116),
+  };
 }
 
-function advisoryItems(dict: Dictionary, locale: Locale): ExplorerItem[] {
+/** Shown on request although their website is not on record yet (2026-11-10). */
+const SHOWN_WITHOUT_WEBSITE = new Set(['buy-buy-shop']);
+/**
+ * Temporarily hidden (team request, 2026-10-16): companies without a verified website or logo.
+ * Remove this filter once their website and logo have been confirmed.
+ */
+const verified = (i: LogoCardItem) => !!i.logo && (!!i.url || SHOWN_WITHOUT_WEBSITE.has(i.id));
+
+/** Alphabetical order. */
+function tribeItems(dict: Dictionary, locale: Locale): LogoCardItem[] {
   const t = dict.track;
   const f = t.explorer.fields;
-  return advisory.map((p: AdvisoryProject) => ({
-    id: p.slug,
-    name: p.client,
-    subtitle: p.project,
-    initials: initials(p.client),
-    favicon: advisoryFavicons[p.slug] ? `/brand/Innovation-Advisory-companies-favicons/${advisoryFavicons[p.slug]}` : undefined,
-    faviconTone: darkPlateLogos.has(p.slug) ? 'dark' : 'light',
-    hue: hue(p.client),
-    badge: { label: t.advisory.typeLabels[p.type], tone: 'neutral' as Tone },
-    location: p.location,
-    year: p.year,
-    tags: [p.typeLabel[locale]],
-    metrics: [{ label: f.impact, value: p.impact[locale] }],
-    summary: p.summary[locale],
-    description: p.description[locale],
-    facts: [
-      { label: f.client, value: p.client },
-      { label: f.project, value: p.project },
-      { label: f.type, value: p.typeLabel[locale] },
-      { label: f.location, value: p.location },
-      { label: f.year, value: String(p.year) },
-      { label: f.impact, value: p.impact[locale] },
-      ...(p.website ? [{ label: t.explorer.website, value: host(p.website) }] : []),
+  return [...tribe]
+    .sort((a, b) => byName(a.name, b.name))
+    .map((c): LogoCardItem => {
+      const sector = c.sector?.[locale];
+      const note = c.note?.[locale];
+      return {
+        id: c.slug,
+        name: c.name,
+        wordmark: c.name,
+        logo: sized(tribeLogoFiles[c.slug]),
+        tag: sector,
+        status: t.tribe.statusLabels[c.status],
+        // visible marker on the card for exits and write-offs (team request, 2026-10-23), in different colours
+        badge: c.status === 'exit' || c.status === 'writeoff' ? t.tribe.statusLabels[c.status] : undefined,
+        badgeTone: c.status === 'exit' || c.status === 'writeoff' ? c.status : undefined,
+        summary: c.summary[locale],
+        sections: [
+          {
+            icon: 'document',
+            title: t.cards.project,
+            text: [c.description[locale]],
+          },
+          {
+            icon: 'pie',
+            title: t.cards.participation,
+            facts: [{ label: f.status, value: t.tribe.statusLabels[c.status] }],
+            text: [t.cards.statusText[c.status], ...(note ? [note] : [])],
+          },
+          {
+            icon: 'chart',
+            title: t.cards.keyFacts,
+            facts: [
+              ...(sector ? [{ label: f.sector, value: sector }] : []),
+              ...(c.city ? [{ label: f.city, value: c.city }] : []),
+              ...(c.founded ? [{ label: f.founded, value: String(c.founded) }] : []),
+              ...(c.fte != null
+                ? [
+                    {
+                      label: `${f.fte} (2023)`,
+                      value: formatNumber(c.fte, locale),
+                    },
+                  ]
+                : []),
+              ...(c.revenueK != null
+                ? [
+                    {
+                      label: `${f.revenue} (2023)`,
+                      value: `${formatNumber(c.revenueK, locale)} ${t.explorer.revenueUnit}`,
+                    },
+                  ]
+                : []),
+              ...(c.website ? [{ label: t.explorer.website, value: host(c.website) }] : []),
+            ],
+          },
+        ],
+        url: c.website ?? undefined,
+      };
+    });
+}
+
+/** Alphabetical order (by client, then project). */
+function advisoryItems(dict: Dictionary, locale: Locale): LogoCardItem[] {
+  const t = dict.track;
+  const f = t.explorer.fields;
+  return [...advisory]
+    .sort((a, b) => byName(a.client, b.client) || byName(a.project, b.project))
+    .map((p: AdvisoryProject): LogoCardItem => ({
+      id: p.slug,
+      name: `${p.client} — ${p.project}`,
+      wordmark: p.client,
+      logo: sized(advisoryLogoFiles[p.slug]),
+      tag: p.typeLabel[locale],
+      summary: p.summary[locale],
+      sections: [
+        {
+          icon: 'document',
+          title: `${t.cards.project}: ${p.project}`,
+          text: [p.description[locale]],
+        },
+        { icon: 'team', title: t.cards.impact, text: [p.impact[locale]] },
+        {
+          icon: 'chart',
+          title: t.cards.keyFacts,
+          facts: [
+            { label: f.client, value: p.client },
+            { label: f.type, value: p.typeLabel[locale] },
+            { label: f.location, value: p.location },
+            { label: f.year, value: String(p.year) },
+            ...(p.website ? [{ label: t.explorer.website, value: host(p.website) }] : []),
+          ],
+        },
+      ],
+      url: p.website ?? undefined,
+    }));
+}
+
+/** Giveback initiatives, in the order of the chart. */
+function givebackItems(dict: Dictionary, locale: Locale): LogoCardItem[] {
+  const t = dict.track;
+  return giveback.map((g): LogoCardItem => ({
+    id: g.slug,
+    name: g.name,
+    wordmark: g.name,
+    logo: sized(givebackLogoFiles[g.slug]),
+    tag: t.giveback.typeLabel,
+    summary: g.summary[locale],
+    sections: [
+      {
+        icon: 'document',
+        title: t.cards.project,
+        text: [g.description[locale]],
+      },
     ],
-    url: p.website ?? undefined,
-    filter: p.type,
-    search: [p.client, p.project, p.location, p.typeLabel[locale], p.summary[locale]].join(' ').toLowerCase(),
+    url: g.website ?? undefined,
   }));
 }
 
-/** Proof (PRD §5.3 step 3): key figures, Tribe and innovation advisory explorers (testimonials: Reviews section). */
+/**
+ * Track record (PRD §5.3 step 3): header, then the logo cards of Open Venture Building (the Tribe), Advisory and the
+ * Giveback initiatives (team edits, 2026-10-27; testimonials: Reviews section).
+ */
 export function TrackRecord({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const t = dict.track;
+  const labels = { showAll: t.explorer.showAll, showLess: t.explorer.showLess };
+  // Giveback first, then Open Venture Building and Advisory (2026-11-11, as in the chart)
+  const blocks = [
+    // no website on record yet: shown without the verified filter
+    {
+      id: SECTION_IDS.givebackInitiatives,
+      kind: 'giveback' as const,
+      eyebrow: t.giveback.title,
+      title: t.giveback.intro,
+      items: givebackItems(dict, locale),
+      note: '',
+    },
+    {
+      id: SECTION_IDS.tribe,
+      kind: 'tribe' as const,
+      eyebrow: t.tribe.title,
+      title: t.tribe.intro,
+      items: tribeItems(dict, locale).filter(verified),
+      note: t.tribe.dataNote,
+    },
+    {
+      id: SECTION_IDS.advisory,
+      kind: 'advisory' as const,
+      eyebrow: t.advisory.title,
+      title: t.advisory.intro,
+      items: advisoryItems(dict, locale).filter(verified),
+      note: t.advisory.dataNote,
+    },
+  ];
   return (
     <section id={SECTION_IDS.track} className="section section--base track" aria-labelledby="track-title">
       <div className="container">
-        <SectionHeader eyebrow={t.eyebrow} title={t.title} intro={t.intro} id="track-title" />
-        <dl className="track__stats">
-          {t.stats.map((s, i) => (
-            <div key={s.label} className="track__stat reveal" style={cssVars({ '--i': i })}>
-              <dt>{fillTokens(s.value)}</dt>
-              <dd>{s.label}</dd>
-            </div>
-          ))}
-        </dl>
+        {/* The network map and the row of figures were removed on 2026-10-26 */}
+        <SectionHeader title={t.title} intro={t.intro} id="track-title" />
 
-        <div id={SECTION_IDS.tribe} className="track__block">
-          <header className="track__head reveal">
-            <h3 className="track__title">{t.tribe.title}</h3>
-            <p>{t.tribe.intro}</p>
-          </header>
-          <Explorer
-            kind="tribe"
-            items={tribeItems(dict, locale)}
-            filters={(['active', 'exit', 'minority', 'writeoff'] as const).map((v) => ({ value: v, label: t.tribe.statusLabels[v] }))}
-            labels={t.explorer}
-            externalLabel={dict.ui.a11y.external}
-            placeholderBadge={dict.ui.placeholderBadge}
-            sorts={['az', 'recent', 'oldest', 'size']}
-            initialSort="size"
-            initialVisible={4}
-          />
-          <p className="track__note">{t.tribe.dataNote}</p>
-        </div>
-
-        <div id={SECTION_IDS.advisory} className="track__block">
-          <header className="track__head reveal">
-            <h3 className="track__title">{t.advisory.title}</h3>
-            <p>{t.advisory.intro}</p>
-          </header>
-          <Explorer
-            kind="advisory"
-            items={advisoryItems(dict, locale)}
-            filters={(['corporate', 'investor', 'association', 'institution', 'third_sector'] as const).map((v) => ({ value: v, label: t.advisory.typeLabels[v] }))}
-            labels={t.explorer}
-            externalLabel={dict.ui.a11y.external}
-            placeholderBadge={dict.ui.placeholderBadge}
-            sorts={['az', 'recent', 'oldest']}
-            initialSort="recent"
-            initialVisible={4}
-          />
-          <p className="track__note">{t.advisory.dataNote}</p>
-        </div>
+        {blocks.map((b) => (
+          <div key={b.id} id={b.id} className="track__block portfolio">
+            <header className="portfolio__head reveal">
+              <h3 className="portfolio__name">{b.eyebrow}</h3>
+              <p className="portfolio__title">{b.title}</p>
+            </header>
+            <LogoGrid
+              kind={b.kind}
+              items={b.items}
+              labels={labels}
+              cards={t.cards}
+              externalLabel={dict.ui.a11y.external}
+              placeholderBadge={dict.ui.placeholderBadge}
+            />
+            {b.note ? <p className="track__note">{b.note}</p> : null}
+          </div>
+        ))}
       </div>
     </section>
   );

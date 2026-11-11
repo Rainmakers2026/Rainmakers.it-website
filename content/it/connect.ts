@@ -3,8 +3,7 @@ import type { ConnectCopy } from '../types';
 export const connect: ConnectCopy = {
   eyebrow: 'Contatti',
   title: 'Connettiti con Rainmakers',
-  intro:
-    'Raccontaci chi sei e cosa cerchi: ti indicheremo persone, community e risorse adatte a te.',
+  intro: 'Raccontaci chi sei e cosa cerchi: ti indicheremo persone, network e risorse adatte a te.',
   form: {
     firstName: 'Nome',
     lastName: 'Cognome',
@@ -20,17 +19,26 @@ export const connect: ConnectCopy = {
       { value: 'startup', label: 'Startup / Scaleup' },
       { value: 'investor', label: 'Investitore' },
       { value: 'corporate', label: 'Corporate' },
-      { value: 'innovation_professional', label: 'Professionista dell’innovazione' },
+      {
+        value: 'innovation_professional',
+        label: 'Professionista dell’innovazione',
+      },
       { value: 'other', label: 'Altro' },
     ],
     interest: 'Cosa stai cercando?',
-    interestPlaceholder: 'Ad esempio: partner commerciali, competenze, investitori, una community su un tema…',
+    interestPlaceholder: 'Ad esempio: partner commerciali, competenze, investitori, un network su un tema…',
     consent: 'Ho letto l’informativa privacy e acconsento al trattamento dei miei dati per essere ricontattato da Rainmakers.',
     consentLink: 'Leggi l’informativa privacy',
     required: 'obbligatorio',
     optional: 'facoltativo',
     submit: 'Connettiti con Rainmakers',
     submitting: 'Invio in corso…',
+    steps: {
+      labels: ['Chi sei', 'La tua attività', 'Come possiamo aiutarti'],
+      progress: 'Passo {n} di {total}',
+      next: 'Avanti',
+      back: 'Indietro',
+    },
     errors: {
       required: 'Questo campo è obbligatorio.',
       email: 'Inserisci un indirizzo email valido.',
@@ -47,7 +55,7 @@ export const connect: ConnectCopy = {
     text: 'Ora scopri l’ecosistema intorno a te.',
     nextTitle: 'Il prossimo passo',
     rainforestText: 'Esplora chi opera nell’ecosistema italiano dell’innovazione.',
-    communityText: 'Inviaci il tuo progetto startup o il tuo CV per entrare in contatto.',
+    joinText: 'Accelera la tua startup o lavora con noi: inviaci il tuo pitch o il tuo CV.',
     reset: 'Invia un’altra richiesta',
   },
 };

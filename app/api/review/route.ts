@@ -1,9 +1,9 @@
 import { reviewSchema, toFieldErrors } from '@/lib/validation';
 import { markReviewNotified, submitReview } from '@/lib/supabase/leads';
-import { sendTransactional } from '@/lib/brevo/transactional';
-import { reviewNotificationEmail } from '@/lib/brevo/templates';
+import { notifyReview } from '@/lib/brevo/notify';
+import { dbSubmit } from '@/lib/crm/db';
+import { PRIVACY_VERSION, REVIEW_FORM, SOURCE_BRAND } from '@/lib/crm/forms';
 import { guard, isBot, json, readJson } from '@/lib/api/guard';
-import { facts } from '@/content/shared';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,9 +11,10 @@ export const dynamic = 'force-dynamic';
 const MAX_BODY_BYTES = 16 * 1024;
 
 /**
- * "Lascia una review" ("Dicono di noi" popup): validated server-side, stored in `reviews` (migration 0007)
- * and emailed to info@rainmakers.it via Brevo (reply-to = the author). Never published automatically.
- * Success when at least one destination received it: the database, or the team inbox.
+ * "Lascia una review" ("Dicono di noi" popup): validated server-side, stored in `reviews` (migration 0007) and,
+ * since 2026-11-11, linked to the author's contact in the CRM (form_submissions, form type 'review', with the review id
+ * only, the text stays in `reviews`); emailed to the team inbox (lib/brevo/notify.ts; reply-to = the author).
+ * Never published automatically. Success when the database or the team inbox received it.
  */
 export async function POST(req: Request) {
   const blocked = guard(req, 'review');
@@ -38,22 +39,35 @@ export async function POST(req: Request) {
   if (stored.ok && stored.duplicate) return json({ ok: true, duplicate: true });
   if (stored.ok && stored.mock) return json({ ok: true, mock: true });
 
-  const mail = await sendTransactional(
-    facts.contactEmail.value,
-    reviewNotificationEmail({
-      name: r.name,
-      email: r.email,
-      company: r.company,
-      role: r.role,
-      rating: r.rating,
-      review: r.review,
-      publishConsent: r.publishConsent === true,
-      locale: r.locale,
-    }),
-    'review',
-    { replyTo: r.email },
-  );
-  if (!mail.ok) console.error('[review] team email not sent:', mail.reason);
+  // The author in the CRM (best effort: the review itself is already stored) and the team inbox
+  const space = r.name.indexOf(' ');
+  const [, mail] = await Promise.all([
+    stored.ok
+      ? dbSubmit({
+          idempotency_key: r.idempotencyKey,
+          form_id: REVIEW_FORM.id,
+          form_type: REVIEW_FORM.type,
+          area: null,
+          language: r.locale,
+          source_brand: SOURCE_BRAND,
+          source_page: null,
+          utm: r.utm ?? {},
+          privacy_version: PRIVACY_VERSION,
+          contact: {
+            email: r.email,
+            first_name: space > 0 ? r.name.slice(0, space) : r.name,
+            last_name: space > 0 ? r.name.slice(space + 1) : null,
+            job_title: r.role ?? null,
+          },
+          organization: null,
+          player_type: null,
+          message: null,
+          data: { review_id: stored.id, rating: r.rating ?? null, publish_consent: r.publishConsent === true },
+          newsletter: { opt_in: false },
+        })
+      : null,
+    notifyReview(r),
+  ]);
 
   if (!stored.ok && !mail.ok) return json({ ok: false, error: 'not_configured' }, 500);
   if (stored.ok && stored.id && mail.ok) await markReviewNotified(stored.id);

@@ -1,31 +1,30 @@
 # Rainmakers
 
-> Rainmakers is an innovation advisor and venture builder & accelerator, active in Milan since 2011 (under the name Nuvolab until 2021). It connects entrepreneurs and startups with people, expertise and opportunities, and it created Italian Rainforest, the map of the Italian innovation ecosystem.
+> Rainmakers does innovation advisory and open venture building, in Milan since 2011 (under the name Nuvolab until 2021). It works only on meaningful innovation — technology with a purpose, for our country, people and the planet — and, as its not-for-profit giveback, it created Italian Rainforest, the map of the Italian innovation ecosystem.
 
-Rainmakers is neither a fund nor just a community: it is a network of entrepreneurs, experts and partners that helps companies grow. Founder: Francesco Inguscio.
+"We make large companies innovative and innovative companies large." Purpose: saving our country in a single generation through impact, entrepreneurship and innovation. Founder: Francesco Inguscio.
 
 ## Who it is for
 Founders and entrepreneurs of startups, scaleups and SMEs, intrapreneurs and innovation managers. Investors, corporates and innovation professionals are welcome too.
 
-## What Rainmakers does
-- Advisory: innovation advisory for companies, institutions and investors (since 2011).
-- Investments: investment advisory for VC funds, family offices and corporate VCs.
-- Club: entrepreneurs and intrapreneurs (300+) who invest in Tribe startups.
-- Lab: marketing, sales, funding, finance, tech, legal and HR "as a service" for startups.
-- Tribe: venture builder & accelerator — startups created, co-founded or accelerated (6 exits, significant stakes in 14 startups).
-- Community: events, vertical WhatsApp communities and giveback initiatives.
+## How Rainmakers is built
+- Advisory — Innovation: innovation advisory for SMEs, corporates and investors (40+ projects since 2011). Investment: advisory for VC funds, CVCs and family offices.
+- Open Venture Building — Accelerator: venture acceleration for startups after product-market fit. Builder: venture building for in-house projects (30+ startups launched in every sector).
+- Giveback (our CSR) — StartuParty and Junior Jedi, among 10+ not-for-profit initiatives for Italy's innovation ecosystem; Rainmakers also created Italian Rainforest (below).
+
+Meaningful innovation serves the 3 Ps: our country, people and the planet.
 
 ## Rainmakers and Italian Rainforest
-Rainmakers is the organisation: people, experience, relationships and community. Italian Rainforest (https://italian-innovation-map.vercel.app/en) is a separate project created by Rainmakers: the map and database of the Italian innovation ecosystem (investors, incubators and accelerators, corporate VC, startup studios, coworking spaces, institutions and other innovation enablers), open data for non-commercial use. WhatsApp communities are where people meet and take part.
+Rainmakers is the organisation: people, experience and relationships. Italian Rainforest (https://italian-innovation-map.vercel.app/en) is a separate, not-for-profit project created by Rainmakers: the map and database of the Italian innovation ecosystem (investors, incubators and accelerators, corporate VC, startup studios, coworking spaces, institutions and other innovation enablers), open data for non-commercial use.
 
 ## Track record
-- Tribe (startups): https://www.rainmakers.it/en#tribe
-- Innovation advisory projects (28 documented, e.g. Le Village by Crédit Agricole, Assolombarda, University of Milano-Bicocca, Intesa Sanpaolo, 360 Capital Partners): https://www.rainmakers.it/en#advisory
+- Open Venture Building (the Tribe startups): https://www.rainmakers.it/en#tribe
+- Advisory projects (e.g. Le Village by Crédit Agricole, Assolombarda, University of Milano-Bicocca, Intesa Sanpaolo, 360 Capital Partners): https://www.rainmakers.it/en#advisory
+- Giveback initiatives: https://www.rainmakers.it/en#giveback-initiatives
 
 ## How to get in touch
-- Contact form "Connect with Rainmakers": https://www.rainmakers.it/en#connect
-- Send a pitch or a CV (Join the Tribe): https://www.rainmakers.it/en/join
-- WhatsApp communities: https://www.rainmakers.it/en#community
+- Innovate your company, Accelerate your startup (pitch), Join the giveback or Work with us (CV): https://www.rainmakers.it/en#connect
+- Monthly newsletter: https://www.rainmakers.it/en#newsletter
 - Email: info@rainmakers.it
 
 ## Pages

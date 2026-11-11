@@ -11,7 +11,6 @@ import { imageConfigDefault } from 'next/dist/shared/lib/image-config';
 import { ImageConfigContext } from 'next/dist/shared/lib/image-config-context.shared-runtime';
 import nextConfig from '../next.config';
 import { HomePage } from '../components/HomePage';
-import { communitiesFallback } from '../content/shared';
 import { getDictionary } from '../lib/i18n';
 import type { Locale } from '../content/types';
 
@@ -71,7 +70,7 @@ function count(html: string) {
 const imageConfig = { ...imageConfigDefault, ...nextConfig.images };
 
 const results = (['it', 'en'] as Locale[]).map((locale) => {
-  const page = createElement(HomePage, { dict: getDictionary(locale), locale, communities: communitiesFallback });
+  const page = createElement(HomePage, { dict: getDictionary(locale), locale });
   const html = renderToStaticMarkup(createElement(ImageConfigContext.Provider, { value: imageConfig }, page));
   return { locale, ...count(html) };
 });

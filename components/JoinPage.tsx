@@ -18,11 +18,11 @@ export function JoinPage({ locale }: { locale: Locale }) {
             <h1>{it ? 'Entra nella Tribe' : 'Join the Tribe'}</h1>
             <p className="lead">
               {it
-                ? 'Hai un progetto startup da condividere o vuoi lavorare con noi? Scegli come entrare in contatto con Rainmakers.'
-                : 'Have a startup project to share or want to work with us? Choose how to get in touch with Rainmakers.'}
+                ? 'Vuoi accelerare la tua startup o lavorare con noi? Scegli il tuo percorso: bastano pochi minuti.'
+                : 'Want to accelerate your startup or work with us? Choose your path: it only takes a few minutes.'}
             </p>
           </header>
-          <JoinOptions locale={locale} />
+          <JoinOptions locale={locale} paths={dict.final.paths} />
         </div>
       </main>
       <Footer dict={dict} locale={locale} home={false} />

@@ -1,17 +1,19 @@
 import Link from 'next/link';
 import type { Dictionary, Locale } from '@/content/types';
-import { facts, rainforest, socialProfiles, substack } from '@/content/shared';
+import { facts, socialProfiles, substack } from '@/content/shared';
 import { isPlaceholder } from '@/content/governance';
 import { navItems } from '@/lib/nav';
 import { Logo } from './Logo';
 import { NewsletterSignup } from './NewsletterSignup';
-import { Facebook, Instagram } from './icons';
+import { Facebook, Instagram, LinkedIn, XLogo } from './icons';
 
-const socialIcons = { facebook: Facebook, instagram: Instagram };
+const socialIcons = { facebook: Facebook, instagram: Instagram, linkedin: LinkedIn, x: XLogo };
 
 /**
- * Footer (PRD §48). No address or company data until confirmed as current.
- * Contact: the form and the operational address info@rainmakers.it (PRD §12).
+ * Footer (PRD §48), aligned with the 2026-10-27 header: the same sections (Perché · Come · Cosa · Chi · News ·
+ * Contattaci; no external Italian Rainforest link and no duplicate "Contattaci" since 2026-10-27), contacts
+ * (info@rainmakers.it, Substack), the newsletter, and the legal links in the bottom bar. No address or company data
+ * until confirmed as current.
  */
 export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale: Locale; home?: boolean }) {
   const prefix = home ? '' : `/${locale}`;
@@ -57,22 +59,12 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
                 <a href={i.href ? `/${locale}${i.href}` : `${prefix}#${i.id}`}>{i.label}</a>
               </li>
             ))}
-            <li>
-              <a href={rainforest.urlFor(locale)} target="_blank" rel="noopener" data-track="rainforest_cta_click" data-location="footer">
-                {dict.ui.cta.exploreRainforest} ↗<span className="sr-only"> {dict.ui.a11y.external}</span>
-              </a>
-            </li>
           </ul>
         </nav>
 
         <div>
           <h2 className="site-footer__title">{f.contact}</h2>
           <ul>
-            <li>
-              <a href={`${prefix}#connect-form`} data-track="contact_cta_click" data-location="footer">
-                {f.contactCta}
-              </a>
-            </li>
             <li>
               <span className="muted">{f.emailLabel}: </span>
               <a href={`mailto:${facts.contactEmail.value}`}>{facts.contactEmail.value}</a>
@@ -86,22 +78,19 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
         </div>
 
         <div>
-          <h2 className="site-footer__title">{f.legal}</h2>
+          <h2 className="site-footer__title">{f.newsletter}</h2>
+          <p className="site-footer__text">{f.newsletterText}</p>
           <NewsletterSignup locale={locale} source="footer" />
-          <ul>
-            <li>
-              <Link href={`/${locale}/privacy`}>{f.privacy}</Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/cookie`}>{f.cookies}</Link>
-            </li>
-          </ul>
         </div>
       </div>
       <div className="container site-footer__bottom">
         <p>
           © {year} Rainmakers. {f.rights}
         </p>
+        <nav aria-label={f.legal} className="site-footer__legal">
+          <Link href={`/${locale}/privacy`}>{f.privacy}</Link>
+          <Link href={`/${locale}/cookie`}>{f.cookies}</Link>
+        </nav>
         <p>
           <span className="sr-only">{f.language}: </span>
           <Link href="/it" hrefLang="it" lang="it" aria-current={locale === 'it' ? 'page' : undefined}>

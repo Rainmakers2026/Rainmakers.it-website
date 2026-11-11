@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 200" width="860" height="200">
+  <g fill="#fff">
+    <path d="M40 160 92 40l58 58Z"/>
+    <circle cx="128" cy="34" r="12"/>
+    <circle cx="170" cy="66" r="9"/>
+    <path d="M150 20l6 14 15 2-11 10 3 15-13-8-13 8 3-15-11-10 15-2Z"/>
+  </g>
+  <text x="200" y="138" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="96" fill="#fff">StartuParty</text>
+</svg>

@@ -87,14 +87,17 @@ export const advisory: AdvisoryProject[] = [
   },
   {
     slug: 'assolombarda',
-    client: 'Assolombardia',
+    client: 'Assolombarda',
     project: 'MCE 4x4',
     type: 'association',
     typeLabel: T.assoc,
     website: 'https://mce4x4.mobilityconference.it/',
     location: 'Milano',
     year: 2016,
-    summary: s('La più grande call for startup sulla mobilità, con la conferenza storica di Assolombardia.', 'The largest mobility call for startups, combined with Assolombardia’s long-running conference.'),
+    summary: s(
+      'La più grande call for startup sulla mobilità, con la conferenza storica di Assolombarda.',
+      'The largest mobility call for startups, combined with Assolombarda’s long-running conference.',
+    ),
     impact: s('600+ startup coinvolte + guida sull’innovazione nella mobilità', '600+ startups involved + a guide to mobility innovation'),
     description: s(
       'Per la più grande territoriale di Confindustria abbiamo ideato MCE 4x4, la più grande call for startup ed evento sull’innovazione nella mobilità in Italia: 110 startup nella 1ª edizione, 111 nella 2ª, 101 nella 3ª, 125 nella 4ª, 98 nella 5ª, 104 nella 7ª. Nel 2021 (6ª edizione), per la pandemia, abbiamo curato un report di analisi del settore diffuso all’evento.',

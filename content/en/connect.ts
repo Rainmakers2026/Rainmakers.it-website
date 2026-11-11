@@ -3,8 +3,7 @@ import type { ConnectCopy } from '../types';
 export const connect: ConnectCopy = {
   eyebrow: 'Contact',
   title: 'Connect with Rainmakers',
-  intro:
-    'Tell us who you are and what you need: we’ll point you to the right people, communities and resources.',
+  intro: 'Tell us who you are and what you need: we’ll point you to the right people, networks and resources.',
   form: {
     firstName: 'First name',
     lastName: 'Last name',
@@ -24,13 +23,19 @@ export const connect: ConnectCopy = {
       { value: 'other', label: 'Other' },
     ],
     interest: 'What are you looking for?',
-    interestPlaceholder: 'For example: business partners, expertise, investors, a community on a topic…',
+    interestPlaceholder: 'For example: business partners, expertise, investors, a network on a topic…',
     consent: 'I have read the privacy policy and agree to the processing of my data so that Rainmakers can get back to me.',
     consentLink: 'Read the privacy policy',
     required: 'required',
     optional: 'optional',
     submit: 'Connect with Rainmakers',
     submitting: 'Sending…',
+    steps: {
+      labels: ['About you', 'Your business', 'How we can help'],
+      progress: 'Step {n} of {total}',
+      next: 'Next',
+      back: 'Back',
+    },
     errors: {
       required: 'This field is required.',
       email: 'Please enter a valid email address.',
@@ -47,7 +52,7 @@ export const connect: ConnectCopy = {
     text: 'Now discover the ecosystem around you.',
     nextTitle: 'Your next step',
     rainforestText: 'Explore who operates in Italy’s innovation ecosystem.',
-    communityText: 'Send us your startup project or CV to get in touch.',
+    joinText: 'Accelerate your startup or work with us: send us your pitch or your CV.',
     reset: 'Send another request',
   },
 };

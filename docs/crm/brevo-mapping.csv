@@ -1,0 +1,18 @@
+brevo_attribute,brevo_type,supabase_source,rule
+SUPABASE_CONTACT_ID,text,contacts.id,always
+FIRSTNAME,text,contacts.first_name,omitted when empty
+LASTNAME,text,contacts.last_name,omitted when empty
+PLAYER_TYPE,category,contact_organizations.player_type (is_primary),primary organisation = latest declared; values: startup|venture_builder|vc|cvc|crowdfunding_platform|family_office|incubator_accelerator|institution|media|empowerment_program|training_provider|association|pst|ban_club_deal|coworking
+INDUSTRY,category,organizations.industry (primary organisation),values in lib/crm/taxonomy.ts INDUSTRY_LABELS
+COUNTRY,text,organizations.country (primary organisation),ISO 3166-1 alpha-2
+INTEREST_GIVEBACK,boolean,contact_interests (area=giveback and editorial),explicit newsletter choice only
+INTEREST_OVB,boolean,contact_interests (area=open_venture_building and editorial),explicit newsletter choice only
+INTEREST_ADVISORY,boolean,contact_interests (area=advisory and editorial),explicit newsletter choice only
+SOURCE_FORM,text,contacts.first_form_id,first source; never overwritten
+SOURCE_BRAND,text,contacts.first_source_brand,first source; never overwritten
+(list) RM | Newsletter | Gocce di Innovazione,list membership,newsletter_subscriptions.status,only 'subscribed' (double opt-in confirmed); 'unsubscribed' → removed from the list (unlinkListIds); never deleted
+(segment) GDI | Giveback,dynamic segment,list + INTEREST_GIVEBACK = Yes,
+(segment) GDI | Open Venture Building,dynamic segment,list + INTEREST_OVB = Yes,
+(segment) GDI | Advisory,dynamic segment,list + INTEREST_ADVISORY = Yes,
+(segment) GDI | Player type = <value>,dynamic segment,list + PLAYER_TYPE = <value>,one per value when needed; no extra lists
+(segment) GDI | Industry = <value>,dynamic segment,list + INDUSTRY = <value>,one per value when needed; no extra lists

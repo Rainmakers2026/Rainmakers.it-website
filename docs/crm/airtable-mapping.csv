@@ -1,0 +1,47 @@
+airtable_table,airtable_field,airtable_type,supabase_source
+Contacts,supabase_id,single line text (upsert key),contacts.id
+Contacts,Email,email,contacts.email
+Contacts,First name,single line text,contacts.first_name
+Contacts,Last name,single line text,contacts.last_name
+Contacts,Phone,phone,contacts.phone
+Contacts,Job title,single line text,contacts.job_title
+Contacts,Player type,single select,contact_organizations.player_type (is_primary)
+Contacts,First source form,single line text,contacts.first_form_id
+Contacts,Created at,date time,contacts.created_at
+Organizations,supabase_id,single line text (upsert key),organizations.id
+Organizations,Name,single line text,organizations.name
+Organizations,Website,url,organizations.website
+Organizations,Industry,single select,organizations.industry
+Organizations,Country,single line text (ISO),organizations.country
+Organizations,City,single line text,organizations.city
+Organizations,Player types,multiple select,organization_player_types.player_type
+Contact Organizations,supabase_id,single line text (upsert key),contact_organizations.contact_id || ':' || organization_id
+Contact Organizations,Contact,link to Contacts,contact_organizations.contact_id
+Contact Organizations,Organization,link to Organizations,contact_organizations.organization_id
+Contact Organizations,Role,single line text,contact_organizations.role
+Contact Organizations,Player type,single select,contact_organizations.player_type
+Contact Organizations,Primary,checkbox,contact_organizations.is_primary
+Form Submissions,supabase_id,single line text (upsert key),form_submissions.id
+Form Submissions,Contact supabase_id,single line text (or link to Contacts),form_submissions.contact_id
+Form Submissions,Organization supabase_id,single line text (or link to Organizations),form_submissions.organization_id
+Form Submissions,Form id,single line text,form_submissions.form_id
+Form Submissions,Form type,single select,form_submissions.form_type
+Form Submissions,Area,single select,form_submissions.area
+Form Submissions,Player type,single select,form_submissions.player_type
+Form Submissions,Message,long text,form_submissions.message
+Form Submissions,Details,long text (JSON),form_submissions.data
+Form Submissions,Status,single select (new|in_progress|follow_up|closed|archived),form_submissions.status
+Form Submissions,Newsletter opt-in,checkbox,form_submissions.newsletter_opt_in
+Form Submissions,Source page,single line text,form_submissions.source_page
+Form Submissions,UTM source,single line text,form_submissions.utm_source
+Form Submissions,UTM medium,single line text,form_submissions.utm_medium
+Form Submissions,UTM campaign,single line text,form_submissions.utm_campaign
+Form Submissions,Submitted at,date time,form_submissions.submitted_at
+Newsletter Subscriptions,supabase_id,single line text (upsert key),newsletter_subscriptions.id
+Newsletter Subscriptions,Contact,link to Contacts,newsletter_subscriptions.contact_id
+Newsletter Subscriptions,Status,single select (pending_confirmation|subscribed|unsubscribed),newsletter_subscriptions.status
+Newsletter Subscriptions,Language,single select,newsletter_subscriptions.language
+Newsletter Subscriptions,Consent source,single line text,newsletter_subscriptions.consent_source
+Newsletter Subscriptions,Subscribed at,date time,newsletter_subscriptions.subscribed_at
+Newsletter Subscriptions,Confirmed at,date time,newsletter_subscriptions.confirmed_at
+Newsletter Subscriptions,Unsubscribed at,date time,newsletter_subscriptions.unsubscribed_at

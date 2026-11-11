@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import type { Dictionary, Locale } from '@/content/types';
-import { isPlaceholder } from '@/content/governance';
 import { brand, facts, founderProfile, rainforest, site, socialProfiles } from '@/content/shared';
 import { ogLocale, otherLocale } from './i18n';
 
@@ -58,7 +57,6 @@ export function buildJsonLd(dict: Dictionary) {
   const websiteId = `${site.url}/#website`;
   const rainforestId = `${rainforest.url}/#dataset`;
   const pageUrl = localeUrl(locale);
-  const faq = dict.faq.items.filter((i) => !isPlaceholder(i.a) && !isPlaceholder(i.q));
 
   const organization: Record<string, unknown> = {
     '@type': 'Organization',
@@ -75,7 +73,7 @@ export function buildJsonLd(dict: Dictionary) {
     foundingLocation: { '@type': 'Place', name: 'Milano, Italia' },
     areaServed: { '@type': 'Country', name: 'Italy' },
     audience: { '@type': 'Audience', audienceType: 'Entrepreneurs, founders, startups, scaleups, investors, corporates, innovation professionals' },
-    knowsAbout: ['Innovation advisory', 'Open innovation', 'Venture building', 'Startup acceleration', 'Italian innovation ecosystem', 'Entrepreneurship', 'Startups', 'Scaleups', 'Entrepreneurial community', 'Ecosystem intelligence', 'Meaningful innovation'],
+    knowsAbout: ['Innovation advisory', 'Open innovation', 'Open venture building', 'Startup acceleration', 'Italian innovation ecosystem', 'Entrepreneurship', 'Startups', 'Scaleups', 'Entrepreneurial network', 'Ecosystem intelligence', 'Meaningful innovation'],
     owns: { '@id': rainforestId },
   };
   if (brand.available) organization.logo = { '@type': 'ImageObject', url: `${site.url}${brand.files.squarePng}` };
@@ -119,16 +117,7 @@ export function buildJsonLd(dict: Dictionary) {
         about: { '@id': orgId },
         mentions: { '@id': rainforestId },
       },
-      ...(faq.length
-        ? [
-            {
-              '@type': 'FAQPage',
-              '@id': `${pageUrl}#faq`,
-              inLanguage: lang,
-              mainEntity: faq.map((i) => ({ '@type': 'Question', name: i.q, acceptedAnswer: { '@type': 'Answer', text: i.a } })),
-            },
-          ]
-        : []),
+      // No FAQPage: the FAQ section is no longer on the page (Figma review 2026-10-15) and structured data must match visible content
     ],
   };
 }

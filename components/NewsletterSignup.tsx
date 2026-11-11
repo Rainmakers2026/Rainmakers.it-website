@@ -3,22 +3,38 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import type { Locale } from '@/content/types';
 import { track } from '@/lib/analytics';
-import { Close } from './icons';
+import { AREA_LABELS, type Area } from '@/lib/crm/taxonomy';
+import { currentPage, visitUtm } from '@/lib/crm/client-source';
+import { Check, Close } from './icons';
 
 /** Server outcomes of POST /api/newsletter (lib/brevo/workflows.ts → SubscribeState). */
 type Outcome = 'pending' | 'pending_recent' | 'already' | 'email_failed' | 'invalid' | 'rate_limited' | 'error';
 type Status = 'idle' | 'sending' | Outcome;
 
 /**
- * Newsletter signup with double opt-in: this form only requests the subscription; the address joins
- * the Brevo list "Contatti" after the person confirms from the email.
+ * "Gocce di Innovazione", the only Rainmakers newsletter (2026-11-11), with double opt-in: this form only requests the
+ * subscription (Supabase 'pending_confirmation'); it becomes active when the person confirms from the email.
+ * Email required; first name and editorial interests (Giveback / Open Venture Building / Advisory) optional.
+ * `inline`: the form is shown in place (closing section of the homepage) instead of a link opening a popup.
  */
-export function NewsletterSignup({ locale, className = '', source }: { locale: Locale; className?: string; source?: 'footer' | 'final' | 'news' | 'popup' }) {
+export function NewsletterSignup({
+  locale,
+  className = '',
+  source,
+  inline = false,
+}: {
+  locale: Locale;
+  className?: string;
+  source?: 'footer' | 'final' | 'news' | 'popup';
+  inline?: boolean;
+}) {
   const id = useId();
   const dialog = useRef<HTMLElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [interests, setInterests] = useState<Area[]>([]);
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<Status>('idle');
@@ -27,11 +43,15 @@ export function NewsletterSignup({ locale, className = '', source }: { locale: L
   const copy = locale === 'it'
     ? {
         trigger: 'Iscriviti alla newsletter',
-        title: 'Rainmakers, una volta al mese',
-        text: 'Ricevi gli highlight dell’ecosistema e i link agli ultimi articoli in un solo clic.',
+        title: 'Gocce di Innovazione, una volta al mese',
+        text: 'La newsletter di Rainmakers: le idee, le opportunità e le storie che fanno crescere l’innovazione.',
         email: 'Email',
-        consent: 'Acconsento a ricevere la newsletter Rainmakers e ho letto l’informativa privacy.',
-        submit: 'Iscrivimi',
+        placeholder: 'La tua email',
+        firstName: 'Nome (facoltativo)',
+        namePlaceholder: 'Il tuo nome (facoltativo)',
+        interests: 'Mi interessano soprattutto (facoltativo)',
+        consent: 'Voglio ricevere Gocce di Innovazione, la newsletter mensile di Rainmakers, e ho letto l’informativa privacy.',
+        submit: 'Iscriviti',
         sending: 'Invio…',
         close: 'Chiudi',
         pending: 'Quasi fatto: ti abbiamo inviato un’email. Clicca sul link per confermare l’iscrizione (controlla anche lo spam).',
@@ -44,10 +64,14 @@ export function NewsletterSignup({ locale, className = '', source }: { locale: L
       }
     : {
         trigger: 'Subscribe to the newsletter',
-        title: 'Rainmakers, once a month',
-        text: 'Get ecosystem highlights and links to the latest articles in one click.',
+        title: 'Gocce di Innovazione, once a month',
+        text: 'The Rainmakers newsletter: the ideas, opportunities and stories that help innovation grow.',
         email: 'Email',
-        consent: 'I agree to receive the Rainmakers newsletter and have read the privacy policy.',
+        placeholder: 'Your email',
+        firstName: 'First name (optional)',
+        namePlaceholder: 'Your first name (optional)',
+        interests: 'I am mostly interested in (optional)',
+        consent: 'I would like to receive Gocce di Innovazione, the Rainmakers monthly newsletter, and have read the privacy policy.',
         submit: 'Subscribe',
         sending: 'Sending…',
         close: 'Close',
@@ -101,7 +125,18 @@ export function NewsletterSignup({ locale, className = '', source }: { locale: L
       const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, locale, consent, source, website, elapsedMs: Date.now() - started }),
+        body: JSON.stringify({
+          email,
+          firstName,
+          interests,
+          locale,
+          consent,
+          source,
+          sourcePage: currentPage(),
+          utm: visitUtm(),
+          website,
+          elapsedMs: Date.now() - started,
+        }),
       });
       const result = (await response.json().catch(() => ({}))) as { state?: Outcome };
       const outcome: Outcome =
@@ -116,6 +151,97 @@ export function NewsletterSignup({ locale, className = '', source }: { locale: L
   // Final states replace the form; recoverable ones keep it (with the email still filled in)
   const done = status === 'pending' || status === 'pending_recent' || status === 'already';
   const problem = status === 'email_failed' || status === 'invalid' || status === 'rate_limited' || status === 'error';
+
+  const interestChoices = (
+    <fieldset className="choice-group choice-group--compact nl-interests">
+      <legend className="field__label">{copy.interests}</legend>
+      <div className="choice-group__options">
+        {(Object.keys(AREA_LABELS) as Area[]).map((area) => (
+          <label key={area} className="choice">
+            <input
+              type="checkbox"
+              name="interests"
+              value={area}
+              checked={interests.includes(area)}
+              onChange={(event) => setInterests((list) => (event.target.checked ? [...list, area] : list.filter((a) => a !== area)))}
+            />
+            <span>{AREA_LABELS[area][locale]}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+
+  if (inline) {
+    return (
+      <div className={`nl-inline ${className}`}>
+        {done ? (
+          <div className="nl-inline__done" role="status">
+            <span className="nl-inline__done-mark" aria-hidden>
+              <Check />
+            </span>
+            <p>{copy[status]}</p>
+          </div>
+        ) : (
+          // The timer for the anti-spam check starts when the visitor first touches the form
+          <form className="nl-inline__form" onSubmit={submit} onFocus={() => started || setStarted(Date.now())}>
+            <div className="nl-inline__row">
+              <label className="sr-only" htmlFor={`${id}-name`}>
+                {copy.firstName}
+              </label>
+              <input
+                id={`${id}-name`}
+                className="nl-inline__input nl-inline__input--name"
+                name="firstName"
+                autoComplete="given-name"
+                placeholder={copy.namePlaceholder}
+                maxLength={80}
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+              />
+              <label className="sr-only" htmlFor={`${id}-email`}>
+                {copy.email}
+              </label>
+              <input
+                id={`${id}-email`}
+                className="nl-inline__input"
+                type="email"
+                name="email"
+                autoComplete="email"
+                inputMode="email"
+                placeholder={copy.placeholder}
+                required
+                maxLength={254}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </div>
+            <label className="modal-form__honeypot" aria-hidden="true">
+              Website <input tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
+            </label>
+            {interestChoices}
+            <label className="consent nl-inline__consent">
+              <input type="checkbox" required checked={consent} onChange={(event) => setConsent(event.target.checked)} />
+              <span>
+                {copy.consent}{' '}
+                <a href={`/${locale}/privacy`} target="_blank" rel="noopener">
+                  {locale === 'it' ? 'Privacy' : 'Privacy policy'}
+                </a>
+              </span>
+            </label>
+            {problem ? (
+              <p className={`form-status ${status === 'email_failed' ? 'form-status--warning' : 'form-status--error'}`} role="alert">
+                {copy[status]}
+              </p>
+            ) : null}
+            <button type="submit" className="btn btn--primary nl-inline__submit" disabled={status === 'sending'} aria-busy={status === 'sending'}>
+              {status === 'sending' ? copy.sending : copy.submit}
+            </button>
+          </form>
+        )}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -147,6 +273,11 @@ export function NewsletterSignup({ locale, className = '', source }: { locale: L
                   <span className="field__label">{copy.email}</span>
                   <input type="email" name="email" autoComplete="email" inputMode="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} />
                 </label>
+                <label className="field">
+                  <span className="field__label">{copy.firstName}</span>
+                  <input name="firstName" autoComplete="given-name" maxLength={80} value={firstName} onChange={(event) => setFirstName(event.target.value)} />
+                </label>
+                {interestChoices}
                 <label className="modal-form__honeypot" aria-hidden="true">
                   Website <input tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
                 </label>

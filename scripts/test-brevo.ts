@@ -1,6 +1,7 @@
 /**
- * Newsletter double opt-in + Brevo + welcome-email tests (Phase 5), without network or credentials:
- * real route handlers, stubbed Supabase RPC and Brevo API. No email is sent.
+ * "Gocce di Innovazione" double opt-in, unsubscribe and the transactional emails, on the CRM (0010_crm.sql), without
+ * network or credentials: real route handlers, stubbed Supabase RPC and Brevo API. No email is sent.
+ * Since 2026-11-11 nobody is added to a Brevo list here: the Brevo sync is prepared but off (lib/crm/sync.ts).
  * Run: npm run test:brevo
  */
 import assert from 'node:assert/strict';
@@ -12,9 +13,9 @@ process.env.BREVO_API_KEY = 'xkeysib-test-only';
 process.env.BREVO_FROM_EMAIL = 'newsletter@example.test';
 process.env.BREVO_FROM_NAME = 'Rainmakers';
 process.env.BREVO_REPLY_TO = 'info@example.test';
-process.env.BREVO_CONTACTS_LIST_ID = '7';
 process.env.CRON_SECRET = 'cron-test-secret';
 process.env.NEXT_PUBLIC_SITE_URL = 'https://site.example.test';
+process.env.NEWSLETTER_LINK_SECRET = 'test-only-newsletter-link-secret-0123456789';
 
 type Call = { url: string; method: string; body: Record<string, unknown> | null; headers: Record<string, string> };
 let calls: Call[] = [];
@@ -34,7 +35,6 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     return (brevo[path] ?? (() => ok({ messageId: 'm1' }, 201)))();
   }
   if (url.includes('/rest/v1/communities')) return ok([]);
-  if (url.includes('/storage/v1/object')) return ok({});
   throw new Error(`unexpected fetch ${url}`);
 }) as typeof fetch;
 
@@ -49,6 +49,7 @@ const post = (path: string, body: unknown, h: Record<string, string> = {}) =>
 const sub = (over: Record<string, unknown> = {}) => ({ email: '  Anna@Example.COM ', locale: 'it', consent: true, source: 'footer', elapsedMs: 5000, ...over });
 const brevoCalls = (path?: string) => calls.filter((c) => c.url.startsWith('https://api.brevo.com') && (!path || c.url.endsWith(path)));
 const rpcCalls = (fn: string) => calls.filter((c) => c.url.endsWith(`/rpc/${fn}`));
+const CONTACT = '3f2a1c9e-1b2c-4d5e-8f90-123456789abc';
 
 let n = 0;
 async function test(name: string, fn: () => Promise<void>) {
@@ -64,71 +65,68 @@ async function test(name: string, fn: () => Promise<void>) {
 async function main() {
   const newsletter = await import('../app/api/newsletter/route');
   const confirm = await import('../app/api/newsletter/confirm/route');
+  const unsubscribe = await import('../app/api/newsletter/unsubscribe/route');
   const cron = await import('../app/api/cron/brevo-retry/route');
   const lead = await import('../app/api/lead/route');
-  const join = await import('../app/api/join/route');
+  const { unsubscribeUrl } = await import('../lib/crm/links');
 
-  // ── A. Newsletter request ──
+  // ── A. Newsletter request (dedicated form) ──
   await test('newsletter: consent is mandatory (422, nothing stored or sent)', async () => {
     const r = await newsletter.POST(post('/api/newsletter', sub({ consent: false })));
     assert.equal(r.status, 422);
     assert.equal(calls.length, 0);
   });
-  await test('newsletter: invalid email rejected server-side', async () => {
-    const r = await newsletter.POST(post('/api/newsletter', sub({ email: 'not-an-email' })));
-    assert.equal(r.status, 422);
+  await test('newsletter: invalid email or unknown interest rejected server-side', async () => {
+    for (const body of [sub({ email: 'not-an-email' }), sub({ interests: ['rainforest_radar'] })]) {
+      const r = await newsletter.POST(post('/api/newsletter', body));
+      assert.equal(r.status, 422);
+    }
     assert.equal(calls.length, 0);
   });
-  await test('newsletter: new address → pending + confirmation email; NOT added to "Contatti" yet', async () => {
-    rpc.newsletter_subscribe = () => ok({ id: 's1', action: 'send_confirmation' });
-    const r = await newsletter.POST(post('/api/newsletter', sub()));
+  await test('newsletter: new address → pending_confirmation + confirmation email; never a Brevo list', async () => {
+    rpc.crm_newsletter_subscribe = () => ok({ id: 's1', action: 'send_confirmation' });
+    const r = await newsletter.POST(post('/api/newsletter', sub({ firstName: ' Anna ', interests: ['giveback', 'advisory', 'giveback'] })));
     assert.equal(r.status, 200);
     assert.equal((await r.json()).state, 'pending');
-    const p = rpcCalls('newsletter_subscribe')[0].body!.p as Record<string, unknown>;
+    const p = rpcCalls('crm_newsletter_subscribe')[0].body!.p as Record<string, unknown>;
     assert.equal(p.email, 'anna@example.com', 'normalised');
-    assert.equal(p.consent, true);
+    assert.equal(p.first_name, 'Anna');
+    assert.deepEqual(p.interests, ['giveback', 'advisory'], 'deduplicated editorial interests');
+    assert.equal(p.source, 'rm_newsletter_gdi_v1');
     assert.ok(String(p.consent_version).length > 0, 'consent version recorded');
     assert.match(String(p.token_hash), /^[0-9a-f]{64}$/, 'only the hash goes to the database');
     const mail = brevoCalls('/smtp/email');
     assert.equal(mail.length, 1);
-    assert.equal(brevoCalls('/contacts').length, 0, 'no list subscription before confirmation');
+    assert.equal(brevoCalls('/contacts').length, 0, 'no list subscription');
     const html = String(mail[0].body!.htmlContent);
+    assert.match(String(mail[0].body!.subject), /Gocce di Innovazione/);
     const token = html.match(/confirm\?token=([A-Za-z0-9_-]{43})/)![1];
     assert.equal(createHash('sha256').update(token).digest('hex'), p.token_hash, 'emailed token matches stored hash');
     assert.ok(html.includes('https://site.example.test/it/newsletter/confirm'));
-    assert.deepEqual((mail[0].body!.to as { email: string }[])[0].email, 'anna@example.com');
-    assert.deepEqual(mail[0].body!.replyTo, { email: 'info@example.test' });
-    assert.equal(mail[0].headers['api-key'], 'xkeysib-test-only');
-    assert.deepEqual(rpcCalls('newsletter_record_confirmation')[0].body, { p_id: 's1', p_ok: true });
+    assert.deepEqual(rpcCalls('crm_newsletter_record_confirmation')[0].body, { p_id: 's1', p_ok: true });
   });
   await test('newsletter: already confirmed → "already", no email', async () => {
-    rpc.newsletter_subscribe = () => ok({ id: 's1', action: 'already_subscribed' });
+    rpc.crm_newsletter_subscribe = () => ok({ id: 's1', action: 'already_subscribed' });
     const r = await newsletter.POST(post('/api/newsletter', sub()));
     assert.equal((await r.json()).state, 'already');
     assert.equal(brevoCalls().length, 0);
   });
   await test('newsletter: confirmation sent minutes ago → no second email', async () => {
-    rpc.newsletter_subscribe = () => ok({ id: 's1', action: 'confirmation_recent' });
+    rpc.crm_newsletter_subscribe = () => ok({ id: 's1', action: 'confirmation_recent' });
     const r = await newsletter.POST(post('/api/newsletter', sub()));
     assert.equal((await r.json()).state, 'pending_recent');
     assert.equal(brevoCalls().length, 0);
   });
-  await test('newsletter: Brevo failure → subscription kept, honest "email_failed" (503), failure recorded', async () => {
-    rpc.newsletter_subscribe = () => ok({ id: 's1', action: 'send_confirmation' });
+  await test('newsletter: Brevo failure → request kept, honest "email_failed" (503), failure recorded', async () => {
+    rpc.crm_newsletter_subscribe = () => ok({ id: 's1', action: 'send_confirmation' });
     brevo['/smtp/email'] = () => ok({ code: 'internal_error' }, 500);
     const r = await newsletter.POST(post('/api/newsletter', sub()));
     assert.equal(r.status, 503);
     assert.equal((await r.json()).state, 'email_failed');
-    assert.deepEqual(rpcCalls('newsletter_record_confirmation')[0].body, { p_id: 's1', p_ok: false });
-  });
-  await test('newsletter: Brevo rate limit (429) handled the same way', async () => {
-    rpc.newsletter_subscribe = () => ok({ id: 's1', action: 'send_confirmation' });
-    brevo['/smtp/email'] = () => ok({ code: 'too_many_requests' }, 429);
-    const r = await newsletter.POST(post('/api/newsletter', sub()));
-    assert.equal((await r.json()).state, 'email_failed');
+    assert.deepEqual(rpcCalls('crm_newsletter_record_confirmation')[0].body, { p_id: 's1', p_ok: false });
   });
   await test('newsletter: database error → 500, no email', async () => {
-    rpc.newsletter_subscribe = () => ok({ message: 'boom' }, 500);
+    rpc.crm_newsletter_subscribe = () => ok({ message: 'boom' }, 500);
     const r = await newsletter.POST(post('/api/newsletter', sub()));
     assert.equal(r.status, 500);
     assert.equal(brevoCalls().length, 0);
@@ -139,65 +137,80 @@ async function main() {
     assert.equal(calls.length, 0);
   });
 
-  // ── Confirmation (double opt-in) ──
+  // ── B. Confirmation (double opt-in) ──
   const token = 'A'.repeat(43);
   await test('confirm: malformed token → 400, no database call', async () => {
     const r = await confirm.POST(post('/api/newsletter/confirm', { token: 'short' }));
     assert.equal(r.status, 400);
     assert.equal(calls.length, 0);
   });
-  await test('confirm: valid → added to "Contatti" (list 7, updateEnabled) + one welcome email', async () => {
-    rpc.newsletter_confirm = () => ok({ id: 's1', action: 'confirmed', email: 'anna@example.com', language: 'en', needs_sync: true, needs_welcome: true });
-    rpc.rm_claim_welcome = () => ok({ email: 'anna@example.com', language: 'en' });
+  await test('confirm: valid → one welcome email with the unsubscribe link + notice; still no Brevo list', async () => {
+    rpc.crm_newsletter_confirm = () => ok({ id: 's1', contact_id: CONTACT, action: 'confirmed', email: 'anna@example.com', language: 'en', needs_welcome: true });
+    rpc.crm_claim_ack = () => ok({ email: 'anna@example.com', language: 'en', contact_id: CONTACT });
     const r = await confirm.POST(post('/api/newsletter/confirm', { token }));
-    assert.equal((await r.json()).state, 'confirmed');
-    assert.equal(rpcCalls('newsletter_confirm')[0].body!.p_token_hash, createHash('sha256').update(token).digest('hex'));
-    const contact = brevoCalls('/contacts')[0];
-    assert.deepEqual(contact.body, { email: 'anna@example.com', listIds: [7], updateEnabled: true });
-    assert.deepEqual(rpcCalls('newsletter_record_sync')[0].body, { p_id: 's1', p_ok: true, p_error: null });
+    const j = await r.json();
+    assert.equal(j.state, 'confirmed');
+    assert.ok(String(j.unsubscribeUrl).startsWith(`https://site.example.test/en/newsletter/unsubscribe?c=${CONTACT}&t=`));
+    assert.equal(rpcCalls('crm_newsletter_confirm')[0].body!.p_token_hash, createHash('sha256').update(token).digest('hex'));
+    assert.equal(brevoCalls('/contacts').length, 0, 'the list sync is not active');
     const mails = brevoCalls('/smtp/email');
-    assert.equal(mails.length, 1);
-    assert.match(String(mails[0].body!.subject), /Welcome/);
+    const welcome = mails.filter((m) => /Welcome/.test(String(m.body!.subject)));
+    assert.equal(welcome.length, 1);
+    assert.ok(String(welcome[0].body!.htmlContent).includes('/en/newsletter/unsubscribe?c='), 'unsubscribe link in the welcome email');
+    assert.deepEqual(rpcCalls('crm_finish_ack')[0].body, { p_kind: 'newsletter', p_id: 's1', p_ok: true });
+    assert.ok(mails.find((m) => (m.body!.to as { email: string }[])[0].email === 'tools@nuvolab.com'), 'newsletter inbox notified');
   });
-  await test('confirm: retry/double click → welcome claim already taken → no second email', async () => {
-    rpc.newsletter_confirm = () => ok({ id: 's1', action: 'already_confirmed', email: 'anna@example.com', language: 'it', needs_sync: false, needs_welcome: true });
-    rpc.rm_claim_welcome = () => ok({}); // claimed by the first request
+  await test('confirm: retry/double click → welcome already claimed → no second email', async () => {
+    rpc.crm_newsletter_confirm = () => ok({ id: 's1', contact_id: CONTACT, action: 'already_confirmed', email: 'anna@example.com', language: 'it', needs_welcome: true });
+    rpc.crm_claim_ack = () => ok({});
     const r = await confirm.POST(post('/api/newsletter/confirm', { token }));
     assert.equal((await r.json()).state, 'already_confirmed');
     assert.equal(brevoCalls('/smtp/email').length, 0);
-    assert.equal(brevoCalls('/contacts').length, 0);
   });
-  await test('confirm: existing Brevo contact ("duplicate_parameter") counts as synced', async () => {
-    rpc.newsletter_confirm = () => ok({ id: 's1', action: 'confirmed', email: 'anna@example.com', language: 'it', needs_sync: true, needs_welcome: false });
-    brevo['/contacts'] = () => ok({ code: 'duplicate_parameter', message: 'Contact already exist' }, 400);
-    await confirm.POST(post('/api/newsletter/confirm', { token }));
-    assert.deepEqual(rpcCalls('newsletter_record_sync')[0].body, { p_id: 's1', p_ok: true, p_error: null });
-  });
-  await test('confirm: list sync fails (429) → still confirmed, failure recorded for the retry job', async () => {
-    rpc.newsletter_confirm = () => ok({ id: 's1', action: 'confirmed', email: 'anna@example.com', language: 'it', needs_sync: true, needs_welcome: false });
-    brevo['/contacts'] = () => ok({ code: 'too_many_requests' }, 429);
-    const r = await confirm.POST(post('/api/newsletter/confirm', { token }));
-    assert.equal((await r.json()).state, 'confirmed');
-    assert.deepEqual(rpcCalls('newsletter_record_sync')[0].body, { p_id: 's1', p_ok: false, p_error: 'rate_limited' });
-  });
-  await test('confirm: welcome email fails → claim released (retried later), never reported as sent twice', async () => {
-    rpc.newsletter_confirm = () => ok({ id: 's1', action: 'confirmed', email: 'anna@example.com', language: 'it', needs_sync: false, needs_welcome: true });
-    rpc.rm_claim_welcome = () => ok({ email: 'anna@example.com', language: 'it' });
+  await test('confirm: welcome email fails → claim released for the retry job', async () => {
+    rpc.crm_newsletter_confirm = () => ok({ id: 's1', contact_id: CONTACT, action: 'confirmed', email: 'anna@example.com', language: 'it', needs_welcome: true });
+    rpc.crm_claim_ack = () => ok({ email: 'anna@example.com', language: 'it', contact_id: CONTACT });
     brevo['/smtp/email'] = () => ok({ code: 'internal_error' }, 500);
     await confirm.POST(post('/api/newsletter/confirm', { token }));
-    assert.deepEqual(rpcCalls('rm_release_welcome')[0].body, { p_kind: 'newsletter', p_id: 's1' });
+    assert.deepEqual(rpcCalls('crm_finish_ack')[0].body, { p_kind: 'newsletter', p_id: 's1', p_ok: false });
   });
-  await test('confirm: expired / invalid tokens → no Brevo call', async () => {
+  await test('confirm: expired / invalid tokens → no email', async () => {
     for (const action of ['expired', 'invalid']) {
       calls = [];
-      rpc.newsletter_confirm = () => ok({ action });
+      rpc.crm_newsletter_confirm = () => ok({ action });
       const r = await confirm.POST(post('/api/newsletter/confirm', { token }));
       assert.equal((await r.json()).state, action);
       assert.equal(brevoCalls().length, 0);
     }
   });
 
-  // ── Retry job ──
+  // ── C. Unsubscribe (signed link) ──
+  const link = new URL(unsubscribeUrl('https://site.example.test', 'it', CONTACT)!);
+  const c = link.searchParams.get('c');
+  const t = link.searchParams.get('t');
+  await test('unsubscribe: valid signed link → unsubscribed in Supabase', async () => {
+    rpc.crm_newsletter_unsubscribe = () => ok({ action: 'unsubscribed' });
+    const r = await unsubscribe.POST(post('/api/newsletter/unsubscribe', { c, t }));
+    assert.equal(r.status, 200);
+    assert.equal((await r.json()).state, 'unsubscribed');
+    assert.deepEqual(rpcCalls('crm_newsletter_unsubscribe')[0].body, { p_contact: CONTACT, p_source: 'email_link' });
+    assert.equal(brevoCalls().length, 0);
+  });
+  await test('unsubscribe: second click → "already"', async () => {
+    rpc.crm_newsletter_unsubscribe = () => ok({ action: 'already' });
+    const r = await unsubscribe.POST(post('/api/newsletter/unsubscribe', { c, t }));
+    assert.equal((await r.json()).state, 'already');
+  });
+  await test('unsubscribe: forged or someone else’s signature → 400, database untouched', async () => {
+    const other = '00000000-0000-4000-8000-000000000000';
+    for (const body of [{ c, t: 'x'.repeat(43) }, { c: other, t }, { c, t: undefined }, { c: "1' or 1=1", t }]) {
+      const r = await unsubscribe.POST(post('/api/newsletter/unsubscribe', body));
+      assert.equal(r.status, 400);
+    }
+    assert.equal(calls.length, 0);
+  });
+
+  // ── D. Retry job ──
   await test('cron: requires the CRON_SECRET bearer token', async () => {
     const r = await cron.GET(new Request('http://localhost/api/cron/brevo-retry'));
     assert.equal(r.status, 401);
@@ -205,20 +218,20 @@ async function main() {
     assert.equal(r2.status, 401);
     assert.equal(calls.length, 0);
   });
-  await test('cron: retries pending list syncs and failed welcomes', async () => {
-    rpc.rm_brevo_pending_work = () =>
-      ok({ newsletter: [{ id: 's2', email: 'b@example.com', language: 'it', needs_sync: true, needs_welcome: true }], join: ['j9'] });
+  await test('cron: resends failed welcome and acknowledgement emails, never a list sync', async () => {
+    rpc.crm_pending_emails = () => ok({ newsletter: ['s2'], submissions: ['f9'] });
     let claims = 0;
-    rpc.rm_claim_welcome = (a) => (claims++, ok(a.p_kind === 'join' ? { email: 'c@example.com', language: 'en', first_name: 'C', kind: 'cv' } : { email: 'b@example.com', language: 'it' }));
+    rpc.crm_claim_ack = (a) =>
+      (claims++, ok(a.p_kind === 'submission' ? { email: 'c@example.com', language: 'en', first_name: 'C', form_type: 'job_application' } : { email: 'b@example.com', language: 'it', contact_id: CONTACT }));
     const r = await cron.GET(new Request('http://localhost/api/cron/brevo-retry', { headers: { authorization: 'Bearer cron-test-secret' } }));
     const j = await r.json();
     assert.equal(r.status, 200);
-    assert.equal(j.synced, 1);
-    assert.equal(j.welcomed, 2);
+    assert.equal(j.sent, 2);
     assert.equal(claims, 2);
+    assert.equal(brevoCalls('/contacts').length, 0);
   });
 
-  // ── B. Welcome for Join; contact form never touches Brevo ──
+  // ── E. The contact form never touches Brevo ──
   await test('contact form: no Brevo call at all (not a newsletter subscription)', async () => {
     rpc.submit_contact = () => ok({ request_id: 'r1', duplicate: false });
     const r = await lead.POST(
@@ -226,53 +239,12 @@ async function main() {
     );
     assert.equal(r.status, 200);
     assert.equal(brevoCalls().length, 0);
-    assert.equal(rpcCalls('newsletter_subscribe').length, 0);
-  });
-  const joinPayload = () => ({
-    locale: 'it', firstName: 'Marco', lastName: 'B', email: 'marco@example.com', company: 'Acme', role: 'Designer', profileType: 'other',
-    submissionType: 'cv', link: 'https://linkedin.com/in/marco', consent: true, elapsedMs: 5000, idempotencyKey: crypto.randomUUID(),
-  });
-  const joinReq = (payload: unknown) => {
-    const fd = new FormData();
-    fd.set('payload', JSON.stringify(payload));
-    return new Request('http://localhost/api/join', { method: 'POST', headers: { 'x-real-ip': `10.1.0.${++ip}` }, body: fd });
-  };
-  await test('join: new application → one "received" email (transactional), never the list', async () => {
-    rpc.submit_join_application = () => ok({ application_id: 'a1', duplicate: false });
-    rpc.rm_claim_welcome = () => ok({ email: 'marco@example.com', language: 'it', first_name: 'Marco', kind: 'cv' });
-    const r = await join.POST(joinReq(joinPayload()));
-    assert.equal(r.status, 200);
-    assert.deepEqual(rpcCalls('rm_claim_welcome')[0].body, { p_kind: 'join', p_id: 'a1' });
-    const mails = brevoCalls('/smtp/email');
-    assert.equal(mails.length, 1);
-    assert.match(String(mails[0].body!.htmlContent), /il tuo CV/);
-    assert.equal(brevoCalls('/contacts').length, 0);
-  });
-  await test('join: duplicate submission → no email', async () => {
-    rpc.submit_join_application = () => ok({ application_id: 'a1', duplicate: true });
-    await join.POST(joinReq(joinPayload()));
-    assert.equal(brevoCalls().length, 0);
-  });
-  await test('join: email failure does not fail the saved application', async () => {
-    rpc.submit_join_application = () => ok({ application_id: 'a1', duplicate: false });
-    rpc.rm_claim_welcome = () => ok({ email: 'marco@example.com', language: 'it', first_name: 'Marco', kind: 'cv' });
-    brevo['/smtp/email'] = () => ok({}, 500);
-    const r = await join.POST(joinReq(joinPayload()));
-    assert.equal(r.status, 200);
-    assert.ok(rpcCalls('rm_release_welcome').length === 1);
-  });
-  await test('join: first name is HTML-escaped in the email', async () => {
-    rpc.submit_join_application = () => ok({ application_id: 'a1', duplicate: false });
-    rpc.rm_claim_welcome = () => ok({ email: 'x@example.com', language: 'en', first_name: '<script>alert(1)</script>', kind: 'pitch' });
-    await join.POST(joinReq(joinPayload()));
-    const html = String(brevoCalls('/smtp/email')[0].body!.htmlContent);
-    assert.ok(!html.includes('<script>'));
-    assert.ok(html.includes('&lt;script&gt;'));
+    assert.equal(rpcCalls('crm_newsletter_subscribe').length, 0);
   });
 
-  // ── C. Secrets and personal data ──
+  // ── F. Secrets and personal data ──
   await test('API key and addresses never appear in responses or logs', async () => {
-    rpc.newsletter_subscribe = () => ok({ id: 's1', action: 'send_confirmation' });
+    rpc.crm_newsletter_subscribe = () => ok({ id: 's1', action: 'send_confirmation' });
     brevo['/smtp/email'] = () => ok({ code: 'unauthorized' }, 401);
     const r = await newsletter.POST(post('/api/newsletter', sub()));
     const text = await r.text();

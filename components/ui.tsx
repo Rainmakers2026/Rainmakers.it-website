@@ -35,7 +35,7 @@ export function Cta({ href, children, variant = 'primary', track, location, exte
 }
 
 interface HeaderProps {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   id: string;
   intro?: string;
@@ -45,7 +45,7 @@ interface HeaderProps {
 export function SectionHeader({ eyebrow, title, id, intro, align = 'left' }: HeaderProps) {
   return (
     <header className={`section-header section-header--${align} reveal`}>
-      <p className="eyebrow">{eyebrow}</p>
+      {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
       {/* Words are wrapped so they can rise one by one (CSS); the heading text itself is unchanged */}
       <h2 id={id} className="h2">
         {title.split(' ').map((word, i) => (

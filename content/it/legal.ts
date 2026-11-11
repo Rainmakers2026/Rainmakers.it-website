@@ -24,12 +24,15 @@ export const legal: LegalCopy = {
       {
         title: '3. Finalità e base giuridica',
         body: [
-          'Ricontattarti e indicarti persone, community e risorse dell’ecosistema: consenso (art. 6.1.a GDPR).',
+          'Ricontattarti e indicarti persone, network e risorse dell’ecosistema: consenso (art. 6.1.a GDPR).',
           'Inviarti la newsletter mensile con articoli, novità tech ed eventi: consenso, revocabile in qualsiasi momento.',
           'Prevenire spam e abusi del modulo: legittimo interesse (art. 6.1.f GDPR).',
         ],
       },
-      { title: '4. Conservazione', body: [`Periodo di conservazione: ${PH.provided}`] },
+      {
+        title: '4. Conservazione',
+        body: [`Periodo di conservazione: ${PH.provided}`],
+      },
       {
         title: '5. Destinatari',
         body: [
@@ -63,9 +66,7 @@ export const legal: LegalCopy = {
       },
       {
         title: '2. Siti esterni',
-        body: [
-          'I link verso Italian Rainforest, WhatsApp e altri siti portano a servizi con proprie policy su cookie e privacy, che ti invitiamo a consultare.',
-        ],
+        body: ['I link verso Italian Rainforest e altri siti portano a servizi con proprie policy su cookie e privacy, che ti invitiamo a consultare.'],
       },
       {
         title: '3. Modifiche',

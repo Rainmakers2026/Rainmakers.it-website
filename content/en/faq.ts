@@ -6,11 +6,11 @@ export const faq: FaqCopy = {
   items: [
     {
       q: 'What is Rainmakers?',
-      a: 'Rainmakers is an innovation advisor and venture builder & accelerator, active in Milan since 2011 (under the name Nuvolab until 2021). It connects entrepreneurs and startups with the people, expertise and opportunities of the Italian innovation ecosystem.',
+      a: 'Rainmakers has been doing innovation advisory and open venture building in Milan since 2011 (under the name Nuvolab until 2021). It connects entrepreneurs and startups with the people, expertise and opportunities of the Italian innovation ecosystem.',
     },
     {
       q: 'What is the difference between Rainmakers and Italian Rainforest?',
-      a: 'Rainmakers is the organisation: people, experience, relationships and community. Italian Rainforest is the map and database of the Italian innovation ecosystem, created by Rainmakers and free to consult for non-commercial use.',
+      a: 'Rainmakers is the organisation: people, experience, relationships and network. Italian Rainforest is the map and database of the Italian innovation ecosystem, created by Rainmakers and free to consult for non-commercial use.',
     },
     {
       q: 'Is Rainmakers a VC fund?',
@@ -26,7 +26,7 @@ export const faq: FaqCopy = {
     },
     {
       q: 'How do I get in touch with Rainmakers?',
-      a: 'You can join a WhatsApp community, send your pitch or CV from the Join the Tribe page, or fill in the “Connect with Rainmakers” form.',
+      a: 'From the “How do you want to start?” section you can ask us for a project for your company, send your startup’s pitch, join the giveback or send us your CV. Or write to info@rainmakers.it.',
     },
   ],
 };

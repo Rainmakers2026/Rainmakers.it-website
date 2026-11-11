@@ -36,24 +36,24 @@ const text = (title: string, paragraphs: string[], extra?: string) =>
 /** Double opt-in: the only email sent before consent is confirmed. Purely transactional. */
 export function confirmationEmail(locale: Locale, url: string, ttlHours: number): EmailContent {
   const it = locale === 'it';
-  const title = it ? 'Conferma la tua iscrizione alla newsletter' : 'Confirm your newsletter subscription';
+  const title = it ? 'Conferma la tua iscrizione a Gocce di Innovazione' : 'Confirm your subscription to Gocce di Innovazione';
   const p = it
     ? [
-        'Hai chiesto di ricevere la newsletter mensile di Rainmakers. Per completare l’iscrizione, conferma il tuo indirizzo email.',
+        'Hai chiesto di ricevere Gocce di Innovazione, la newsletter mensile di Rainmakers. Per completare l’iscrizione, conferma il tuo indirizzo email.',
         `Il link è valido per ${ttlHours} ore. Se non hai richiesto l’iscrizione, ignora questa email: non riceverai altri messaggi.`,
       ]
     : [
-        'You asked to receive the Rainmakers monthly newsletter. To complete your subscription, please confirm your email address.',
+        'You asked to receive Gocce di Innovazione, the Rainmakers monthly newsletter. To complete your subscription, please confirm your email address.',
         `The link is valid for ${ttlHours} hours. If you did not request this, just ignore this email: you will not hear from us again.`,
       ];
   const label = it ? 'Conferma l’iscrizione' : 'Confirm subscription';
   return { subject: title, html: layout(locale, title, p, { label, url }), text: text(title, p, `${label}: ${url}`) };
 }
 
-/** Sent once, after confirmation (and after the contact is queued for the "Contatti" list). */
-export function newsletterWelcomeEmail(locale: Locale): EmailContent {
+/** Sent once, after confirmation; ends with the personal unsubscribe link (lib/crm/links.ts). */
+export function newsletterWelcomeEmail(locale: Locale, unsubscribeUrl: string | null = null): EmailContent {
   const it = locale === 'it';
-  const title = it ? 'Benvenuto nella newsletter di Rainmakers' : 'Welcome to the Rainmakers newsletter';
+  const title = it ? 'Benvenuto in Gocce di Innovazione' : 'Welcome to Gocce di Innovazione';
   const p = it
     ? [
         'La tua iscrizione è confermata. Una volta al mese riceverai gli highlight dell’ecosistema e i link agli ultimi contenuti di Rainmakers.',
@@ -63,19 +63,33 @@ export function newsletterWelcomeEmail(locale: Locale): EmailContent {
         'Your subscription is confirmed. Once a month you will receive ecosystem highlights and links to the latest Rainmakers content.',
         'Every newsletter includes a link to unsubscribe at any time. For any question, reply to this email or write to info@rainmakers.it.',
       ];
-  return { subject: title, html: layout(locale, title, p), text: text(title, p) };
+  const unsubscribeLabel = it ? 'Non vuoi più riceverla? Annulla l’iscrizione' : 'No longer interested? Unsubscribe';
+  const withLink = unsubscribeUrl ? [...p, `<a href="${esc(unsubscribeUrl)}" style="color:#5b6b80;font-size:13px">${esc(unsubscribeLabel)}</a>`] : p;
+  return {
+    subject: title,
+    html: layout(locale, title, withLink),
+    text: text(title, p, unsubscribeUrl ? `${unsubscribeLabel}: ${unsubscribeUrl}` : undefined),
+  };
 }
 
-/** "Application received" after Join the Tribe — transactional, no marketing list. */
-export function joinReceivedEmail(locale: Locale, kind: 'pitch' | 'cv', firstName: string): EmailContent {
+export type JoinKind = 'pitch' | 'cv' | 'giveback' | 'company' | 'invest';
+
+/** "Application received" after a "Come vuoi iniziare?" form — transactional, no marketing list. */
+export function joinReceivedEmail(locale: Locale, kind: JoinKind, firstName: string): EmailContent {
   const it = locale === 'it';
   const name = esc(firstName.trim().slice(0, 80));
-  const what = it ? (kind === 'pitch' ? 'il tuo pitch' : 'il tuo CV') : kind === 'pitch' ? 'your pitch' : 'your CV';
+  const what = {
+    pitch: it ? 'il tuo pitch' : 'your pitch',
+    cv: it ? 'il tuo CV' : 'your CV',
+    giveback: it ? 'la tua proposta di contributo' : 'your offer to contribute',
+    company: it ? 'la richiesta della tua azienda' : 'your company’s request',
+    invest: it ? 'la tua candidatura come investitore' : 'your investor application',
+  }[kind];
   const title = it ? 'Abbiamo ricevuto la tua candidatura' : 'We have received your application';
   const p = it
     ? [
         `Ciao ${name},`,
-        `grazie per averci inviato ${what}. Il team Rainmakers lo esaminerà e ti ricontatterà.`,
+        `grazie per averci inviato ${what}. Il team Rainmakers ${kind === 'giveback' || kind === 'company' || kind === 'invest' ? 'la' : 'lo'} esaminerà e ti ricontatterà.`,
         'Questa email conferma soltanto la ricezione: non ti abbiamo iscritto ad alcuna newsletter. Per domande puoi rispondere a questa email o scrivere a info@rainmakers.it.',
       ]
     : [
@@ -86,7 +100,64 @@ export function joinReceivedEmail(locale: Locale, kind: 'pitch' | 'cv', firstNam
   return { subject: title, html: layout(locale, title, p), text: text(title, p) };
 }
 
-/** Team notification for a new review (sent to info@rainmakers.it, reply-to = the author). Italian: internal. */
+/** Rows "Label: value" plus an optional quoted block, in the internal (Italian) layout. */
+function teamEmail(title: string, subject: string, rows: [string, string][], quote?: string, footnote?: string): EmailContent {
+  const paragraphs = [
+    ...rows.map(([k, v]) => `<strong>${esc(k)}:</strong> ${esc(v).replace(/\n/g, '<br>')}`),
+    ...(quote ? [`<span style="display:block;border-left:3px solid #7b92e8;padding:8px 14px;background:#f5f7ff">${esc(quote).replace(/\n/g, '<br>')}</span>`] : []),
+    ...(footnote ? [footnote] : []),
+  ];
+  return {
+    subject,
+    html: layout('it', title, paragraphs),
+    text: text(title, [...rows.map(([k, v]) => `${k}: ${v}`), ...(quote ? ['', quote] : []), ...(footnote ? ['', footnote] : [])]),
+  };
+}
+
+const JOIN_TITLES: Record<JoinKind, string> = {
+  company: 'Innova la tua azienda',
+  pitch: 'Accelera la tua startup (pitch)',
+  giveback: 'Unisciti al Giveback',
+  cv: 'Lavora con noi (CV)',
+  invest: 'Investi con noi',
+};
+
+/**
+ * Team notification for a "Come vuoi iniziare?" request (sent to the team inbox, reply-to = the visitor).
+ * `fields` are the readable answers (lib/crm/readable.ts → readableFields), labelled in Italian.
+ */
+export function joinNotificationEmail(kind: JoinKind, fields: Record<string, string>, message: string | undefined, file: { name: string } | null): EmailContent {
+  const name = `${fields.Nome ?? ''} ${fields.Cognome ?? ''}`.trim();
+  const rows = Object.entries(fields).filter(([, v]) => v !== '');
+  if (file) rows.push(['Documento', `${file.name} (in allegato)`]);
+  const note = message || undefined;
+  const title = `${JOIN_TITLES[kind]}: nuova richiesta da ${name}`;
+  return teamEmail(
+    title,
+    `📩 ${JOIN_TITLES[kind]} — ${name}${fields.Organizzazione ? ` (${fields.Organizzazione})` : ''}`,
+    rows,
+    note,
+    'Rispondi a questa email per scrivere direttamente alla persona. La richiesta è salvata nel CRM Rainmakers OS (Supabase → form_submissions).',
+  );
+}
+
+/** Internal notice of a confirmed newsletter subscription (double opt-in completed). */
+export function newsletterSubscriberEmail(s: { email: string; locale?: string | null; source?: string | null }): EmailContent {
+  const title = 'Nuova iscrizione confermata alla newsletter';
+  return teamEmail(
+    title,
+    `✉️ Newsletter: nuova iscrizione confermata — ${s.email}`,
+    [
+      ['Email', s.email],
+      ['Lingua', (s.locale ?? '—').toUpperCase()],
+      ['Punto di iscrizione', s.source ?? '—'],
+    ],
+    undefined,
+    'L’indirizzo ha confermato l’iscrizione a Gocce di Innovazione con il doppio opt-in (Supabase → newsletter_subscriptions). Entrerà nella lista Brevo quando la sincronizzazione sarà attivata.',
+  );
+}
+
+/** Team notification for a new review (sent to the team inbox, reply-to = the author). Italian: internal. */
 export function reviewNotificationEmail(r: {
   name: string;
   email: string;

@@ -1,59 +1,52 @@
-import Image from 'next/image';
 import type { Dictionary } from '@/content/types';
 import { SECTION_IDS } from '@/content/types';
 import { reviewLink } from '@/content/shared';
 import { isPlaceholder } from '@/content/governance';
-import { cssVars, SectionHeader } from '../ui';
+import { logoBox, whiteLogo } from '@/content/data/logos';
+import { SectionHeader, cssVars } from '../ui';
 import { ArrowRight } from '../icons';
 import { ReviewForm } from '../ReviewForm';
+import { ReviewsCarousel, type ReviewSlide } from '../ReviewsCarousel';
 
 /**
- * "Dicono di noi" (PRD §26): every VERIFIED testimonial, then a hook asking Tribe founders for a review.
- * Server-rendered, no client JS: cards slide in with CSS scroll-driven animations, then float, drip and
- * catch a passing light (paused off-screen via data-fx). The CTA opens a native popover with the review form
- * (POST /api/review → Supabase + email to info@rainmakers.it) and the review-platform link (placeholder until
- * provided: content/shared.ts → reviewLink).
+ * "Dicono di noi" (PRD §26), redesigned on 2026-10-19 to stand apart from the Tribe / Innovation Advisory cards:
+ * every VERIFIED testimonial as a translucent glass card in a 3D carousel, the company logo under the quote, over a
+ * background of slow rain ripples (CSS, paused off-screen via data-fx). The button opens the review form popover
+ * (POST /api/review → Supabase + email to info@rainmakers.it).
  */
 export function Reviews({ dict }: { dict: Dictionary }) {
   const p = dict.proof;
-  const items = p.testimonials.filter((t) => t.status === 'VERIFIED');
   const pendingLink = isPlaceholder(reviewLink.value);
+  const items: ReviewSlide[] = p.testimonials
+    .filter((t) => t.status === 'VERIFIED')
+    .map((t) => {
+      const logo = whiteLogo(t.logo);
+      return {
+        quote: t.quote,
+        people: t.people,
+        company: t.company,
+        logo: logo
+          ? {
+              src: logo.src,
+              width: logo.width,
+              height: logo.height,
+              box: logoBox(logo, 6200, 190, 58),
+            }
+          : null,
+      };
+    });
   return (
-    <section id={SECTION_IDS.reviews} className="section section--base reviews" aria-labelledby="reviews-title" data-fx>
+    <section id={SECTION_IDS.reviews} className="section reviews reviews--glass" aria-labelledby="reviews-title" data-fx>
+      <div className="reviews__ripples" aria-hidden>
+        {Array.from({ length: 6 }, (_, i) => (
+          <span key={i} style={cssVars({ '--i': i })} />
+        ))}
+      </div>
       <div className="container">
-        <SectionHeader eyebrow={p.eyebrow} title={p.title} intro={p.intro} id="reviews-title" align="center" />
-        {items.length ? (
-          <ul className="reviews__grid">
-            {items.map((r, i) => (
-              <li key={r.company} className={`review review--${i % 2 ? 'r' : 'l'}`} style={cssVars({ '--i': i % 3, '--n': i })}>
-                <figure>
-                  <span className="review__drop" aria-hidden />
-                  <blockquote>
-                    <p>{r.quote}</p>
-                  </blockquote>
-                  <figcaption className="review__who">
-                    <Image className="review__logo" src={`/brand/The-Tribe-companies-favicons/${r.logo}`} alt="" width={44} height={44} />
-                    <span>
-                      <strong>{r.people}</strong>
-                      <span>{r.company}</span>
-                    </span>
-                  </figcaption>
-                </figure>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {items.length ? <p className="reviews__source">{p.sourceNote}</p> : null}
-
-        <div className="review-cta">
-          <span className="review-cta__mark" aria-hidden>
-            <span className="review-cta__drop" />
-            <svg viewBox="120 100 260 240" width="56" height="52" fill="currentColor" focusable="false">
-              <path d="M343.3,127.6c-13.7,0-25.6-8.1-31-19.8c-5.4,11.7-17.3,19.8-31,19.8s-25.6-8.1-31-19.8 c-5.4,11.7-17.3,19.8-31,19.8s-25.6-8.1-31-19.8c-5.4,11.7-17.3,19.8-31,19.8s-25.5-8.1-30.9-19.7c8.7,58.1,57.4,103.2,117.1,106.4 v89.1c0,6.3-4.6,12-10.9,12.6c-7.2,0.7-13.4-5-13.4-12.1v-4.2c0-2.4-1.3-4.5-3.3-5.7l0,0c-4.4-2.5-9.9,0.6-9.9,5.7v3.4 c0,13.2,9.8,24.7,22.9,25.9c15,1.4,27.7-10.4,27.7-25.2v-89.6c60-3,108.8-48.1,117.6-106.4C368.8,119.5,357,127.6,343.3,127.6z" />
-            </svg>
-          </span>
-          <p className="review-cta__hook">{p.review.hook}</p>
-          <button type="button" className="btn btn--primary review-cta__btn" popoverTarget="review-pop" data-track="review_cta_click" data-location="reviews">
+        <SectionHeader title={p.title} id="reviews-title" align="center" />
+        {items.length ? <ReviewsCarousel items={items} labels={p.carousel} /> : null}
+        <div className="reviews__cta reveal">
+          <button type="button" className="btn btn--secondary review-cta__btn" popoverTarget="review-pop" data-track="review_cta_click" data-location="reviews">
             <span>{p.review.cta}</span>
             <ArrowRight aria-hidden />
           </button>

@@ -22,6 +22,8 @@ export type AnalyticsEvent =
   | 'scroll_depth'
   | 'tribe_card_expand'
   | 'advisory_card_expand'
+  | 'giveback_card_expand'
+  | 'service_expand'
   | 'explorer_filter'
   | 'video_play'
   | 'join_application_submit'

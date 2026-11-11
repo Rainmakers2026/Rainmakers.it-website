@@ -1,15 +1,16 @@
 import type { FooterCopy } from '../types';
 
 export const footer: FooterCopy = {
-  tagline: 'The gateway to the Rainmakers ecosystem and Italian innovation.',
+  tagline: 'We make innovation happen. In Italy. Since 2011.',
   explore: 'Explore',
   contact: 'Contact',
-  contactCta: 'Write to us via the form',
   legal: 'Legal',
   privacy: 'Privacy policy',
   cookies: 'Cookie policy',
   rights: 'All rights reserved.',
   emailLabel: 'Email',
+  newsletter: 'Newsletter',
+  newsletterText: 'Drops of innovation, once a month.',
   onSubstack: 'on Substack',
   language: 'Language',
   follow: 'Follow us',

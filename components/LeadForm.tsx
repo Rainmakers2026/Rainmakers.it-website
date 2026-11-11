@@ -7,11 +7,12 @@ import { rainforest } from '@/content/shared';
 import { leadSchema, toFieldErrors, type ErrorCode } from '@/lib/validation';
 import { UTM_KEYS } from '@/lib/options';
 import { track } from '@/lib/analytics';
-import { ArrowDown, ArrowUpRight, Check } from './icons';
+import { ArrowDown, ArrowRight, ArrowUpRight, Check } from './icons';
 
 /**
- * "Connect with Rainmakers" lead form (PRD §18–21).
- * Flow: client validation → consent check → POST /api/lead (server validation → Supabase) → success with next action.
+ * "Connect with Rainmakers" lead form (PRD §18–21), in three steps (Figma review 2026-10-15).
+ * Flow: each step is validated before moving on → consent check → one POST /api/lead at the end
+ * (server validation → Supabase) → success with next action.
  */
 type Fields = {
   firstName: string;
@@ -39,6 +40,19 @@ const empty: Fields = {
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
+/** Fields of each step. Every field stays mounted (hidden steps keep their values). */
+const STEPS: (keyof Fields)[][] = [
+  ['firstName', 'lastName', 'email'],
+  ['company', 'role', 'profileType', 'link'],
+  ['interest', 'consent'],
+];
+const LAST = STEPS.length - 1;
+/** Step holding a field; anything else (e.g. timing checks) belongs to the last step. */
+const stepOf = (field: string) => {
+  const i = STEPS.findIndex((s) => s.includes(field as keyof Fields));
+  return i < 0 ? LAST : i;
+};
+
 export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale }) {
   const f = dict.form;
   const uid = useId();
@@ -54,6 +68,8 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
   const utm = useRef<Record<string, string>>({});
   const summaryRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
+  const [step, setStep] = useState(0);
+  const stepRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     mountedAt.current = Date.now();
@@ -93,16 +109,43 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
     idempotencyKey: idempotencyKey.current,
   });
 
+  const goTo = (n: number) => {
+    setStep(n);
+    requestAnimationFrame(() => stepRef.current?.focus());
+  };
+
+  /** Shows the errors on the earliest step that has one. */
+  const showErrors = (fe: Record<string, ErrorCode>) => {
+    setErrors(fe);
+    const first = Math.min(...Object.keys(fe).map(stepOf));
+    if (first !== step) setStep(first);
+    requestAnimationFrame(() => summaryRef.current?.focus());
+  };
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setServerError(null);
 
     const parsed = leadSchema.safeParse(payload());
+    const fe = parsed.success ? {} : toFieldErrors(parsed.error);
+
+    // Steps 1–2: "Next" (or Enter) validates only the fields of the current step
+    if (step < LAST) {
+      const here = Object.fromEntries(Object.entries(fe).filter(([k]) => stepOf(k) === step));
+      if (Object.keys(here).length) {
+        setErrors(here);
+        track('lead_form_error', { fields: Object.keys(here).join(','), step: step + 1, locale });
+        requestAnimationFrame(() => summaryRef.current?.focus());
+        return;
+      }
+      setErrors({});
+      goTo(step + 1);
+      return;
+    }
+
     if (!parsed.success) {
-      const fe = toFieldErrors(parsed.error);
-      setErrors(fe);
+      showErrors(fe);
       track('lead_form_error', { fields: Object.keys(fe).join(','), locale });
-      requestAnimationFrame(() => summaryRef.current?.focus());
       return;
     }
 
@@ -120,10 +163,7 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
         requestAnimationFrame(() => successRef.current?.focus());
         return;
       }
-      if (data.fields) {
-        setErrors(data.fields);
-        requestAnimationFrame(() => summaryRef.current?.focus());
-      }
+      if (data.fields) showErrors(data.fields);
       setServerError(res.status === 429 ? f.errors.rateLimited : data.fields ? f.errors.summary : f.errors.generic);
       setStatus('error');
       track('lead_form_error', { server: res.status, locale });
@@ -137,6 +177,7 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
     setFields(empty);
     setErrors({});
     setStatus('idle');
+    setStep(0);
     started.current = false;
     mountedAt.current = Date.now();
     idempotencyKey.current = crypto.randomUUID();
@@ -162,11 +203,11 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
             <span>{s.rainforestText}</span>
             <span className="sr-only">{dict.external}</span>
           </a>
-          <a className="next-card" href={`/${locale}/join`} data-track="community_cta_click" data-location="form_success">
+          <a className="next-card" href="#connect" data-track="community_cta_click" data-location="form_success">
             <strong>
               {dict.cta.join} <ArrowDown aria-hidden className="inline-icon" />
             </strong>
-            <span>{s.communityText}</span>
+            <span>{s.joinText}</span>
           </a>
         </div>
         <button type="button" className="link-button" onClick={reset}>
@@ -208,45 +249,96 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
         </div>
       ) : null}
 
-      <div className="form-grid">
-        <Input id={id('firstName')} label={f.firstName} value={fields.firstName} onChange={(v) => set('firstName', v)} error={err('firstName')} autoComplete="given-name" required requiredText={f.required} />
-        <Input id={id('lastName')} label={f.lastName} value={fields.lastName} onChange={(v) => set('lastName', v)} error={err('lastName')} autoComplete="family-name" required requiredText={f.required} />
-        <Input id={id('email')} label={f.email} type="email" value={fields.email} onChange={(v) => set('email', v)} error={err('email')} autoComplete="email" inputMode="email" required requiredText={f.required} className="span-2" />
-        <Input id={id('company')} label={f.company} value={fields.company} onChange={(v) => set('company', v)} error={err('company')} autoComplete="organization" required requiredText={f.required} />
-        <Input id={id('role')} label={f.role} value={fields.role} onChange={(v) => set('role', v)} error={err('role')} autoComplete="organization-title" required requiredText={f.required} />
-        <Field id={id('profileType')} label={f.profileType} error={err('profileType')} required requiredText={f.required} className="span-2">
-          <select
-            id={id('profileType')}
-            value={fields.profileType}
-            onChange={(e) => set('profileType', e.target.value)}
-            aria-invalid={!!errors.profileType}
-            aria-describedby={errors.profileType ? `${id('profileType')}-error` : undefined}
-            required
-          >
-            <option value="" disabled>
-              {f.profilePlaceholder}
-            </option>
-            {f.profiles.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
+      <ol className="form-steps" aria-hidden>
+        {f.steps.labels.map((l, i) => (
+          <li key={l} className={i === step ? 'is-current' : i < step ? 'is-done' : undefined}>
+            <span className="form-steps__num">{i < step ? <Check /> : i + 1}</span>
+            <span className="form-steps__label">{l}</span>
+          </li>
+        ))}
+      </ol>
+      <p ref={stepRef} tabIndex={-1} className="sr-only">
+        {f.steps.progress.replace('{n}', String(step + 1)).replace('{total}', String(STEPS.length))}: {f.steps.labels[step]}
+      </p>
+
+      <fieldset className="form-step" hidden={step !== 0}>
+        <legend className="sr-only">{f.steps.labels[0]}</legend>
+        <div className="form-grid">
+          <Input id={id('firstName')} label={f.firstName} value={fields.firstName} onChange={(v) => set('firstName', v)} error={err('firstName')} autoComplete="given-name" required requiredText={f.required} />
+          <Input id={id('lastName')} label={f.lastName} value={fields.lastName} onChange={(v) => set('lastName', v)} error={err('lastName')} autoComplete="family-name" required requiredText={f.required} />
+          <Input id={id('email')} label={f.email} type="email" value={fields.email} onChange={(v) => set('email', v)} error={err('email')} autoComplete="email" inputMode="email" required requiredText={f.required} className="span-2" />
+        </div>
+      </fieldset>
+
+      <fieldset className="form-step" hidden={step !== 1}>
+        <legend className="sr-only">{f.steps.labels[1]}</legend>
+        <div className="form-grid">
+          <Input id={id('company')} label={f.company} value={fields.company} onChange={(v) => set('company', v)} error={err('company')} autoComplete="organization" required requiredText={f.required} />
+          <Input id={id('role')} label={f.role} value={fields.role} onChange={(v) => set('role', v)} error={err('role')} autoComplete="organization-title" required requiredText={f.required} />
+          <Field id={id('profileType')} label={f.profileType} error={err('profileType')} required requiredText={f.required} className="span-2">
+            <select
+              id={id('profileType')}
+              value={fields.profileType}
+              onChange={(e) => set('profileType', e.target.value)}
+              aria-invalid={!!errors.profileType}
+              aria-describedby={errors.profileType ? `${id('profileType')}-error` : undefined}
+              required
+            >
+              <option value="" disabled>
+                {f.profilePlaceholder}
               </option>
-            ))}
-          </select>
-        </Field>
-        <Input id={id('link')} label={f.link} type="url" value={fields.link} onChange={(v) => set('link', v)} error={err('link')} inputMode="url" placeholder="https://" optionalText={f.optional} hint={f.linkHint} className="span-2" />
-        <Field id={id('interest')} label={f.interest} error={err('interest')} optionalText={f.optional} className="span-2">
-          <textarea
-            id={id('interest')}
-            rows={3}
-            maxLength={1000}
-            value={fields.interest}
-            placeholder={f.interestPlaceholder}
-            onChange={(e) => set('interest', e.target.value)}
-            aria-invalid={!!errors.interest}
-            aria-describedby={errors.interest ? `${id('interest')}-error` : undefined}
+              {f.profiles.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Input id={id('link')} label={f.link} type="url" value={fields.link} onChange={(v) => set('link', v)} error={err('link')} inputMode="url" placeholder="https://" optionalText={f.optional} hint={f.linkHint} className="span-2" />
+        </div>
+      </fieldset>
+
+      <fieldset className="form-step" hidden={step !== 2}>
+        <legend className="sr-only">{f.steps.labels[2]}</legend>
+        <div className="form-grid">
+          <Field id={id('interest')} label={f.interest} error={err('interest')} optionalText={f.optional} className="span-2">
+            <textarea
+              id={id('interest')}
+              rows={3}
+              maxLength={1000}
+              value={fields.interest}
+              placeholder={f.interestPlaceholder}
+              onChange={(e) => set('interest', e.target.value)}
+              aria-invalid={!!errors.interest}
+              aria-describedby={errors.interest ? `${id('interest')}-error` : undefined}
+            />
+          </Field>
+        </div>
+
+        <div className={`consent ${errors.consent ? 'has-error' : ''}`}>
+          <input
+            id={id('consent')}
+            type="checkbox"
+            checked={fields.consent}
+            onChange={(e) => set('consent', e.target.checked)}
+            aria-invalid={!!errors.consent}
+            aria-describedby={errors.consent ? `${id('consent')}-error` : undefined}
+            required
           />
-        </Field>
-      </div>
+          <label htmlFor={id('consent')}>
+            {f.consent}{' '}
+            <a href={`/${locale}/privacy`} target="_blank" rel="noopener">
+              {f.consentLink}
+              <span className="sr-only"> {dict.external}</span>
+            </a>
+          </label>
+          {errors.consent ? (
+            <p id={`${id('consent')}-error`} className="field__error">
+              {f.errors.consent}
+            </p>
+          ) : null}
+        </div>
+      </fieldset>
 
       {/* Honeypot: invisible to people, tempting to bots */}
       <div className="hp" aria-hidden>
@@ -254,33 +346,30 @@ export function LeadForm({ dict, locale }: { dict: LeadFormCopy; locale: Locale 
         <input id={id('hp')} name="company_website" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
       </div>
 
-      <div className={`consent ${errors.consent ? 'has-error' : ''}`}>
-        <input
-          id={id('consent')}
-          type="checkbox"
-          checked={fields.consent}
-          onChange={(e) => set('consent', e.target.checked)}
-          aria-invalid={!!errors.consent}
-          aria-describedby={errors.consent ? `${id('consent')}-error` : undefined}
-          required
-        />
-        <label htmlFor={id('consent')}>
-          {f.consent}{' '}
-          <a href={`/${locale}/privacy`} target="_blank" rel="noopener">
-            {f.consentLink}
-            <span className="sr-only"> {dict.external}</span>
-          </a>
-        </label>
-        {errors.consent ? (
-          <p id={`${id('consent')}-error`} className="field__error">
-            {f.errors.consent}
-          </p>
+      <div className="form-nav">
+        {step > 0 ? (
+          <button
+            type="button"
+            className="btn btn--secondary form-nav__back"
+            onClick={() => {
+              setErrors({});
+              goTo(step - 1);
+            }}
+          >
+            {f.steps.back}
+          </button>
         ) : null}
+        {step < LAST ? (
+          <button type="submit" className="btn btn--primary btn--lg form-nav__next">
+            <span>{f.steps.next}</span>
+            <ArrowRight aria-hidden />
+          </button>
+        ) : (
+          <button type="submit" className="btn btn--primary btn--lg form-nav__next" disabled={status === 'submitting'} aria-busy={status === 'submitting'}>
+            {status === 'submitting' ? f.submitting : f.submit}
+          </button>
+        )}
       </div>
-
-      <button type="submit" className="btn btn--primary btn--block btn--lg" disabled={status === 'submitting'} aria-busy={status === 'submitting'}>
-        {status === 'submitting' ? f.submitting : f.submit}
-      </button>
     </form>
   );
 }

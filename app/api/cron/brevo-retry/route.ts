@@ -1,6 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import { json } from '@/lib/api/guard';
-import { retryPending } from '@/lib/brevo/workflows';
+import { publicBaseUrl, retryPending } from '@/lib/brevo/workflows';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,11 +16,11 @@ function authorized(req: Request): boolean {
 
 /**
  * Daily retry job (vercel.json → crons). Vercel sends "Authorization: Bearer $CRON_SECRET".
- * Retries confirmed subscribers not yet in the Brevo list "Contatti" and welcome emails that failed.
- * It never sends confirmation emails or contacts anyone without consent.
+ * Retries the acknowledgement and welcome emails that failed (CRM, 0010_crm.sql). It never sends confirmation emails,
+ * never adds anyone to a Brevo list and never contacts anyone without consent.
  */
 export async function GET(req: Request) {
   if (!authorized(req)) return json({ ok: false, error: 'unauthorized' }, 401);
-  const result = await retryPending();
+  const result = await retryPending(publicBaseUrl(req));
   return json(result, result.ok ? 200 : 500);
 }

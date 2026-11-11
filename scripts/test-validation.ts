@@ -1,6 +1,6 @@
 /** Unit tests for the shared lead schema. Run: npx tsx scripts/test-validation.ts */
 import assert from 'node:assert/strict';
-import { communitySchema, contactSchema, joinSchema, leadSchema, toFieldErrors } from '../lib/validation';
+import { communitySchema, contactSchema, leadSchema, toFieldErrors } from '../lib/validation';
 import { checkUploadMeta, isPdfSignature, safeFileName, storagePath, MAX_UPLOAD_BYTES } from '../lib/uploads';
 
 const valid = {
@@ -93,16 +93,7 @@ test('contact form drops Join-only fields', () => {
   assert.equal((r as Record<string, unknown>).submissionType, undefined);
   assert.equal((r as Record<string, unknown>).application, undefined);
 });
-test('join: pitch without application fields is rejected', () => {
-  const r = joinSchema.safeParse({ ...valid, profileType: 'startup', submissionType: 'pitch', idempotencyKey: key });
-  assert.equal(r.success, false);
-  if (!r.success) assert.equal(toFieldErrors(r.error).application, 'required');
-});
-test('join: pitch and CV payloads pass', () => {
-  assert.ok(joinSchema.safeParse({ ...valid, profileType: 'startup', submissionType: 'pitch', idempotencyKey: key, application }).success);
-  assert.ok(joinSchema.safeParse({ ...valid, profileType: 'other', submissionType: 'cv', idempotencyKey: key, link: 'linkedin.com/in/x' }).success);
-});
-test('join: submission type is mandatory', () => assert.equal(joinSchema.safeParse({ ...valid, idempotencyKey: key }).success, false));
+// The "Come vuoi iniziare?" forms moved to the CRM schema on 2026-11-11: scripts/test-crm.ts
 test('community: minimal valid request', () => {
   assert.ok(communitySchema.safeParse({ locale: 'en', firstName: 'Ann', email: 'ann@example.com', community: 'italian-rainforest', consent: true }).success);
 });

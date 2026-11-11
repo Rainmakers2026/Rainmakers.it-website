@@ -1,9 +1,9 @@
 import type { TrackCopy } from '../types';
 
 export const track: TrackCopy = {
-  eyebrow: 'Track record',
-  title: 'L’esperienza conta. Le connessioni giuste fanno la differenza.',
-  intro: 'Dal 2011: startup create o accelerate e progetti di innovazione per aziende, investitori e istituzioni.',
+  eyebrow: 'Casi studio di Rainmakers',
+  title: 'Track record',
+  intro: 'Dal 2011 innoviamo aziende e istituzioni, creiamo startup e siamo al servizio dell’ecosistema italiano dell’innovazione.',
   stats: [
     { value: '{exits}', label: 'exit nella Tribe' },
     { value: '{active}', label: 'startup con partecipazioni rilevanti' },
@@ -11,16 +11,47 @@ export const track: TrackCopy = {
     { value: '{advisory}', label: 'progetti di innovation advisory' },
   ],
   tribe: {
-    title: 'La Tribe',
+    title: 'Open Venture Building',
     intro: 'Le startup create, co-fondate o accelerate da Rainmakers.',
-    statusLabels: { active: 'Partecipata', exit: 'Exit', minority: 'Minoranza', writeoff: 'Write-off' },
+    statusLabels: {
+      active: 'Partecipata',
+      exit: 'Exit',
+      minority: 'Minoranza',
+      writeoff: 'Write-off',
+    },
     dataNote: 'Stato del portafoglio: company overview, maggio 2025. FTE (soci + dipendenti) e fatturato: ultime schede disponibili (2023).',
   },
+  giveback: {
+    title: 'Giveback',
+    intro: 'Iniziative a supporto della Rainforest italiana.',
+    typeLabel: 'Giveback',
+  },
   advisory: {
-    title: 'Innovation Advisory',
+    title: 'Advisory',
     intro: 'Progetti per corporate, investitori, associazioni e istituzioni.',
-    typeLabels: { corporate: 'Corporate', investor: 'Investitori', association: 'Associazioni', institution: 'Istituzioni', third_sector: 'Terzo settore' },
+    typeLabels: {
+      corporate: 'Corporate',
+      investor: 'Investitori',
+      association: 'Associazioni',
+      institution: 'Istituzioni',
+      third_sector: 'Terzo settore',
+    },
     dataNote: 'Fonte: schede progetto del company overview Rainmakers. L’anno indica la prima edizione o erogazione.',
+  },
+  cards: {
+    open: '{name}: dettagli',
+    project: 'Il progetto',
+    participation: 'Partecipazione',
+    impact: 'Impatto',
+    keyFacts: 'Dati chiave',
+    visit: 'Visita il sito',
+    close: 'Chiudi',
+    statusText: {
+      active: 'Rainmakers detiene una partecipazione rilevante nella società.',
+      exit: 'La società è uscita dal portafoglio con un’exit.',
+      minority: 'Rainmakers detiene una partecipazione di minoranza nella società.',
+      writeoff: 'La partecipazione è stata svalutata (write-off).',
+    },
   },
   explorer: {
     searchLabel: 'Cerca',
@@ -28,7 +59,12 @@ export const track: TrackCopy = {
     all: 'Tutti',
     filterLabel: 'Filtra',
     sortLabel: 'Ordina',
-    sorts: { az: 'A–Z', recent: 'Più recenti', oldest: 'Meno recenti', size: 'Dimensione' },
+    sorts: {
+      az: 'A–Z',
+      recent: 'Più recenti',
+      oldest: 'Meno recenti',
+      size: 'Dimensione',
+    },
     results: '{n} risultati',
     showAll: 'Mostra tutti ({n})',
     showLess: 'Mostra meno',

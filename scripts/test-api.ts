@@ -1,5 +1,6 @@
 /**
- * API route tests for the Supabase-backed forms (Phase 4), without network or credentials:
+ * API route tests for the Supabase-backed forms (Phase 4) other than "Come vuoi iniziare?" (scripts/test-crm.ts),
+ * without network or credentials:
  * the real route handlers run against a stubbed fetch that plays the Supabase REST/Storage API.
  * Run: npm run test:api  (uses the react-server condition so `server-only` imports resolve)
  */
@@ -36,29 +37,10 @@ console.info = () => {};
 let ip = 0;
 const headers = (extra: Record<string, string> = {}) => ({ 'x-real-ip': `10.0.0.${++ip}`, ...extra });
 const key = () => crypto.randomUUID();
-const pdf = (size = 2048) => {
-  const b = new Uint8Array(size);
-  b.set(new TextEncoder().encode('%PDF-1.7\n'));
-  return b;
-};
-
 const contact = (over: Record<string, unknown> = {}) => ({
   locale: 'it', firstName: 'Giulia', lastName: 'Rossi', email: 'giulia@example.com', company: 'Acme', role: 'CEO',
   profileType: 'founder', interest: 'Partner', consent: true, elapsedMs: 5000, idempotencyKey: key(), ...over,
 });
-const join = (over: Record<string, unknown> = {}) => ({
-  locale: 'en', firstName: 'Marco', lastName: 'Bianchi', email: 'marco@example.com', company: 'Acme', role: 'fundraising',
-  profileType: 'startup', submissionType: 'pitch', consent: true, elapsedMs: 5000, idempotencyKey: key(),
-  application: { startupName: 'Acme', companyIncorporated: 'no', cityProvince: 'Milano', sector: 'Cleantech', serviceInterest: 'fundraising' },
-  ...over,
-});
-const joinForm = (payload: unknown, file?: { bytes: Uint8Array; name: string; type: string }) => {
-  const fd = new FormData();
-  fd.set('payload', JSON.stringify(payload));
-  if (file) fd.set('file', new File([file.bytes as BlobPart], file.name, { type: file.type }));
-  return fd;
-};
-
 let n = 0;
 async function test(name: string, fn: () => Promise<void>) {
   calls = [];
@@ -71,7 +53,6 @@ async function test(name: string, fn: () => Promise<void>) {
 
 async function main() {
   const lead = await import('../app/api/lead/route');
-  const joinRoute = await import('../app/api/join/route');
   const community = await import('../app/api/community/route');
   const reviewRoute = await import('../app/api/review/route');
   const post = (path: string, body: BodyInit, h: Record<string, string> = {}) => new Request(`http://localhost${path}`, { method: 'POST', headers: headers(h), body });
@@ -133,70 +114,7 @@ async function main() {
     assert.equal(r.status, 413);
   });
 
-  // ── /api/join (Join the Tribe) ──
-  await test('join: neither file nor link → 422 fileOrLink, nothing uploaded', async () => {
-    const r = await joinRoute.POST(post('/api/join', joinForm(join())));
-    assert.equal(r.status, 422);
-    assert.equal((await r.json()).fields.file, 'fileOrLink');
-    assert.equal(calls.length, 0);
-  });
-  await test('join: renamed non-PDF (bad signature) → 422 fileType', async () => {
-    const fake = new TextEncoder().encode('MZ this is an executable');
-    const r = await joinRoute.POST(post('/api/join', joinForm(join(), { bytes: fake, name: 'deck.pdf', type: 'application/pdf' })));
-    assert.equal(r.status, 422);
-    assert.equal((await r.json()).fields.file, 'fileType');
-    assert.equal(calls.length, 0);
-  });
-  await test('join: wrong extension → 422 fileType', async () => {
-    const r = await joinRoute.POST(post('/api/join', joinForm(join(), { bytes: pdf(), name: 'deck.docx', type: 'application/pdf' })));
-    assert.equal((await r.json()).fields.file, 'fileType');
-  });
-  await test('join: file over 4 MB → rejected before upload', async () => {
-    const r = await joinRoute.POST(post('/api/join', joinForm(join(), { bytes: pdf(4 * 1024 * 1024 + 10), name: 'deck.pdf', type: 'application/pdf' })));
-    assert.ok(r.status === 413 || r.status === 422);
-    assert.equal((await r.json()).fields.file, 'fileTooLarge');
-    assert.ok(!calls.some((c) => c.url.includes('/storage/')));
-  });
-  await test('join: valid PDF → private upload (unpredictable path) then row with the path', async () => {
-    const r = await joinRoute.POST(post('/api/join', joinForm(join(), { bytes: pdf(), name: 'My Deck.pdf', type: 'application/pdf' })));
-    assert.equal(r.status, 200);
-    const upload = calls.find((c) => c.method === 'POST' && c.url.includes('/storage/v1/object/join-documents/'));
-    assert.ok(upload, 'uploaded to the join-documents bucket');
-    const path = upload!.url.split('/join-documents/')[1];
-    assert.ok(/^pitch\/[0-9]{4}\/[0-9]{2}\/[0-9a-f-]{36}\.pdf$/.test(path), path);
-    const rpc = calls.find((c) => c.url.endsWith('/rpc/submit_join_application'))!;
-    const p = JSON.parse(rpc.body!).p;
-    assert.equal(p.storage_path, path);
-    assert.equal(p.file_name, 'My_Deck.pdf');
-    assert.equal(p.kind, 'pitch');
-    assert.equal(p.role, null); // the pitch "role" field (service) is not stored as a job title
-    assert.ok(calls.indexOf(upload!) < calls.indexOf(rpc), 'upload happens before the insert');
-  });
-  await test('join: link only → no upload, row stored', async () => {
-    const r = await joinRoute.POST(post('/api/join', joinForm(join({ submissionType: 'cv', profileType: 'other', role: 'Designer', application: undefined, link: 'https://linkedin.com/in/marco' }))));
-    assert.equal(r.status, 200);
-    assert.ok(!calls.some((c) => c.url.includes('/storage/')));
-    assert.ok(calls.some((c) => c.url.endsWith('/rpc/submit_join_application')));
-  });
-  await test('join: database failure after upload → uploaded file deleted (no orphan)', async () => {
-    rpcResponse = () => new Response('{"message":"boom"}', { status: 500 });
-    const r = await joinRoute.POST(post('/api/join', joinForm(join(), { bytes: pdf(), name: 'deck.pdf', type: 'application/pdf' })));
-    assert.equal(r.status, 500);
-    const uploaded = calls.find((c) => c.method === 'POST' && c.url.includes('/join-documents/'))!.url.split('/join-documents/')[1];
-    const del = calls.find((c) => c.method === 'DELETE');
-    assert.ok(del, 'cleanup called');
-    assert.deepEqual(JSON.parse(del!.body!).prefixes, [uploaded]);
-  });
-  await test('join: duplicate submission → extra upload deleted, success returned', async () => {
-    rpcResponse = () => new Response(JSON.stringify({ application_id: 'a1', duplicate: true }), { status: 200 });
-    const r = await joinRoute.POST(post('/api/join', joinForm(join(), { bytes: pdf(), name: 'deck.pdf', type: 'application/pdf' })));
-    assert.equal(r.status, 200);
-    assert.ok(calls.some((c) => c.method === 'DELETE'));
-  });
-  await test('join: pitch without application → 422', async () => {
-    const r = await joinRoute.POST(post('/api/join', joinForm(join({ application: undefined, link: 'https://deck.example' }))));
-    assert.equal(r.status, 422);
-  });
+  // The "Come vuoi iniziare?" forms (/api/join) are tested against the CRM in scripts/test-crm.ts (2026-11-11)
 
   // ── /api/community (Entra su WhatsApp) ──
   const req = (over: Record<string, unknown> = {}) => ({ locale: 'it', firstName: 'Ann', email: 'ann@example.com', community: 'italian-rainforest', consent: true, elapsedMs: 5000, ...over });
@@ -252,7 +170,7 @@ async function main() {
     assert.equal(r.status, 200);
     assert.equal(calls.length, 0);
   });
-  await test('review: valid → stored, emailed to info@rainmakers.it (reply-to author), marked notified', async () => {
+  await test('review: valid → stored, emailed to tools@nuvolab.com (reply-to author), marked notified', async () => {
     rpcResponse = reviewOk;
     await withBrevo(async () => {
       const r = await reviewRoute.POST(post('/api/review', JSON.stringify(review())));
@@ -267,10 +185,16 @@ async function main() {
     const mail = calls.find((c) => c.url === 'https://api.brevo.com/v3/smtp/email');
     assert.ok(mail, 'team email sent');
     const m = JSON.parse(mail!.body!);
-    assert.deepEqual(m.to, [{ email: 'info@rainmakers.it' }]);
+    assert.deepEqual(m.to, [{ email: 'tools@nuvolab.com' }]);
     assert.deepEqual(m.replyTo, { email: 'giulia@example.com' });
     assert.ok(!calls.some((c) => c.url.includes('/contacts')), 'never added to a marketing list');
     assert.ok(calls.some((c) => c.url.endsWith('/rest/v1/rpc/review_mark_notified')));
+    // the author is linked in the CRM: review id only, never the text again, never a newsletter
+    const crm = JSON.parse(calls.find((c) => c.url.endsWith('/rest/v1/rpc/crm_submit'))!.body!).p;
+    assert.equal(crm.form_type, 'review');
+    assert.deepEqual(crm.data, { review_id: 'rv1', rating: 5, publish_consent: true });
+    assert.equal(crm.message, null);
+    assert.equal(crm.newsletter.opt_in, false);
   });
   await test('review: Brevo not configured → still stored, honest emailed:false', async () => {
     rpcResponse = reviewOk;

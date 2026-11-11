@@ -32,7 +32,7 @@ const oldSite = 'rainmakers.it (2021) + Company Overview maggio 2025 (stato)';
 const s = (it: string, en: string) => ({ it, en });
 
 export const tribe: TribeCompany[] = [
-  // ───────────── Active holdings (14) ─────────────
+  // ───────────── Active holdings (11; 2026-11-10: + Buy Buy Shop and Trade to World; 2026-10-23: Noonic and Verbalizza → exit, DIS, Mapadore and Ncode → write-off) ─────────────
   {
     slug: 'startup-geeks',
     name: 'Startup Geeks',
@@ -101,10 +101,47 @@ export const tribe: TribeCompany[] = [
     ),
     source: deck,
   },
+  // Added on 2026-11-10 (team request), logos supplied as images. Short texts from the logo and the public website:
+  // to be confirmed by the team, like status, city and founding year.
+  {
+    slug: 'buy-buy-shop',
+    name: 'Buy Buy Shop',
+    status: 'active',
+    sector: s('Retail automatico', 'Automated retail'),
+    website: null,
+    city: null,
+    founded: null,
+    fte: null,
+    revenueK: null,
+    summary: s('Negozi automatici con distributori, aperti a ogni ora.', 'Automated shops with vending machines, open around the clock.'),
+    description: s(
+      'Progetto di open venture building nel retail automatico: punti vendita con distributori automatici, per acquistare in autonomia a qualsiasi ora.',
+      'An open venture building project in automated retail: shops with vending machines, where customers buy on their own at any hour.',
+    ),
+    source: 'Team Rainmakers (2026-11-10)',
+  },
+  {
+    slug: 'trade-to-world',
+    name: 'Trade to World',
+    status: 'active',
+    sector: s('Marketplace B2B', 'B2B marketplace'),
+    website: 'https://tradeto.world/',
+    city: null,
+    founded: null,
+    fte: null,
+    revenueK: null,
+    summary: s('Marketplace B2B che rende facile l’export, per un commercio equo e sostenibile.', 'A B2B marketplace that makes exporting easy, for fair and sustainable trade.'),
+    description: s(
+      'Marketplace B2B “one stop” che mette in contatto buyer e seller all’ingrosso di molti settori, dall’agroalimentare all’automotive, insieme ai fornitori di servizi per le imprese, promuovendo un commercio equo e sostenibile.',
+      'A “one stop” B2B marketplace connecting wholesale buyers and sellers across many industries, from food and agriculture to automotive, together with business service providers, while promoting fair and sustainable trade.',
+    ),
+    source: 'tradeto.world (2026-11-10)',
+  },
   {
     slug: 'noonic',
     name: 'Noonic',
-    status: 'active',
+    // statuses updated on the team's request, 2026-10-23
+    status: 'exit',
     sector: s('Marketing agency', 'Marketing agency'),
     website: 'https://www.noonic.com',
     city: 'Milano',
@@ -121,7 +158,7 @@ export const tribe: TribeCompany[] = [
   {
     slug: 'future-fashion',
     name: 'Future Fashion (DIS – Design Italian Shoes)',
-    status: 'active',
+    status: 'writeoff',
     sector: s('FashionTech', 'FashionTech'),
     website: 'https://www.futurefashionsolution.com',
     city: 'Macerata',
@@ -155,7 +192,7 @@ export const tribe: TribeCompany[] = [
   {
     slug: 'verbalizza',
     name: 'Verbalizza',
-    status: 'active',
+    status: 'exit',
     sector: s('RegTech', 'RegTech'),
     website: 'https://www.verbalizza.com',
     city: 'Milano',
@@ -240,7 +277,7 @@ export const tribe: TribeCompany[] = [
   {
     slug: 'mapadore',
     name: 'Mapadore',
-    status: 'active',
+    status: 'writeoff',
     sector: s('Software house', 'Software house'),
     website: 'https://www.mapadore.com',
     city: 'Milano',
@@ -257,7 +294,7 @@ export const tribe: TribeCompany[] = [
   {
     slug: 'ncode',
     name: 'Ncode',
-    status: 'active',
+    status: 'writeoff',
     sector: s('EduTech', 'EduTech'),
     website: 'https://www.ncode.it',
     city: 'Milano',
@@ -272,7 +309,7 @@ export const tribe: TribeCompany[] = [
     source: deck,
   },
 
-  // ───────────── Exits (6) ─────────────
+  // ───────────── Exits (6 here + Noonic and Verbalizza above = 8, as in the 2026 deck) ─────────────
   {
     slug: 'impactscool',
     name: 'Edulia',
@@ -400,7 +437,7 @@ export const tribe: TribeCompany[] = [
     }),
   ),
 
-  // ───────────── Write-offs (5) ─────────────
+  // ───────────── Write-offs (5 here + DIS, Mapadore and Ncode above) ─────────────
   {
     slug: 'chi-odia-paga',
     name: 'Chi Odia Paga',

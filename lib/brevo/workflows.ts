@@ -1,23 +1,23 @@
 import 'server-only';
 import { createHash, randomBytes } from 'node:crypto';
 import type { Locale } from '@/content/types';
+import type { Area } from '@/lib/crm/taxonomy';
+import { NEWSLETTER_FORM, PRIVACY_VERSION } from '@/lib/crm/forms';
 import { NEWSLETTER_CONSENT_VERSION } from '@/lib/options';
 import { supabaseConfig } from '@/lib/supabase/rest';
-import {
-  dbClaimWelcome,
-  dbConfirm,
-  dbPendingWork,
-  dbRecordConfirmation,
-  dbRecordSync,
-  dbReleaseWelcome,
-  dbSubscribe,
-  type ConfirmedSubscriber,
-} from '@/lib/supabase/newsletter';
+import { dbClaimAck, dbConfirm, dbFinishAck, dbNewsletterSubscribe, dbPendingEmails, dbRecordConfirmation, type NewsletterAction } from '@/lib/crm/db';
+import { unsubscribeUrl } from '@/lib/crm/links';
 import { brevoConfig } from './client';
-import { addToContactsList } from './contacts';
 import { sendTransactional } from './transactional';
-import { confirmationEmail, joinReceivedEmail, newsletterWelcomeEmail } from './templates';
+import { confirmationEmail, joinReceivedEmail, newsletterWelcomeEmail, type JoinKind } from './templates';
+import { notifyNewsletter } from './notify';
 
+/**
+ * Email workflows on top of the CRM (supabase/migrations/0010_crm.sql), 2026-11-11.
+ * Only transactional emails leave from here: the double opt-in confirmation, the welcome after confirmation and the
+ * acknowledgement of a request. Nobody is added to a Brevo list from here: that is the job of the Brevo sync
+ * (lib/crm/sync.ts), prepared but not active.
+ */
 export const CONFIRM_TTL_HOURS = 48;
 const devMock = () => process.env.NODE_ENV !== 'production' || process.env.LEADS_MOCK === '1';
 
@@ -36,32 +36,17 @@ export const isTokenFormat = (t: unknown): t is string => typeof t === 'string' 
  */
 export type SubscribeState = 'pending' | 'pending_recent' | 'already' | 'email_failed' | 'error';
 
-export async function requestSubscription(input: { email: string; locale: Locale; source?: string; baseUrl: string }): Promise<SubscribeState> {
-  if (!supabaseConfig('service')) {
-    if (devMock()) {
-      console.info('[newsletter] Supabase not configured — mock mode, nothing stored or sent');
-      return 'pending';
-    }
-    console.error('[newsletter] Supabase not configured');
-    return 'error';
-  }
-
+/** A fresh token: the hash goes to the database, the token itself only into the email. */
+export function newConfirmation() {
   const token = newToken();
-  const db = await dbSubscribe({
-    email: input.email,
-    locale: input.locale,
-    consentVersion: NEWSLETTER_CONSENT_VERSION,
-    source: input.source,
-    tokenHash: hashToken(token),
-    ttlHours: CONFIRM_TTL_HOURS,
-  });
-  if (!db.ok) return 'error';
-  if (db.data.action === 'already_subscribed') return 'already';
-  if (db.data.action === 'confirmation_recent' || !db.data.id) return 'pending_recent';
+  return { token, tokenHash: hashToken(token), ttlHours: CONFIRM_TTL_HOURS };
+}
 
-  const url = `${input.baseUrl}/${input.locale}/newsletter/confirm?token=${token}`;
+/** Sends the double opt-in email for a subscription the database has just marked 'send_confirmation'. */
+export async function sendConfirmation(input: { subscriptionId: string; email: string; locale: Locale; token: string; baseUrl: string }): Promise<SubscribeState> {
+  const url = `${input.baseUrl}/${input.locale}/newsletter/confirm?token=${input.token}`;
   if (!brevoConfig()) {
-    await dbRecordConfirmation(db.data.id, false);
+    await dbRecordConfirmation(input.subscriptionId, false);
     if (devMock()) {
       console.info('[newsletter] Brevo not configured — mock mode, confirmation email not sent');
       return 'pending';
@@ -70,73 +55,103 @@ export async function requestSubscription(input: { email: string; locale: Locale
     return 'email_failed';
   }
   const sent = await sendTransactional(input.email, confirmationEmail(input.locale, url, CONFIRM_TTL_HOURS), 'newsletter-confirmation');
-  await dbRecordConfirmation(db.data.id, sent.ok);
+  await dbRecordConfirmation(input.subscriptionId, sent.ok);
   return sent.ok ? 'pending' : 'email_failed';
 }
 
-/** Steps after double opt-in, each idempotent: add to "Contatti", then the welcome email (at most once). */
-export async function completeSubscription(sub: Pick<ConfirmedSubscriber, 'id' | 'email' | 'needs_sync' | 'needs_welcome'>) {
-  if (!brevoConfig()) {
-    console.error('[newsletter] Brevo not configured — sync and welcome left pending for the retry job');
-    return;
+export const stateOf = (action: NewsletterAction): SubscribeState | null =>
+  action === 'already_subscribed' ? 'already' : action === 'confirmation_recent' ? 'pending_recent' : null;
+
+/** Dedicated "Gocce di Innovazione" form: saved as pending_confirmation with its consent event, then the email. */
+export async function requestSubscription(input: {
+  email: string;
+  firstName?: string;
+  interests: Area[];
+  locale: Locale;
+  source?: string;
+  sourcePage?: string;
+  utm: Record<string, string>;
+  baseUrl: string;
+}): Promise<SubscribeState> {
+  if (!supabaseConfig('service')) {
+    if (devMock()) {
+      console.info('[newsletter] Supabase not configured — mock mode, nothing stored or sent');
+      return 'pending';
+    }
+    console.error('[newsletter] Supabase not configured');
+    return 'error';
   }
-  if (sub.needs_sync) {
-    const sync = await addToContactsList(sub.email);
-    await dbRecordSync(sub.id, sync.ok, sync.ok ? null : sync.reason);
-  }
-  if (sub.needs_welcome) await sendWelcome('newsletter', sub.id);
+  const c = newConfirmation();
+  const db = await dbNewsletterSubscribe({
+    email: input.email,
+    first_name: input.firstName ?? null,
+    language: input.locale,
+    interests: input.interests,
+    consent_version: NEWSLETTER_CONSENT_VERSION,
+    privacy_version: PRIVACY_VERSION,
+    // where the request was made: the newsletter form, placed in the footer, the final section or the news page
+    source: NEWSLETTER_FORM.id,
+    placement: input.source ?? null,
+    source_page: input.sourcePage ?? null,
+    utm: input.utm,
+    token_hash: c.tokenHash,
+    ttl_hours: c.ttlHours,
+  });
+  if (!db.ok) return 'error';
+  const known = stateOf(db.data.action);
+  if (known) return known;
+  return sendConfirmation({ subscriptionId: db.data.id, email: input.email, locale: input.locale, token: c.token, baseUrl: input.baseUrl });
 }
 
 export type ConfirmState = 'confirmed' | 'already_confirmed' | 'expired' | 'invalid' | 'error';
 
-export async function confirmSubscription(token: string): Promise<ConfirmState> {
+/** Double opt-in confirmation; returns the unsubscribe link too, so the page can show it (and it can be tested). */
+export async function confirmSubscription(token: string, baseUrl: string): Promise<{ state: ConfirmState; unsubscribeUrl?: string | null }> {
   const db = await dbConfirm(hashToken(token));
-  if (!db.ok) return db.reason === 'not_configured' && devMock() ? 'invalid' : 'error';
-  const { action } = db.data;
-  if ((action === 'confirmed' || action === 'already_confirmed') && db.data.id && db.data.email) {
-    // The subscription is confirmed in Supabase whatever happens next; Brevo failures are retried by the cron.
-    await completeSubscription({
-      id: db.data.id,
-      email: db.data.email,
-      needs_sync: !!db.data.needs_sync,
-      needs_welcome: !!db.data.needs_welcome,
-    });
-  }
-  return action;
+  if (!db.ok) return { state: db.reason === 'not_configured' && devMock() ? 'invalid' : 'error' };
+  const { action, id, contact_id, email, language } = db.data;
+  const locale: Locale = language === 'en' ? 'en' : 'it';
+  if ((action === 'confirmed' || action === 'already_confirmed') && id && db.data.needs_welcome) await sendWelcome('newsletter', id, baseUrl);
+  // First confirmation only: internal notice to the newsletter inbox, best effort
+  if (action === 'confirmed' && email) await notifyNewsletter({ email, locale, source: NEWSLETTER_FORM.id });
+  const link = contact_id && (action === 'confirmed' || action === 'already_confirmed') ? unsubscribeUrl(baseUrl, locale, contact_id) : undefined;
+  return { state: action, unsubscribeUrl: link };
 }
 
+const FORM_KIND: Record<string, JoinKind> = {
+  company_request: 'company',
+  startup_application: 'pitch',
+  investor_application: 'invest',
+  giveback_application: 'giveback',
+  job_application: 'cv',
+};
+
 /**
- * Welcome / acknowledgement email, sent at most once per record: the database claim is atomic,
- * and a failed send releases the claim so the retry job can try again (max 5 attempts).
+ * Welcome (newsletter) or acknowledgement (request) email, at most once per record: the database claim is atomic, and
+ * a failed send releases the claim so the daily job can try again (max 5 attempts).
  */
-export async function sendWelcome(kind: 'newsletter' | 'join', id: string): Promise<boolean> {
+export async function sendWelcome(kind: 'newsletter' | 'submission', id: string, baseUrl: string): Promise<boolean> {
   if (!brevoConfig()) return false;
-  const claim = await dbClaimWelcome(kind, id);
+  const claim = await dbClaimAck(kind, id);
   if (!claim?.email) return false; // already sent (or being sent) — never twice
   const locale: Locale = claim.language === 'en' ? 'en' : 'it';
   const content =
-    kind === 'newsletter' ? newsletterWelcomeEmail(locale) : joinReceivedEmail(locale, claim.kind === 'cv' ? 'cv' : 'pitch', claim.first_name ?? '');
+    kind === 'newsletter'
+      ? newsletterWelcomeEmail(locale, claim.contact_id ? unsubscribeUrl(baseUrl, locale, claim.contact_id) : null)
+      : joinReceivedEmail(locale, FORM_KIND[claim.form_type ?? ''] ?? 'company', claim.first_name ?? '');
   const sent = await sendTransactional(claim.email, content, kind === 'newsletter' ? 'newsletter-welcome' : 'join-received');
-  if (!sent.ok) await dbReleaseWelcome(kind, id);
+  await dbFinishAck(kind, id, sent.ok);
   return sent.ok;
 }
 
-/** Daily retry (GET /api/cron/brevo-retry): pending list syncs and failed welcome emails. */
-export async function retryPending() {
-  const work = await dbPendingWork();
+/** Daily retry (GET /api/cron/brevo-retry): acknowledgements and welcome emails that failed. Never a confirmation. */
+export async function retryPending(baseUrl: string) {
+  const work = await dbPendingEmails();
   if (!work.ok) return { ok: false as const };
-  let synced = 0;
-  let welcomed = 0;
-  for (const sub of work.data.newsletter ?? []) {
-    if (sub.needs_sync) {
-      const sync = await addToContactsList(sub.email);
-      await dbRecordSync(sub.id, sync.ok, sync.ok ? null : sync.reason);
-      if (sync.ok) synced++;
-    }
-    if (sub.needs_welcome && (await sendWelcome('newsletter', sub.id))) welcomed++;
-  }
-  for (const id of work.data.join ?? []) if (await sendWelcome('join', id)) welcomed++;
-  return { ok: true as const, synced, welcomed };
+  let sent = 0;
+  for (const id of work.data.newsletter ?? []) if (await sendWelcome('newsletter', id, baseUrl)) sent++;
+  for (const id of work.data.submissions ?? []) if (await sendWelcome('submission', id, baseUrl)) sent++;
+  return { ok: true as const, sent };
 }
 
 /** Base URL for links in emails: the configured site URL, else this deployment (Vercel), else the request origin. */

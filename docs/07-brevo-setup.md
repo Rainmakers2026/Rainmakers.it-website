@@ -1,5 +1,8 @@
 # 07 — Brevo: newsletter double opt-in and welcome emails
 
+> **Updated 2026-11-11:** the newsletter is now "Gocce di Innovazione" on the CRM (supabase/migrations/0010_crm.sql). The Brevo list "Contatti" is no longer filled by the site and the Brevo sync is prepared but off: see docs/crm/README.md. The parts below about the list are kept for history.
+
+
 Phase 5. Requires the Supabase setup in `06-supabase-setup.md` (migrations 0001–0004) plus
 migration `0005_newsletter_brevo.sql`.
 

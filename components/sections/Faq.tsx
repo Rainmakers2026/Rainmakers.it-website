@@ -11,17 +11,17 @@ function FaqAnswer({ value, dict }: { value: string; dict: Dictionary }) {
   if (isPlaceholder(value)) return <PhText as="p" className="faq__a" value={value} badge={dict.ui.placeholderBadge} />;
 
   const links = [
-    { label: 'Italian Rainforest', href: rainforest.urlFor(dict.locale), external: true },
+    {
+      label: 'Italian Rainforest',
+      href: rainforest.urlFor(dict.locale),
+      external: true,
+    },
     { label: 'Track record', href: `#${SECTION_IDS.tribe}` },
-    { label: 'Community', href: `#${SECTION_IDS.community}` },
-    { label: 'Join the Tribe', href: `/${dict.locale}/join` },
-    ...(dict.locale === 'it'
-      ? [
-          { label: 'Connettiti con Rainmakers', href: '#connect-form' },
-        ]
-      : [
-          { label: 'Connect with Rainmakers', href: '#connect-form' },
-        ]),
+    { label: 'Join the Tribe', href: `#${SECTION_IDS.connect}` },
+    {
+      label: dict.locale === 'it' ? 'Come vuoi iniziare?' : 'How do you want to start?',
+      href: `#${SECTION_IDS.connect}`,
+    },
   ];
 
   const parts: ReactNode[] = [];
@@ -42,8 +42,13 @@ function FaqAnswer({ value, dict }: { value: string; dict: Dictionary }) {
         key={`${match.index}-${match.label}`}
         href={match.href}
         {...(match.external
-          ? { target: '_blank', rel: 'noopener', 'data-track': 'rainforest_cta_click', 'data-location': 'faq' }
-          : match.href === '#connect-form'
+          ? {
+              target: '_blank',
+              rel: 'noopener',
+              'data-track': 'rainforest_cta_click',
+              'data-location': 'faq',
+            }
+          : match.href === `#${SECTION_IDS.connect}`
             ? { 'data-track': 'contact_cta_click', 'data-location': 'faq' }
             : {})}
       >

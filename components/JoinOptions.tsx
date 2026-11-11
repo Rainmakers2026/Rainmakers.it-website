@@ -1,74 +1,170 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
-import type { Locale } from '@/content/types';
-import type { JoinErrorCode } from '@/lib/validation';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
+import type { FinalCopy, Locale, StartPathKey } from '@/content/types';
+import type { CrmErrorCode } from '@/lib/crm/schema';
+import { FORMS, type FormKey } from '@/lib/crm/forms';
+import {
+  AMOUNT_LABELS,
+  AREA_LABELS,
+  AVAILABILITY_LABELS,
+  COLLABORATION_LABELS,
+  COMPANY_SIZE_LABELS,
+  CONTRIBUTION_LABELS,
+  EXPERIENCE_LABELS,
+  FUNDING_STATUS_LABELS,
+  GEOGRAPHY_LABELS,
+  INDUSTRY_LABELS,
+  INNOVATION_OBJECTIVE_LABELS,
+  JOB_AREA_LABELS,
+  PLAYER_TYPE_LABELS,
+  PRIMARY_NEED_LABELS,
+  SERVICE_LABELS,
+  STAGE_LABELS,
+  countryOptions,
+  playerGroup,
+  type PlayerType,
+} from '@/lib/crm/taxonomy';
+import { currentPage, visitUtm } from '@/lib/crm/client-source';
 import { ACCEPTED_UPLOAD, MAX_UPLOAD_BYTES, checkUploadMeta } from '@/lib/uploads';
 import { track } from '@/lib/analytics';
-import { Close } from './icons';
+import { START_HASH } from '@/lib/nav';
+import { ArrowRight, Check, Close, IconBriefcase, IconBuilding, IconGive, IconRocket } from './icons';
 
-type Option = 'project' | 'cv';
+type Option = 'company' | 'project' | 'giveback' | 'cv' | 'invest';
+/** Card (and its hash, lib/nav.ts → START_HASH) behind each popup */
+const OPTION_PATH = { company: 'company', project: 'startup', giveback: 'giveback', cv: 'work', invest: 'invest' } as const satisfies Record<Option, StartPathKey>;
+/** CRM form behind each popup (lib/crm/forms.ts) */
+const OPTION_FORM: Record<Option, FormKey> = { company: 'company', project: 'startup', giveback: 'giveback', cv: 'job', invest: 'invest' };
+const HASH_OPTION = Object.fromEntries((Object.keys(OPTION_PATH) as Option[]).map((o) => [START_HASH[OPTION_PATH[o]], o])) as Record<string, Option>;
+/** Hash that opens the "Lavora con noi" popup (header link, from any page) */
+export const WORK_HASH = START_HASH.work;
 type Status = 'idle' | 'sending' | 'success' | 'error';
 /** Why the last attempt failed: field errors (shown inline), too many requests, or a server/network problem. */
 type Failure = 'validation' | 'rateLimited' | 'generic';
+type Labels = Record<string, { it: string; en: string }>;
 const MAX_MB = MAX_UPLOAD_BYTES / (1024 * 1024);
 
-export function JoinOptions({ locale }: { locale: Locale }) {
+/** Step that holds each field, to bring the visitor back to the first one the server flagged. */
+const STEP0 = new Set(['firstName', 'lastName', 'email', 'phone', 'jobTitle']);
+const STEP1 = new Set(['organizationName', 'organizationWebsite', 'playerType', 'industry', 'country', 'city']);
+const fieldStep = (option: Option, key: string) => (STEP0.has(key) ? 0 : option === 'cv' ? 1 : STEP1.has(key) ? 1 : 2);
+
+/**
+ * "Come vuoi iniziare?" (rebuilt 2026-11-11 on the CRM, lib/crm): four cards — "Innova la tua azienda", "Accelera la
+ * tua startup", "Unisciti al Giveback", "Lavora con noi" — and the "Investi con noi" popup (no card, opened from its
+ * hash). One shared form: common fields (who you are, your organisation, player type, industry, country), then only
+ * the block that fits the player type (startup / investor / accelerator) or the form (company, Giveback, job), the
+ * privacy notice and a separate, optional newsletter box that is never preselected. Values are stable codes
+ * (lib/crm/taxonomy.ts). Submissions go to POST /api/join → Supabase "Rainmakers OS" and an email to the team.
+ * Also used on /join; each card's hash opens its popup directly.
+ */
+export function JoinOptions({ locale, paths }: { locale: Locale; paths: FinalCopy['paths'] }) {
   const id = useId();
   const dialog = useRef<HTMLElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const [option, setOption] = useState<Option | null>(null);
+  const [step, setStep] = useState(0);
   const [status, setStatus] = useState<Status>('idle');
   const [started, setStarted] = useState(0);
-  const [websiteCount, setWebsiteCount] = useState(1);
-  const [serviceInterest, setServiceInterest] = useState('');
-  const [errors, setErrors] = useState<Record<string, JoinErrorCode>>({});
+  const [playerType, setPlayerType] = useState<PlayerType | ''>('');
+  const [optIn, setOptIn] = useState(false);
+  const [newsletterSent, setNewsletterSent] = useState(false);
+  const [errors, setErrors] = useState<Record<string, CrmErrorCode>>({});
   const [failure, setFailure] = useState<Failure>('generic');
-  /** One key per opened form: a double click or retry is stored once (join_applications.idempotency_key). */
+  /** One key per opened form: a double click or retry is stored once (form_submissions.idempotency_key). */
   const idempotencyKey = useRef('');
   const it = locale === 'it';
+  const countries = useMemo(() => countryOptions(locale), [locale]);
   const copy = it
     ? {
-        project: 'Inviaci il tuo pitch',
-        cv: 'Inviaci il tuo CV',
-        title: 'Application form - Rainmakers',
-        intro: 'Raccontaci il progetto o il tuo percorso: il team Rainmakers ti ricontatterà.',
-        first: 'Nome',
-        last: 'Cognome',
-        email: 'Email',
-        startupName: 'Nome Startup *',
-        startupHint: 'Nome della startup (o del progetto, se l’azienda non è ancora costituita)',
-        incorporated: 'La società è già costituita? *',
-        selectOption: 'Seleziona un’opzione',
-        year: 'Anno di Costituzione',
-        yearHint: 'Inserire l’anno di costituzione, se già costituita',
-        city: 'Città/Provincia *',
-        cityHint: 'Dove si trova la sede principale della startup?',
-        sector: 'Settore *',
-        sectorHint: 'Descrivere il settore di appartenenza (es. web, cleantech, biotech, meccanico, chimico etc.)',
+        steps: {
+          company: ['Chi sei', 'L’organizzazione', 'Il progetto'],
+          project: ['Chi sei', 'La startup', 'Il pitch'],
+          invest: ['Chi sei', 'L’organizzazione', 'Come investi'],
+          giveback: ['Chi sei', 'Chi rappresenti', 'Il tuo contributo'],
+          cv: ['Chi sei', 'Il tuo profilo'],
+        },
+        progress: 'Passo {n} di {total}',
+        next: 'Avanti',
+        back: 'Indietro',
+        title: {
+          company: 'Richiesta progetto - Rainmakers',
+          project: 'Application form - Rainmakers',
+          cv: 'Candidatura - Rainmakers',
+          giveback: 'Giveback - Rainmakers',
+          invest: 'Investi con noi - Rainmakers',
+        },
+        intro: {
+          invest: 'Raccontaci chi sei e come investi: il team Rainmakers ti ricontatta per conoscerti.',
+          company: 'Raccontaci la tua organizzazione e la sfida che vuoi affrontare in tre passaggi: il team Rainmakers ti ricontatta per costruire insieme il progetto.',
+          project: 'Raccontaci il progetto in tre passaggi: il team Rainmakers lo valuta e ti ricontatta.',
+          cv: 'Raccontaci chi sei e cosa sai fare: il team Rainmakers ti ricontatterà.',
+          giveback: 'Raccontaci come vorresti contribuire alla crescita di Rainmakers e dell’ecosistema: ti ricontattiamo per capire insieme come farlo.',
+        },
+        first: 'Nome *',
+        last: 'Cognome *',
+        email: 'Email *',
+        phone: 'Telefono',
+        jobTitle: 'Ruolo',
+        orgName: {
+          company: 'Nome dell’organizzazione *',
+          project: 'Nome della startup *',
+          invest: 'Fondo, società o veicolo *',
+          giveback: 'Organizzazione',
+          cv: '',
+        },
+        orgHint: {
+          project: 'O del progetto, se la società non è ancora costituita',
+          giveback: 'Se rappresenti un’organizzazione (facoltativo)',
+        } as Partial<Record<Option, string>>,
         website: 'Sito web',
-        websiteHint: 'Inserire, se disponibile',
-        addWebsite: 'Aggiungi un altro sito',
-        service: 'Servizio di interesse *',
-        serviceHint: 'Specificare il servizio richiesto',
-        businessPlan: 'Redazione Business Plan',
-        fundraising: 'Supporto per Fund Raising',
-        businessDevelopment: 'Business Development',
-        other: 'Altro',
-        otherService: 'Se "Altro", Specificare:',
-        company: 'Startup / organizzazione *',
-        role: 'Ruolo *',
-        linkProject: 'Link al pitch deck',
-        filePitch: `Pitch deck (PDF, max ${MAX_MB} MB)`,
-        fileCv: `CV (PDF, max ${MAX_MB} MB)`,
+        playerType: 'Tipo di organizzazione',
+        industry: 'Settore *',
+        country: 'Paese',
+        city: 'Città',
+        selectOption: 'Seleziona un’opzione',
+        multiHint: 'Puoi sceglierne più di uno',
+        startupStage: 'Fase della startup *',
+        fundingStatus: 'Stato del fundraising',
+        fundingRange: 'Quanto cercate di raccogliere',
+        primaryNeed: 'Di cosa avete più bisogno',
+        investmentTicket: 'Ticket indicativo per operazione *',
+        investmentStages: 'Fasi in cui investi',
+        investmentIndustries: 'Settori di investimento',
+        investmentGeographies: 'Aree geografiche',
+        supportedStages: 'Fasi delle startup che supportate *',
+        supportedIndustries: 'Settori su cui lavorate',
+        servicesOffered: 'Servizi che offrite',
+        companySize: 'Dimensione',
+        innovationObjective: 'Obiettivo di innovazione *',
+        collaborationInterest: 'Che tipo di collaborazione vi interessa',
+        contribution: 'Come vorresti contribuire? *',
+        availability: 'Quanto tempo puoi dedicare?',
+        experience: 'Anni di esperienza *',
+        jobArea: 'Area di interesse *',
+        linkedin: 'Profilo LinkedIn',
+        documentLink: { project: 'Link al pitch deck', cv: 'Link al CV' } as Partial<Record<Option, string>>,
+        file: { project: `Pitch deck (PDF, max ${MAX_MB} MB)`, cv: `CV (PDF, max ${MAX_MB} MB)` } as Partial<Record<Option, string>>,
         fileHint: 'Carica un PDF oppure inserisci un link: almeno uno dei due è necessario.',
-        linkCv: 'Link al CV o profilo LinkedIn',
-        noteProject: 'Informazioni aggiuntive (opzionale)',
-        noteCv: 'Raccontaci in breve il tuo profilo e cosa cerchi',
-        privacy: 'Acconsento al trattamento dei dati per essere ricontattato e ho letto l’informativa privacy.',
+        message: {
+          company: 'Raccontaci la vostra sfida (facoltativo)',
+          project: 'Informazioni aggiuntive (facoltativo)',
+          invest: 'Altro che vuoi condividere (facoltativo)',
+          giveback: 'Raccontaci di te e di cosa ti piacerebbe fare (facoltativo)',
+          cv: 'Altre informazioni (facoltativo)',
+        },
+        privacy: 'Ho letto l’informativa privacy e acconsento al trattamento dei miei dati per gestire questa richiesta.',
+        privacyLink: 'Informativa privacy',
+        newsletter: 'Voglio ricevere anche Gocce di Innovazione, la newsletter mensile di Rainmakers (facoltativo). Ti chiederemo di confermare via email.',
+        interests: 'Mi interessano soprattutto (facoltativo)',
         send: 'Invia',
         sending: 'Invio…',
-        success: 'Grazie! Abbiamo ricevuto la tua richiesta: il team Rainmakers ti ricontatterà.',
+        successTitle: 'Ricevuto, grazie!',
+        success: 'Il team Rainmakers ti ricontatterà presto. Ti abbiamo inviato una email di conferma.',
+        successNewsletter: 'Per la newsletter ti abbiamo inviato un’email a parte: conferma l’iscrizione dal link che contiene.',
+        done: 'Chiudi',
         error: 'Non è stato possibile inviare la richiesta. Riprova tra qualche istante: i dati inseriti sono ancora qui.',
         rateLimited: 'Hai inviato troppe richieste. Riprova tra qualche minuto.',
         validation: 'Controlla i campi indicati.',
@@ -76,55 +172,102 @@ export function JoinOptions({ locale }: { locale: Locale }) {
           required: 'Compila questo campo.',
           email: 'Inserisci un indirizzo email valido.',
           url: 'Inserisci un link valido (es. https://…).',
-          consent: 'Serve il consenso al trattamento dei dati.',
+          consent: 'Serve la presa visione dell’informativa privacy.',
           tooLong: 'Il testo è troppo lungo.',
+          invalid: 'Scegli un valore dall’elenco.',
           fileOrLink: 'Carica un PDF oppure inserisci un link.',
           fileType: 'Il file deve essere un PDF.',
           fileTooLarge: `Il file supera ${MAX_MB} MB: comprimilo oppure inserisci un link.`,
-        } satisfies Record<JoinErrorCode, string>,
+        } satisfies Record<CrmErrorCode, string>,
         close: 'Chiudi',
       }
     : {
-        project: 'Send us your pitch',
-        cv: 'Send us your CV',
-        title: 'Application form - Rainmakers',
-        intro: 'Tell us about your project or your experience and the Rainmakers team will get back to you.',
-        first: 'First name',
-        last: 'Last name',
-        email: 'Email',
-        startupName: 'Startup name *',
-        startupHint: 'Name of the startup (or project, if the company is not incorporated yet)',
-        incorporated: 'Is the company already incorporated? *',
-        selectOption: 'Please select an option',
-        year: 'Year of incorporation',
-        yearHint: 'Enter the year of incorporation, if already incorporated',
-        city: 'City / Province *',
-        cityHint: 'Where is the startup’s main office?',
-        sector: 'Sector *',
-        sectorHint: 'Describe the sector (e.g. web, cleantech, biotech, mechanical, chemical, etc.)',
+        steps: {
+          company: ['About you', 'Your organisation', 'The project'],
+          project: ['About you', 'The startup', 'The pitch'],
+          invest: ['About you', 'Your organisation', 'How you invest'],
+          giveback: ['About you', 'Who you represent', 'Your contribution'],
+          cv: ['About you', 'Your profile'],
+        },
+        progress: 'Step {n} of {total}',
+        next: 'Next',
+        back: 'Back',
+        title: {
+          company: 'Project request - Rainmakers',
+          project: 'Application form - Rainmakers',
+          cv: 'Application - Rainmakers',
+          giveback: 'Giveback - Rainmakers',
+          invest: 'Invest with us - Rainmakers',
+        },
+        intro: {
+          invest: 'Tell us who you are and how you invest: the Rainmakers team will get back to you.',
+          company: 'Tell us about your organisation and the challenge you want to take on in three steps: the Rainmakers team will get back to you to build the project together.',
+          project: 'Tell us about your project in three steps: the Rainmakers team will review it and get back to you.',
+          cv: 'Tell us who you are and what you do best: the Rainmakers team will get back to you.',
+          giveback: 'Tell us how you would like to help Rainmakers and the ecosystem grow: we will get back to you to work out how together.',
+        },
+        first: 'First name *',
+        last: 'Last name *',
+        email: 'Email *',
+        phone: 'Phone',
+        jobTitle: 'Role',
+        orgName: {
+          company: 'Organisation name *',
+          project: 'Startup name *',
+          invest: 'Fund, company or vehicle *',
+          giveback: 'Organisation',
+          cv: '',
+        },
+        orgHint: {
+          project: 'Or the project, if the company is not incorporated yet',
+          giveback: 'If you represent an organisation (optional)',
+        } as Partial<Record<Option, string>>,
         website: 'Website',
-        websiteHint: 'Add if available',
-        addWebsite: 'Add another website',
-        service: 'Service of interest *',
-        serviceHint: 'Specify the service you need',
-        businessPlan: 'Business plan writing',
-        fundraising: 'Fundraising support',
-        businessDevelopment: 'Business development',
-        other: 'Other',
-        otherService: 'If "Other", please specify:',
-        company: 'Startup / organisation *',
-        role: 'Role *',
-        linkProject: 'Pitch deck link',
-        filePitch: `Pitch deck (PDF, max ${MAX_MB} MB)`,
-        fileCv: `CV (PDF, max ${MAX_MB} MB)`,
+        playerType: 'Type of organisation',
+        industry: 'Industry *',
+        country: 'Country',
+        city: 'City',
+        selectOption: 'Select an option',
+        multiHint: 'You can choose more than one',
+        startupStage: 'Startup stage *',
+        fundingStatus: 'Fundraising status',
+        fundingRange: 'How much you aim to raise',
+        primaryNeed: 'What you need most',
+        investmentTicket: 'Indicative ticket per deal *',
+        investmentStages: 'Stages you invest in',
+        investmentIndustries: 'Industries you invest in',
+        investmentGeographies: 'Geographies',
+        supportedStages: 'Startup stages you support *',
+        supportedIndustries: 'Industries you work in',
+        servicesOffered: 'Services you offer',
+        companySize: 'Size',
+        innovationObjective: 'Innovation objective *',
+        collaborationInterest: 'Kind of collaboration you are interested in',
+        contribution: 'How would you like to contribute? *',
+        availability: 'How much time can you give?',
+        experience: 'Years of experience *',
+        jobArea: 'Area of interest *',
+        linkedin: 'LinkedIn profile',
+        documentLink: { project: 'Pitch deck link', cv: 'CV link' } as Partial<Record<Option, string>>,
+        file: { project: `Pitch deck (PDF, max ${MAX_MB} MB)`, cv: `CV (PDF, max ${MAX_MB} MB)` } as Partial<Record<Option, string>>,
         fileHint: 'Upload a PDF or add a link: at least one of the two is required.',
-        linkCv: 'CV or LinkedIn profile link',
-        noteProject: 'Additional information (optional)',
-        noteCv: 'Briefly tell us about your profile and what you are looking for',
-        privacy: 'I agree to the processing of my data so Rainmakers can contact me and have read the privacy policy.',
+        message: {
+          company: 'Tell us about your challenge (optional)',
+          project: 'Additional information (optional)',
+          invest: 'Anything else you want to share (optional)',
+          giveback: 'Tell us about yourself and what you would like to do (optional)',
+          cv: 'Anything else (optional)',
+        },
+        privacy: 'I have read the privacy policy and agree to the processing of my data to handle this request.',
+        privacyLink: 'Privacy policy',
+        newsletter: 'I would also like to receive Gocce di Innovazione, the Rainmakers monthly newsletter (optional). We will ask you to confirm by email.',
+        interests: 'I am mostly interested in (optional)',
         send: 'Send',
         sending: 'Sending…',
-        success: 'Thank you! We have received your request and the Rainmakers team will get back to you.',
+        successTitle: 'Received, thank you!',
+        success: 'The Rainmakers team will get back to you soon. We have sent you a confirmation email.',
+        successNewsletter: 'For the newsletter we have sent you a separate email: confirm your subscription from the link inside.',
+        done: 'Close',
         error: 'We could not send your request. Please try again in a moment: your answers are still here.',
         rateLimited: 'Too many requests. Please try again in a few minutes.',
         validation: 'Please check the highlighted fields.',
@@ -132,25 +275,31 @@ export function JoinOptions({ locale }: { locale: Locale }) {
           required: 'Please fill in this field.',
           email: 'Please enter a valid email address.',
           url: 'Please enter a valid link (e.g. https://…).',
-          consent: 'We need your consent to process your data.',
+          consent: 'Please confirm you have read the privacy policy.',
           tooLong: 'This text is too long.',
+          invalid: 'Please choose a value from the list.',
           fileOrLink: 'Upload a PDF or add a link.',
           fileType: 'The file must be a PDF.',
           fileTooLarge: `The file is larger than ${MAX_MB} MB: compress it or add a link instead.`,
-        } satisfies Record<JoinErrorCode, string>,
+        } satisfies Record<CrmErrorCode, string>,
         close: 'Close',
       };
+
+  const stepLabels = option ? copy.steps[option] : [];
+  const lastStep = stepLabels.length - 1;
+  const def = option ? FORMS[OPTION_FORM[option]] : null;
+  const group = def?.player ? playerGroup(playerType || null) : null;
 
   useEffect(() => {
     if (!option) return;
     document.documentElement.classList.add('modal-open');
-    dialog.current?.querySelector<HTMLElement>('input')?.focus();
+    dialog.current?.querySelector<HTMLElement>('fieldset:not([hidden]) input')?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        close();
-      }
+      if (event.key === 'Escape') close();
       if (event.key === 'Tab' && dialog.current) {
-        const focusables = [...dialog.current.querySelectorAll<HTMLElement>('button, input:not([type="hidden"]), select, textarea, a[href]')];
+        const focusables = [...dialog.current.querySelectorAll<HTMLElement>('button, input:not([type="hidden"]), select, textarea, a[href]')].filter(
+          (el) => !el.closest('[hidden]'),
+        );
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
         if (event.shiftKey && document.activeElement === first) {
@@ -169,20 +318,53 @@ export function JoinOptions({ locale }: { locale: Locale }) {
     };
   }, [option]);
 
+  // New step: focus its first field (keyboard and screen-reader users land in the right place)
+  useEffect(() => {
+    if (!option) return;
+    dialog.current?.querySelector<HTMLElement>(`[data-step="${step}"] input, [data-step="${step}"] select`)?.focus();
+  }, [step, option]);
+
   function close() {
     setOption(null);
+    // Opened from a link (header, "Cosa fa Rainmakers"): drop the hash so the same link can open the popup again
+    if (HASH_OPTION[window.location.hash.slice(1)]) history.replaceState(null, '', `${window.location.pathname}${window.location.search}#connect`);
     requestAnimationFrame(() => returnFocus.current?.focus());
+  }
+
+  /** Native validation of the current step only; the first invalid field reports itself. */
+  function stepIsValid() {
+    const fields = formRef.current?.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(`[data-step="${step}"] :is(input, select, textarea)`);
+    for (const field of fields ?? []) if (!field.checkValidity()) return field.reportValidity(), false;
+    // Required checkbox groups: at least one box
+    for (const group of formRef.current?.querySelectorAll<HTMLFieldSetElement>(`[data-step="${step}"] fieldset[data-required]`) ?? []) {
+      if (!group.querySelector('input:checked')) {
+        const first = group.querySelector<HTMLInputElement>('input');
+        first?.setCustomValidity(copy.errors.required);
+        first?.reportValidity();
+        first?.addEventListener('change', () => first.setCustomValidity(''), { once: true });
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function next() {
+    if (!stepIsValid()) return;
+    setStep((s) => Math.min(s + 1, lastStep));
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!option || status === 'sending') return;
+    if (!option || !def || status === 'sending') return;
+    if (step < lastStep) return next();
+    if (!stepIsValid()) return;
     const data = new FormData(event.currentTarget);
     const entry = data.get('file');
     const file = entry instanceof File && entry.size > 0 ? entry : null;
-    const linkValue = String(data.get(option === 'project' ? 'pitchDeck' : 'link') ?? '').trim();
+    const v = (name: string) => String(data.get(name) ?? '').trim();
+    const all = (name: string) => data.getAll(name).map(String);
     // Instant feedback; the server repeats every check (type, size, PDF signature)
-    const fileError = file ? checkUploadMeta(file) : linkValue ? null : 'fileOrLink';
+    const fileError = !def.document ? null : file ? checkUploadMeta(file) : v('documentLink') ? null : 'fileOrLink';
     if (fileError) {
       setErrors({ file: fileError });
       setFailure('validation');
@@ -191,51 +373,69 @@ export function JoinOptions({ locale }: { locale: Locale }) {
     }
     setErrors({});
     setStatus('sending');
-    const fields = Object.fromEntries(data.entries());
-    const websites = data.getAll('websites').map(String).filter(Boolean);
-    const application = option === 'project'
-      ? {
-          startupName: String(fields.startupName ?? ''),
-          companyIncorporated: String(fields.companyIncorporated ?? ''),
-          incorporationYear: String(fields.incorporationYear ?? '') || undefined,
-          cityProvince: String(fields.cityProvince ?? ''),
-          sector: String(fields.sector ?? ''),
-          websites,
-          serviceInterest: String(fields.serviceInterest ?? ''),
-          otherService: String(fields.otherService ?? '') || undefined,
-        }
-      : undefined;
     const payload = {
+      form: OPTION_FORM[option],
       locale,
-      firstName: String(fields.firstName ?? ''),
-      lastName: String(fields.lastName ?? ''),
-      email: String(fields.email ?? ''),
-      company: option === 'project' ? String(fields.startupName ?? '') : String(fields.company ?? ''),
-      role: option === 'project' ? String(fields.serviceInterest ?? '') : String(fields.role ?? ''),
-      link: linkValue || undefined,
-      profileType: option === 'project' ? 'startup' : 'other',
-      interest: String(fields.interest ?? ''),
-      application,
-      submissionType: option === 'project' ? 'pitch' : 'cv',
-      consent: fields.consent === 'on',
-      company_website_hp: String(fields.website ?? ''),
-      elapsedMs: Date.now() - started,
       idempotencyKey: idempotencyKey.current,
+      sourcePage: currentPage(),
+      utm: visitUtm(),
+      firstName: v('firstName'),
+      lastName: v('lastName'),
+      email: v('email'),
+      phone: v('phone'),
+      jobTitle: v('jobTitle'),
+      organizationName: v('organizationName'),
+      organizationWebsite: v('organizationWebsite'),
+      playerType: v('playerType'),
+      industry: v('industry'),
+      country: v('country'),
+      city: v('city'),
+      message: v('message'),
+      startupStage: v('startupStage'),
+      fundingStatus: v('fundingStatus'),
+      fundingRange: v('fundingRange'),
+      primaryNeed: v('primaryNeed'),
+      investmentTicket: v('investmentTicket'),
+      investmentStages: all('investmentStages'),
+      investmentIndustries: all('investmentIndustries'),
+      investmentGeographies: all('investmentGeographies'),
+      supportedStages: all('supportedStages'),
+      supportedIndustries: all('supportedIndustries'),
+      servicesOffered: all('servicesOffered'),
+      companySize: v('companySize'),
+      innovationObjective: v('innovationObjective'),
+      collaborationInterest: all('collaborationInterest'),
+      contribution: v('contribution'),
+      availability: v('availability'),
+      experience: v('experience'),
+      jobArea: v('jobArea'),
+      linkedin: v('linkedin'),
+      documentLink: v('documentLink'),
+      privacy: data.get('privacy') === 'on',
+      newsletterOptIn: data.get('newsletterOptIn') === 'on',
+      editorialInterests: data.get('newsletterOptIn') === 'on' ? all('editorialInterests') : [],
+      company_website_hp: v('website'),
+      elapsedMs: Date.now() - started,
     };
     const body = new FormData();
     body.set('payload', JSON.stringify(payload));
     if (file) body.set('file', file);
     try {
       const response = await fetch('/api/join', { method: 'POST', body });
-      const result = (await response.json().catch(() => ({}))) as { ok?: boolean; fields?: Record<string, JoinErrorCode> };
+      const result = (await response.json().catch(() => ({}))) as { ok?: boolean; newsletter?: string | null; fields?: Record<string, CrmErrorCode> };
       if (response.ok && result.ok) {
+        setNewsletterSent(payload.newsletterOptIn && (result.newsletter === 'pending' || result.newsletter === 'pending_recent'));
         setStatus('success');
-        track('join_application_submit', { kind: option === 'project' ? 'pitch' : 'cv', has_file: !!file, locale });
+        track('join_application_submit', { kind: OPTION_FORM[option], has_file: !!file, newsletter: payload.newsletterOptIn, locale });
         return;
       }
-      setErrors(result.fields ?? (response.status === 413 ? { file: 'fileTooLarge' } : {}));
+      const fields = result.fields ?? (response.status === 413 ? { file: 'fileTooLarge' as const } : {});
+      setErrors(fields);
       setFailure(result.fields || response.status === 413 ? 'validation' : response.status === 429 ? 'rateLimited' : 'generic');
       setStatus('error');
+      // Back to the first step with a flagged field
+      const steps = Object.keys(fields).map((k) => fieldStep(option, k));
+      if (steps.length) setStep(Math.min(...steps));
     } catch {
       setFailure('generic');
       setStatus('error');
@@ -249,169 +449,374 @@ export function JoinOptions({ locale }: { locale: Locale }) {
         {copy.errors[errors[name]]}
       </span>
     ) : null;
+  const invalidProps = (name: string) => (errors[name] ? { 'aria-invalid': true, 'aria-describedby': `${id}-${name}-error` } : {});
 
-  const open = (value: Option, element: HTMLElement) => {
+  const open = (value: Option, element: HTMLElement | null) => {
     setStatus('idle');
     setErrors({});
+    setStep(0);
     idempotencyKey.current = crypto.randomUUID();
     setStarted(Date.now());
-    setWebsiteCount(1);
-    setServiceInterest('');
+    setPlayerType(FORMS[OPTION_FORM[value]].defaultPlayerType ?? '');
+    setOptIn(false);
+    setNewsletterSent(false);
     returnFocus.current = element;
     setOption(value);
+    track('community_cta_click', { location: `start_${OPTION_PATH[value]}`, locale });
   };
+
+  // A card's hash (header "Lavora con noi", "Cosa fa Rainmakers" CTAs, also from other pages): open its popup on
+  // arrival and on each click
+  useEffect(() => {
+    const fromHash = () => {
+      const hash = window.location.hash.slice(1);
+      const option = HASH_OPTION[hash];
+      if (option) open(option, document.getElementById(hash)?.querySelector('button') ?? null);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `open` only sets state; listen once
+  }, []);
+
+  // ── field helpers (plain render functions, not components: all steps stay mounted, typed values survive) ──
+  const renderStep = (index: number, children: ReactNode) => (
+    <fieldset className="join-step" data-step={index} hidden={step !== index}>
+      <legend className="sr-only">{stepLabels[index]}</legend>
+      <div className="form-grid">{children}</div>
+    </fieldset>
+  );
+
+  const text = (name: string, label: string, opts: { required?: boolean; type?: string; auto?: string; max?: number; span?: boolean; hint?: string; placeholder?: string } = {}) => (
+    <label className={`field${opts.span ? ' span-2' : ''}`}>
+      <span className="field__label">{label}</span>
+      <input
+        name={name}
+        type={opts.type ?? 'text'}
+        autoComplete={opts.auto}
+        maxLength={opts.max ?? 120}
+        required={opts.required}
+        placeholder={opts.placeholder}
+        {...(opts.type === 'tel' ? { pattern: '[+0-9 .()\\-]*' } : {})}
+        {...invalidProps(name)}
+      />
+      {opts.hint ? <span className="field__hint">{opts.hint}</span> : null}
+      {fieldError(name)}
+    </label>
+  );
+
+  const select = (
+    name: string,
+    label: string,
+    labels: Labels,
+    opts: { required?: boolean; span?: boolean; only?: readonly string[] | null; value?: string; onChange?: (v: string) => void; hint?: string } = {},
+  ) => (
+    <label className={`field${opts.span ? ' span-2' : ''}`}>
+      <span className="field__label">{label}</span>
+      <select
+        name={name}
+        required={opts.required}
+        {...(opts.onChange ? { value: opts.value ?? '', onChange: (e) => opts.onChange!(e.target.value) } : { defaultValue: '' })}
+        {...invalidProps(name)}
+      >
+        <option value="" disabled={opts.required}>
+          {copy.selectOption}
+        </option>
+        {Object.entries(labels)
+          .filter(([value]) => !opts.only || opts.only.includes(value))
+          .map(([value, l]) => (
+            <option key={value} value={value}>
+              {l[locale]}
+            </option>
+          ))}
+      </select>
+      {opts.hint ? <span className="field__hint">{opts.hint}</span> : null}
+      {fieldError(name)}
+    </label>
+  );
+
+  /** Multiple choice as checkbox chips; `required`: at least one (checked step by step, and on the server) */
+  const multi = (name: string, label: string, labels: Labels, required = false) => (
+    <fieldset className="field span-2 choice-group" data-required={required || undefined} {...invalidProps(name)}>
+      <legend className="field__label">{label}</legend>
+      <span className="field__hint">{copy.multiHint}</span>
+      <div className="choice-group__options">
+        {Object.entries(labels).map(([value, l]) => (
+          <label key={value} className="choice">
+            <input type="checkbox" name={name} value={value} />
+            <span>{l[locale]}</span>
+          </label>
+        ))}
+      </div>
+      {fieldError(name)}
+    </fieldset>
+  );
+
+  const documentFields = (o: Option) =>
+    def?.document ? (
+      <>
+        {text('documentLink', copy.documentLink[o] ?? '', { type: 'url', max: 300, placeholder: 'https://', span: true })}
+        <label className="field span-2">
+          <span className="field__label">{copy.file[o]}</span>
+          <input name="file" type="file" accept={ACCEPTED_UPLOAD} aria-invalid={!!errors.file} aria-describedby={`${id}-file-hint${errors.file ? ` ${id}-file-error` : ''}`} />
+          <span className="field__hint" id={`${id}-file-hint`}>
+            {copy.fileHint}
+          </span>
+          {fieldError('file')}
+        </label>
+      </>
+    ) : null;
+
+  /** Privacy notice for this request, then the newsletter: separate, optional, never preselected */
+  const consents = (
+    <>
+      <label className={`consent span-2${errors.privacy ? ' has-error' : ''}`}>
+        <input type="checkbox" name="privacy" required {...invalidProps('privacy')} />
+        <span>
+          {copy.privacy}{' '}
+          <a href={`/${locale}/privacy`} target="_blank" rel="noopener">
+            {copy.privacyLink}
+          </a>
+        </span>
+        {fieldError('privacy')}
+      </label>
+      <label className="consent span-2">
+        <input type="checkbox" name="newsletterOptIn" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
+        <span>{copy.newsletter}</span>
+      </label>
+      {optIn ? (
+        <fieldset className="field span-2 choice-group choice-group--compact">
+          <legend className="field__label">{copy.interests}</legend>
+          <div className="choice-group__options">
+            {Object.entries(AREA_LABELS).map(([value, l]) => (
+              <label key={value} className="choice">
+                <input type="checkbox" name="editorialInterests" value={value} />
+                <span>{l[locale]}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
+    </>
+  );
+
+  /** The block that fits the chosen player type */
+  const groupBlock =
+    group === 'startup' ? (
+      <>
+        {select('startupStage', copy.startupStage, STAGE_LABELS, { required: true })}
+        {select('fundingStatus', copy.fundingStatus, FUNDING_STATUS_LABELS)}
+        {select('fundingRange', copy.fundingRange, AMOUNT_LABELS)}
+        {select('primaryNeed', copy.primaryNeed, PRIMARY_NEED_LABELS)}
+      </>
+    ) : group === 'investor' ? (
+      <>
+        {select('investmentTicket', copy.investmentTicket, AMOUNT_LABELS, { required: true, span: true })}
+        {multi('investmentStages', copy.investmentStages, STAGE_LABELS)}
+        {multi('investmentIndustries', copy.investmentIndustries, INDUSTRY_LABELS)}
+        {multi('investmentGeographies', copy.investmentGeographies, GEOGRAPHY_LABELS)}
+      </>
+    ) : group === 'accelerator' ? (
+      <>
+        {multi('supportedStages', copy.supportedStages, STAGE_LABELS, true)}
+        {multi('supportedIndustries', copy.supportedIndustries, INDUSTRY_LABELS)}
+        {multi('servicesOffered', copy.servicesOffered, SERVICE_LABELS)}
+      </>
+    ) : null;
+
+  /**
+   * Display order: company, startup, giveback, work (2026-10-21). The "Investi con noi" card was removed on 2026-11-02:
+   * its popup still opens from its hash (the Investment CTA of "Cosa fa Rainmakers").
+   */
+  const cards = [
+    { key: 'company' as const, Icon: IconBuilding, ...paths.company },
+    { key: 'project' as const, Icon: IconRocket, ...paths.startup },
+    { key: 'giveback' as const, Icon: IconGive, ...paths.giveback },
+    { key: 'cv' as const, Icon: IconBriefcase, ...paths.work },
+  ];
 
   return (
     <>
-      <div className="join-options">
-        <button className="join-option" type="button" onClick={(event) => open('project', event.currentTarget)}>
-          <span className="join-option__label">
-            {copy.project}
-            <span className="join-option__hint">{it ? 'Presentaci il tuo progetto in pochi passaggi.' : 'Introduce your startup in a few simple steps.'}</span>
-          </span>
-          <span aria-hidden>↗</span>
-        </button>
-        <button className="join-option" type="button" onClick={(event) => open('cv', event.currentTarget)}>
-          <span className="join-option__label">
-            {copy.cv}
-            <span className="join-option__hint">{it ? 'Entra in contatto con il team Rainmakers.' : 'Get in touch with the Rainmakers team.'}</span>
-          </span>
-          <span aria-hidden>↗</span>
-        </button>
-      </div>
-      {option ? (
+      <ul className="start-cards">
+        {cards.map(({ key, Icon, title, text: cardText, cta }, i) => (
+          <li key={key} id={START_HASH[OPTION_PATH[key]]} className="reveal" style={{ '--i': i } as CSSProperties}>
+            <button className={`start-card start-card--${key}`} type="button" aria-haspopup="dialog" onClick={(event) => open(key, event.currentTarget)}>
+              <span className="start-card__icon" aria-hidden>
+                <Icon />
+              </span>
+              <strong className="start-card__title">{title}</strong>
+              <span className="start-card__text">{cardText}</span>
+              <span className="start-card__cta">
+                {cta}
+                <ArrowRight aria-hidden />
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {option && def ? (
         <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && close()}>
-          <section ref={dialog} className="site-modal site-modal--wide" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`} tabIndex={-1}>
+          <section ref={dialog} className="site-modal site-modal--wide join-modal" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`} tabIndex={-1}>
             <button className="site-modal__close" type="button" aria-label={copy.close} onClick={close}>
               <Close aria-hidden />
             </button>
-            <p className="eyebrow site-modal__eyebrow">{option === 'project' ? copy.project : copy.cv}</p>
-            <h2 id={`${id}-title`}>{copy.title}</h2>
-            <p>{copy.intro}</p>
+            <p className="eyebrow site-modal__eyebrow">{paths[OPTION_PATH[option]].title}</p>
+            <h2 id={`${id}-title`}>{copy.title[option]}</h2>
             {status === 'success' ? (
-              <p className="form-status form-status--success" role="status">{copy.success}</p>
+              <div className="join-done" role="status">
+                <span className="join-done__mark" aria-hidden>
+                  <Check />
+                </span>
+                <p className="join-done__title">{copy.successTitle}</p>
+                <p>{copy.success}</p>
+                {newsletterSent ? <p>{copy.successNewsletter}</p> : null}
+                <button className="btn btn--secondary" type="button" onClick={close}>
+                  {copy.done}
+                </button>
+              </div>
             ) : (
-              <form className="modal-form" onSubmit={submit}>
-                <div className="form-grid">
-                  <label className="field"><span className="field__label">{copy.first} *</span><input name="firstName" autoComplete="given-name" required /></label>
-                  <label className="field"><span className="field__label">{copy.last} *</span><input name="lastName" autoComplete="family-name" required /></label>
-                  <label className="field span-2"><span className="field__label">{copy.email} *</span><input type="email" name="email" autoComplete="email" required /></label>
-                  {option === 'project' ? (
+              <>
+                <p className="join-modal__intro">{copy.intro[option]}</p>
+                <ol className="join-progress" aria-label={copy.progress.replace('{n}', String(step + 1)).replace('{total}', String(stepLabels.length))}>
+                  {stepLabels.map((label, i) => (
+                    <li key={label} className={i < step ? 'is-done' : i === step ? 'is-current' : undefined} aria-current={i === step ? 'step' : undefined}>
+                      <span className="join-progress__dot" aria-hidden>
+                        {i < step ? <Check /> : i + 1}
+                      </span>
+                      <span className="join-progress__label">{label}</span>
+                    </li>
+                  ))}
+                </ol>
+                <form ref={formRef} className="modal-form" onSubmit={submit}>
+                  {renderStep(
+                    0,
                     <>
-                      <label className="field span-2">
-                        <span className="field__label">{copy.startupName}</span>
-                        <input name="startupName" maxLength={150} required />
-                        <span className="field__hint">{copy.startupHint}</span>
-                      </label>
-                      <label className="field">
-                        <span className="field__label">{copy.incorporated}</span>
-                        <select name="companyIncorporated" defaultValue="" required>
-                          <option value="" disabled>{copy.selectOption}</option>
-                          <option value="yes">{it ? 'Sì' : 'Yes'}</option>
-                          <option value="no">{it ? 'No' : 'No'}</option>
-                        </select>
-                      </label>
-                      <label className="field">
-                        <span className="field__label">{copy.year}</span>
-                        <input name="incorporationYear" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} placeholder="2026" />
-                        <span className="field__hint">{copy.yearHint}</span>
-                      </label>
-                      <label className="field">
-                        <span className="field__label">{copy.city}</span>
-                        <input name="cityProvince" maxLength={120} required />
-                        <span className="field__hint">{copy.cityHint}</span>
-                      </label>
-                      <label className="field">
-                        <span className="field__label">{copy.sector}</span>
-                        <input name="sector" maxLength={200} required />
-                        <span className="field__hint">{copy.sectorHint}</span>
-                      </label>
-                      <div className="field span-2">
-                        <span className="field__label">{copy.website}</span>
-                        <div className="field__control">
-                          {Array.from({ length: websiteCount }, (_, index) => (
-                            <input key={index} name="websites" type="url" placeholder="https://" aria-label={`${copy.website} ${index + 1}`} maxLength={300} />
-                          ))}
-                          {websiteCount < 5 ? (
-                            <button className="field__add" type="button" onClick={() => setWebsiteCount((count) => Math.min(count + 1, 5))}>
-                              + {copy.addWebsite}
-                            </button>
-                          ) : null}
-                        </div>
-                        <span className="field__hint">{copy.websiteHint}</span>
-                      </div>
-                      <label className="field span-2">
-                        <span className="field__label">{copy.linkProject}</span>
-                        <input name="pitchDeck" type="url" placeholder="https://" maxLength={300} aria-invalid={!!errors.link} />
-                        {fieldError('link')}
-                      </label>
-                      <label className="field span-2">
-                        <span className="field__label">{copy.filePitch}</span>
-                        <input name="file" type="file" accept={ACCEPTED_UPLOAD} aria-invalid={!!errors.file} aria-describedby={`${id}-file-hint${errors.file ? ` ${id}-file-error` : ''}`} />
-                        <span className="field__hint" id={`${id}-file-hint`}>{copy.fileHint}</span>
-                        {fieldError('file')}
-                      </label>
-                      <label className="field span-2">
-                        <span className="field__label">{copy.service}</span>
-                        <select name="serviceInterest" value={serviceInterest} onChange={(event) => setServiceInterest(event.target.value)} required>
-                          <option value="" disabled>{copy.selectOption}</option>
-                          <option value="business-plan">{copy.businessPlan}</option>
-                          <option value="fundraising">{copy.fundraising}</option>
-                          <option value="business-development">{copy.businessDevelopment}</option>
-                          <option value="other">{copy.other}</option>
-                        </select>
-                        <span className="field__hint">{copy.serviceHint}</span>
-                      </label>
-                      {serviceInterest === 'other' ? (
-                        <label className="field span-2">
-                          <span className="field__label">{copy.otherService}</span>
-                          <input name="otherService" maxLength={200} required />
+                      {text('firstName', copy.first, { required: true, auto: 'given-name', max: 80 })}
+                      {text('lastName', copy.last, { required: true, auto: 'family-name', max: 80 })}
+                      {text('email', copy.email, { required: true, type: 'email', auto: 'email', max: 254, span: true })}
+                      {text('phone', copy.phone, { type: 'tel', auto: 'tel', max: 40 })}
+                      {option !== 'cv' ? text('jobTitle', copy.jobTitle, { auto: 'organization-title' }) : null}
+                    </>,
+                  )}
+
+                  {option === 'cv' ? (
+                    renderStep(
+                      1,
+                      <>
+                        {select('jobArea', copy.jobArea, JOB_AREA_LABELS, { required: true })}
+                        {select('experience', copy.experience, EXPERIENCE_LABELS, { required: true })}
+                        {text('city', copy.city, { auto: 'address-level2' })}
+                        <label className="field">
+                          <span className="field__label">{copy.country}</span>
+                          <select name="country" defaultValue="IT" autoComplete="country">
+                            {countries.map((c) => (
+                              <option key={c.value} value={c.value}>
+                                {c.label}
+                              </option>
+                            ))}
+                          </select>
                         </label>
-                      ) : null}
-                      <label className="field span-2">
-                        <span className="field__label">{copy.noteProject}</span>
-                        <textarea name="interest" maxLength={1000} rows={3} />
-                      </label>
-                    </>
+                        {text('linkedin', copy.linkedin, { type: 'url', max: 300, placeholder: 'https://linkedin.com/in/…', span: true })}
+                        {documentFields(option)}
+                        <label className="field span-2">
+                          <span className="field__label">{copy.message.cv}</span>
+                          <textarea name="message" maxLength={2000} rows={3} />
+                        </label>
+                        {consents}
+                      </>,
+                    )
                   ) : (
                     <>
-                      <label className="field"><span className="field__label">{copy.company}</span><input name="company" maxLength={120} required /></label>
-                      <label className="field"><span className="field__label">{copy.role}</span><input name="role" maxLength={120} required /></label>
-                      <label className="field span-2">
-                        <span className="field__label">{copy.linkCv}</span>
-                        <input name="link" type="url" placeholder="https://" maxLength={300} aria-invalid={!!errors.link} />
-                        {fieldError('link')}
-                      </label>
-                      <label className="field span-2">
-                        <span className="field__label">{copy.fileCv}</span>
-                        <input name="file" type="file" accept={ACCEPTED_UPLOAD} aria-invalid={!!errors.file} aria-describedby={`${id}-file-hint${errors.file ? ` ${id}-file-error` : ''}`} />
-                        <span className="field__hint" id={`${id}-file-hint`}>{copy.fileHint}</span>
-                        {fieldError('file')}
-                      </label>
-                      <label className="field span-2"><span className="field__label">{copy.noteCv}</span><textarea name="interest" maxLength={1000} rows={4} /></label>
+                      {renderStep(
+                        1,
+                        <>
+                          {text('organizationName', copy.orgName[option], {
+                            required: def.organizationRequired,
+                            auto: 'organization',
+                            max: 150,
+                            span: true,
+                            hint: copy.orgHint[option],
+                          })}
+                          {select('playerType', `${copy.playerType}${def.organizationRequired ? ' *' : ''}`, PLAYER_TYPE_LABELS, {
+                            required: def.organizationRequired,
+                            only: def.playerTypes,
+                            value: playerType,
+                            onChange: (v) => setPlayerType(v as PlayerType | ''),
+                          })}
+                          {select('industry', copy.industry, INDUSTRY_LABELS, { required: true })}
+                          {text('organizationWebsite', copy.website, { type: 'url', max: 300, placeholder: 'https://', span: true })}
+                          <label className="field">
+                            <span className="field__label">{copy.country}</span>
+                            <select name="country" defaultValue="IT" autoComplete="country">
+                              {countries.map((c) => (
+                                <option key={c.value} value={c.value}>
+                                  {c.label}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          {text('city', copy.city, { auto: 'address-level2' })}
+                        </>,
+                      )}
+                      {renderStep(
+                        2,
+                        <>
+                          {def.corporateBlock ? (
+                            <>
+                              {select('innovationObjective', copy.innovationObjective, INNOVATION_OBJECTIVE_LABELS, { required: true })}
+                              {select('companySize', copy.companySize, COMPANY_SIZE_LABELS)}
+                              {multi('collaborationInterest', copy.collaborationInterest, COLLABORATION_LABELS)}
+                            </>
+                          ) : null}
+                          {groupBlock}
+                          {option === 'giveback' ? (
+                            <>
+                              {select('contribution', copy.contribution, CONTRIBUTION_LABELS, { required: true })}
+                              {select('availability', copy.availability, AVAILABILITY_LABELS)}
+                              {text('linkedin', copy.linkedin, { type: 'url', max: 300, placeholder: 'https://linkedin.com/in/…', span: true })}
+                            </>
+                          ) : null}
+                          {documentFields(option)}
+                          <label className="field span-2">
+                            <span className="field__label">{copy.message[option]}</span>
+                            <textarea name="message" maxLength={2000} rows={3} />
+                          </label>
+                          {consents}
+                        </>,
+                      )}
                     </>
                   )}
-                </div>
-                <label className="modal-form__honeypot" aria-hidden="true">Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
-                <label className="consent"><input type="checkbox" name="consent" required /><span>{copy.privacy} <a href={`/${locale}/privacy`} target="_blank" rel="noopener">{it ? 'Privacy' : 'Privacy policy'}</a></span></label>
-                {status === 'error' ? (
-                  <div className="form-status form-status--error" role="alert">
-                    <p>{failure === 'validation' ? copy.validation : failure === 'rateLimited' ? copy.rateLimited : copy.error}</p>
-                    {failure === 'validation' && Object.keys(errors).some((k) => k !== 'file' && k !== 'link') ? (
-                      <ul>
-                        {Object.entries(errors)
-                          .filter(([k]) => k !== 'file' && k !== 'link')
-                          .map(([k, code]) => (
-                            <li key={k}>{copy.errors[code]}</li>
-                          ))}
-                      </ul>
-                    ) : null}
+
+                  <label className="modal-form__honeypot" aria-hidden="true">
+                    Website
+                    <input name="website" tabIndex={-1} autoComplete="off" />
+                  </label>
+                  {status === 'error' ? (
+                    <div className="form-status form-status--error" role="alert">
+                      <p>{failure === 'validation' ? copy.validation : failure === 'rateLimited' ? copy.rateLimited : copy.error}</p>
+                    </div>
+                  ) : null}
+                  <div className="join-modal__actions">
+                    {step > 0 ? (
+                      <button className="btn btn--secondary" type="button" onClick={() => setStep((s) => s - 1)}>
+                        {copy.back}
+                      </button>
+                    ) : (
+                      <span />
+                    )}
+                    {step < lastStep ? (
+                      <button className="btn btn--primary" type="button" onClick={next}>
+                        {copy.next}
+                        <ArrowRight aria-hidden />
+                      </button>
+                    ) : (
+                      <button className="btn btn--primary" type="submit" disabled={status === 'sending'} aria-busy={status === 'sending'}>
+                        {status === 'sending' ? copy.sending : copy.send}
+                      </button>
+                    )}
                   </div>
-                ) : null}
-                <button className="btn btn--primary" type="submit" disabled={status === 'sending'} aria-busy={status === 'sending'}>
-                  {status === 'sending' ? copy.sending : copy.send}
-                </button>
-              </form>
+                </form>
+              </>
             )}
           </section>
         </div>

@@ -1,9 +1,9 @@
 import type { TrackCopy } from '../types';
 
 export const track: TrackCopy = {
-  eyebrow: 'Track record',
-  title: 'Experience matters. The right connections make the difference.',
-  intro: 'Since 2011: startups created or accelerated, and innovation projects for companies, investors and institutions.',
+  eyebrow: 'Rainmakers case studies',
+  title: 'Track record',
+  intro: 'Since 2011 we have been innovating companies and institutions, creating startups and serving Italy’s innovation ecosystem.',
   stats: [
     { value: '{exits}', label: 'exits in the Tribe' },
     { value: '{active}', label: 'startups with significant stakes' },
@@ -11,16 +11,47 @@ export const track: TrackCopy = {
     { value: '{advisory}', label: 'innovation advisory projects' },
   ],
   tribe: {
-    title: 'The Tribe',
+    title: 'Open Venture Building',
     intro: 'Startups created, co-founded or accelerated by Rainmakers.',
-    statusLabels: { active: 'Portfolio', exit: 'Exit', minority: 'Minority', writeoff: 'Write-off' },
+    statusLabels: {
+      active: 'Portfolio',
+      exit: 'Exit',
+      minority: 'Minority',
+      writeoff: 'Write-off',
+    },
     dataNote: 'Portfolio status: company overview, May 2025. FTE (partners + employees) and revenue: latest available sheets (2023).',
   },
+  giveback: {
+    title: 'Giveback',
+    intro: 'Initiatives supporting the Italian Rainforest.',
+    typeLabel: 'Giveback',
+  },
   advisory: {
-    title: 'Innovation Advisory',
+    title: 'Advisory',
     intro: 'Projects for corporates, investors, associations and institutions.',
-    typeLabels: { corporate: 'Corporate', investor: 'Investors', association: 'Associations', institution: 'Institutions', third_sector: 'Third sector' },
+    typeLabels: {
+      corporate: 'Corporate',
+      investor: 'Investors',
+      association: 'Associations',
+      institution: 'Institutions',
+      third_sector: 'Third sector',
+    },
     dataNote: 'Source: project sheets in the Rainmakers company overview. Year = first edition or delivery.',
+  },
+  cards: {
+    open: '{name}: details',
+    project: 'The project',
+    participation: 'Stake',
+    impact: 'Impact',
+    keyFacts: 'Key facts',
+    visit: 'Visit the website',
+    close: 'Close',
+    statusText: {
+      active: 'Rainmakers holds a significant stake in the company.',
+      exit: 'The company left the portfolio through an exit.',
+      minority: 'Rainmakers holds a minority stake in the company.',
+      writeoff: 'The stake has been written off.',
+    },
   },
   explorer: {
     searchLabel: 'Search',

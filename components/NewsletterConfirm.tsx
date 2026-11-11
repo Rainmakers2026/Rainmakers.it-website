@@ -8,15 +8,18 @@ type State = 'idle' | 'sending' | 'confirmed' | 'already_confirmed' | 'expired' 
 
 /**
  * Double opt-in step 2. Confirmation needs an explicit click (POST), so link scanners that open
- * emails automatically cannot confirm on the person's behalf.
+ * emails automatically cannot confirm on the person's behalf. Once confirmed, the personal unsubscribe link is shown
+ * (the same one as at the bottom of the newsletter emails), so the whole cycle can be tested from the site.
  */
 export function NewsletterConfirm({ locale, token }: { locale: Locale; token: string | null }) {
   const [state, setState] = useState<State>(token ? 'idle' : 'invalid');
+  const [unsubscribeUrl, setUnsubscribeUrl] = useState<string | null>(null);
   const it = locale === 'it';
   const copy = it
     ? {
         title: 'Conferma la tua iscrizione',
-        text: 'Un ultimo passo: conferma di voler ricevere la newsletter mensile di Rainmakers.',
+        text: 'Un ultimo passo: conferma di voler ricevere Gocce di Innovazione, la newsletter mensile di Rainmakers.',
+        unsubscribe: 'Non vuoi più riceverla? Annulla l’iscrizione',
         button: 'Conferma l’iscrizione',
         sending: 'Conferma in corso…',
         confirmed: 'Iscrizione confermata. Benvenuto! Ti abbiamo inviato un’email di benvenuto.',
@@ -28,7 +31,8 @@ export function NewsletterConfirm({ locale, token }: { locale: Locale; token: st
       }
     : {
         title: 'Confirm your subscription',
-        text: 'One last step: confirm that you want to receive the Rainmakers monthly newsletter.',
+        text: 'One last step: confirm that you want to receive Gocce di Innovazione, the Rainmakers monthly newsletter.',
+        unsubscribe: 'No longer interested? Unsubscribe',
         button: 'Confirm subscription',
         sending: 'Confirming…',
         confirmed: 'Subscription confirmed. Welcome! We have sent you a welcome email.',
@@ -48,7 +52,8 @@ export function NewsletterConfirm({ locale, token }: { locale: Locale; token: st
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
       });
-      const data = (await res.json().catch(() => ({}))) as { state?: State };
+      const data = (await res.json().catch(() => ({}))) as { state?: State; unsubscribeUrl?: string | null };
+      setUnsubscribeUrl(typeof data.unsubscribeUrl === 'string' ? data.unsubscribeUrl : null);
       const next: State = data.state && data.state in copy ? data.state : 'error';
       setState(next);
       if (next === 'confirmed') track('newsletter_signup', { step: 'confirmed', locale });
@@ -64,7 +69,14 @@ export function NewsletterConfirm({ locale, token }: { locale: Locale; token: st
     <div className="newsletter-confirm">
       <h1 className="h2">{copy.title}</h1>
       {done ? (
-        <p className="form-status form-status--success" role="status">{copy[state]}</p>
+        <>
+          <p className="form-status form-status--success" role="status">{copy[state]}</p>
+          {unsubscribeUrl ? (
+            <p>
+              <a href={unsubscribeUrl}>{copy.unsubscribe}</a>
+            </p>
+          ) : null}
+        </>
       ) : (
         <>
           <p className="lead">{copy.text}</p>

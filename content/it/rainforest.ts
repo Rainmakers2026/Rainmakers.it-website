@@ -3,9 +3,7 @@ import type { RainforestCopy } from '../types';
 export const rainforest: RainforestCopy = {
   title: 'Italian Rainforest',
   headline: 'Scopri l’ecosistema dietro le connessioni.',
-  text:
-    'Italian Rainforest è la mappa dell’ecosistema italiano dell’innovazione, creata da Rainmakers: uno strumento per esplorare investitori, incubatori, acceleratori e altre organizzazioni e scoprire nuove possibilità di connessione. Dati aperti per uso non commerciale.',
-  formula: 'Rainmakers ti apre l’accesso. Italian Rainforest ti fa esplorare. Le community ti fanno partecipare.',
+  text: 'Italian Rainforest è la mappa dell’ecosistema italiano dell’innovazione, creata da Rainmakers come Giveback: uno strumento per esplorare investitori, incubatori, acceleratori e altre organizzazioni e scoprire nuove possibilità di connessione.',
   statsTitle: 'Cosa trovi oggi nella mappa',
   statsTotalLabel: 'organizzazioni attive mappate',
   statsItalyLabel: 'con sede in Italia',
@@ -18,7 +16,8 @@ export const rainforest: RainforestCopy = {
     studios: 'Startup studio',
     angels: 'Angel network',
     institutions: 'Istituzioni',
-    media: 'Media e community',
+    media: 'Media e network',
   },
+  statsMore: '+ altre {n} categorie nella mappa',
   contribute: 'Proponi un aggiornamento al database',
 };

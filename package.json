@@ -2,7 +2,7 @@
   "name": "rainmakers-web",
   "version": "2.0.0",
   "private": true,
-  "description": "Rainmakers.it \u2014 one-page lead generation site (IT/EN), Next.js + Supabase + Vercel",
+  "description": "Rainmakers.it — one-page lead generation site (IT/EN), Next.js + Supabase + Vercel",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,12 +11,13 @@
     "typecheck": "tsc --noEmit",
     "check:content": "tsx scripts/check-content.ts",
     "copy:export": "tsx scripts/export-copy.ts > docs/03-copy-deck.md",
-    "test": "tsx scripts/test-validation.ts && npm run -s test:api && npm run -s test:brevo && npm run -s test:annotations && tsx scripts/check-content.ts && tsx scripts/check-placeholders.ts",
+    "test": "tsx scripts/test-validation.ts && npm run -s test:api && npm run -s test:brevo && npm run -s test:crm && npm run -s test:annotations && tsx scripts/check-content.ts && tsx scripts/check-placeholders.ts",
     "test:api": "tsx --conditions=react-server scripts/test-api.ts",
     "test:brevo": "tsx --conditions=react-server scripts/test-brevo.ts",
     "test:annotations": "tsx --conditions=react-server scripts/test-annotations.ts",
     "check:placeholders": "tsx scripts/check-placeholders.ts",
-    "count:words": "tsx --tsconfig scripts/tsconfig.json scripts/count-words.ts"
+    "count:words": "tsx --tsconfig scripts/tsconfig.json scripts/count-words.ts",
+    "test:crm": "tsx --conditions=react-server scripts/test-crm.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",

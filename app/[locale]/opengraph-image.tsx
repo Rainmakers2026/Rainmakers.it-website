@@ -48,8 +48,8 @@ export default async function OpengraphImage({ params }: { params: { locale: str
           <div style={{ fontSize: 26, letterSpacing: 6, textTransform: 'uppercase', color: '#7b92e8', fontWeight: 700 }}>
             Rainmakers
           </div>
-          <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.05, marginTop: 24, display: 'flex', flexWrap: 'wrap' }}>
-            {dict.hero.title} {dict.hero.titleAccent}
+          <div style={{ fontSize: 56, fontWeight: 800, lineHeight: 1.08, marginTop: 24, display: 'flex', flexWrap: 'wrap' }}>
+            {dict.hero.title} {dict.hero.titleAccent} {dict.hero.titleTail}
           </div>
           <div style={{ fontSize: 28, marginTop: 28, color: 'rgba(255,255,255,0.85)', lineHeight: 1.35 }}>
             {dict.hero.eyebrow}

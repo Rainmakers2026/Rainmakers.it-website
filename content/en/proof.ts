@@ -8,12 +8,8 @@ import type { ProofCopy } from '../types';
 const source = 'rainmakers.it/en (2021)';
 
 export const proof: ProofCopy = {
-  eyebrow: 'From the Tribe',
   title: 'What they say about us',
-  intro: 'Founders who made opportunities rain with Rainmakers, in their own words.',
-  sourceNote: 'Testimonials published on rainmakers.it.',
   review: {
-    hook: 'Been part of the Tribe? Your story could inspire the next founder.',
     cta: 'Leave a review',
     popTitle: 'Share your experience',
     popText: 'It takes two minutes: your review helps other founders see whether Rainmakers is right for them.',
@@ -47,6 +43,14 @@ export const proof: ProofCopy = {
         rateLimited: 'Too many submissions. Please try again in a few minutes.',
       },
     },
+  },
+  carousel: {
+    label: 'Founder testimonials',
+    prev: 'Previous testimonial',
+    next: 'Next testimonial',
+    goTo: 'Testimonial {n} of {total}',
+    pause: 'Pause autoplay',
+    play: 'Resume autoplay',
   },
   testimonials: [
     {

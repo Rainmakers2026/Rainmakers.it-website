@@ -8,8 +8,6 @@ export const BREVO_API = 'https://api.brevo.com/v3';
 
 export interface BrevoConfig {
   apiKey: string;
-  /** Numeric id of the Brevo list named "Contatti". */
-  contactsListId: number | null;
   from: { email: string; name: string };
   replyTo: string | null;
 }
@@ -18,10 +16,8 @@ export function brevoConfig(): BrevoConfig | null {
   const apiKey = process.env.BREVO_API_KEY;
   const fromEmail = process.env.BREVO_FROM_EMAIL;
   if (!apiKey || !fromEmail) return null;
-  const listId = Number(process.env.BREVO_CONTACTS_LIST_ID);
   return {
     apiKey,
-    contactsListId: Number.isInteger(listId) && listId > 0 ? listId : null,
     from: { email: fromEmail, name: process.env.BREVO_FROM_NAME || 'Rainmakers' },
     replyTo: process.env.BREVO_REPLY_TO || null,
   };

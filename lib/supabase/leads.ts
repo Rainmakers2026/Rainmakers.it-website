@@ -1,18 +1,18 @@
 import 'server-only';
-import type { CommunitySubmission, ContactSubmission, JoinSubmission, ReviewSubmission } from '@/lib/validation';
+import type { CommunitySubmission, ContactSubmission, ReviewSubmission } from '@/lib/validation';
 import { CONSENT_VERSION } from '@/lib/options';
 import { authHeaders, supabaseConfig } from './rest';
 
 export type StoreResult =
   | { ok: true; id: string | null; duplicate: boolean; mock?: true }
-  | { ok: false; reason: 'rate_limited' | 'error' | 'not_configured' };
+  | { ok: false; reason: 'rate_limited' | 'error' | 'not_configured'; /** Postgres error code, when known */ code?: string };
 
 /**
  * Calls one of the submit_* Postgres functions (supabase/migrations/0003) with the service key.
  * Without Supabase configuration: development accepts and logs (mock); production returns not_configured,
  * so a visitor is never told that an unsaved request was received.
  */
-async function rpc(fn: 'submit_contact' | 'submit_join_application' | 'submit_community_request' | 'submit_review', payload: Record<string, unknown>, idKey: string): Promise<StoreResult> {
+async function rpc(fn: 'submit_contact' | 'submit_community_request' | 'submit_review', payload: Record<string, unknown>, idKey: string): Promise<StoreResult> {
   const cfg = supabaseConfig('service');
   if (!cfg) {
     if (process.env.NODE_ENV !== 'production' || process.env.LEADS_MOCK === '1') {
@@ -34,7 +34,8 @@ async function rpc(fn: 'submit_contact' | 'submit_join_application' | 'submit_co
       if (body.includes('rate_limited')) return { ok: false, reason: 'rate_limited' };
       // Postgres error code/message only — the payload (personal data) is never logged
       console.error(`[${fn}] Supabase error`, res.status, body.slice(0, 300));
-      return { ok: false, reason: 'error' };
+      const code = /"code"\s*:\s*"(\w+)"/.exec(body)?.[1];
+      return { ok: false, reason: 'error', code };
     }
     const data = (await res.json()) as Record<string, unknown>;
     return { ok: true, id: (data[idKey] as string) ?? null, duplicate: data.duplicate === true };
@@ -68,31 +69,6 @@ export function submitContact(s: ContactSubmission) {
       idempotency_key: s.idempotencyKey,
     },
     'request_id',
-  );
-}
-
-/** "Join the Tribe" → join_applications. `file` is set once the PDF is in the private bucket. */
-export function submitJoinApplication(s: JoinSubmission, file: { path: string; name: string; size: number } | null) {
-  const pitch = s.submissionType === 'pitch';
-  return rpc(
-    'submit_join_application',
-    {
-      ...person(s),
-      last_name: s.lastName,
-      // Person record: the startup name is the company; the pitch "role" field carries the service, not a job title
-      company: s.company,
-      role: pitch ? null : s.role,
-      link: s.link ?? null,
-      profile_type: s.profileType,
-      kind: s.submissionType,
-      application: s.application ?? null,
-      notes: s.interest ?? null,
-      storage_path: file?.path ?? null,
-      file_name: file?.name ?? null,
-      file_size: file?.size ?? null,
-      idempotency_key: s.idempotencyKey,
-    },
-    'application_id',
   );
 }
 

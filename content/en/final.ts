@@ -1,12 +1,47 @@
 import type { FinalCopy } from '../types';
 
 export const final: FinalCopy = {
-  eyebrow: 'Join Rainmakers',
-  title: 'Where would you like to start?',
-  text: 'Pick the step that suits you best.',
+  title: 'How do you want to start?',
+  intro:
+    'A company to innovate, a startup to grow, time and skills to share or the wish to work with us: choose your path, it only takes a few minutes.',
+  // Card texts kept to one or two lines (2026-10-26)
   paths: {
-    community: { title: 'Join a community', text: 'Meet other founders on WhatsApp.', cta: 'See the communities' },
-    join: { title: 'Send your pitch or CV', text: 'Have a startup or want to work with us?', cta: 'Join the Tribe' },
-    contact: { title: 'Talk to us', text: 'Tell us what you need and the team will get back to you.', cta: 'Fill in the form' },
+    company: {
+      title: 'Innovate your company',
+      text: 'Tell us your challenge: we shape the project together.',
+      cta: 'Let’s talk',
+    },
+    startup: {
+      title: 'Accelerate your startup',
+      text: 'Send us your pitch: we review it and get back to you.',
+      cta: 'Send your pitch',
+    },
+    giveback: {
+      title: 'Join the Giveback',
+      text: 'Put your time and skills to work for the ecosystem.',
+      cta: 'Get involved',
+    },
+    work: {
+      title: 'Work with us',
+      text: 'Send us your CV and join the Rainmakers team.',
+      cta: 'Send your CV',
+    },
+    invest: {
+      title: 'Invest with us',
+      text: 'Join the Rainmakers Club with 300+ entrepreneurs.',
+      cta: 'Apply',
+    },
+  },
+  newsletter: {
+    eyebrow: 'The Rainmakers newsletter',
+    title: 'Opportunities don’t fall from the sky.',
+    titleAccent: 'Drops of innovation.',
+    lead: 'Once a month, a few drops picked by the Rainmakers team: just enough to help your ideas grow and keep you one step ahead.',
+    perks: [
+      'Ecosystem drops: highlights of Italian innovation',
+      'Reading drops: our articles and the month’s most-read posts',
+      'Opportunity drops: initiatives and events not to miss',
+    ],
+    promise: 'One drop a month. Zero spam. Unsubscribe in one click.',
   },
 };

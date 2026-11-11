@@ -7,7 +7,10 @@ export const legal: LegalCopy = {
     draftNotice: 'DRAFT — To be validated by legal counsel/DPO before publication. Placeholder fields must be completed.',
     updated: `Last updated: ${PH.provided}`,
     sections: [
-      { title: '1. Data controller', body: [`Controller: ${PH.provided}`, `Privacy contact: ${PH.provided}`] },
+      {
+        title: '1. Data controller',
+        body: [`Controller: ${PH.provided}`, `Privacy contact: ${PH.provided}`],
+      },
       {
         title: '2. Data we collect',
         body: [
@@ -20,7 +23,7 @@ export const legal: LegalCopy = {
       {
         title: '3. Purposes and legal basis',
         body: [
-          'Getting back to you and pointing you to people, communities and resources in the ecosystem: consent (Art. 6.1.a GDPR).',
+          'Getting back to you and pointing you to people, networks and resources in the ecosystem: consent (Art. 6.1.a GDPR).',
           'Sending the monthly newsletter with articles, tech news and events: consent, which can be withdrawn at any time.',
           'Preventing spam and abuse of the form: legitimate interest (Art. 6.1.f GDPR).',
         ],
@@ -59,7 +62,7 @@ export const legal: LegalCopy = {
       },
       {
         title: '2. External sites',
-        body: ['Links to Italian Rainforest, WhatsApp and other sites lead to services with their own cookie and privacy policies.'],
+        body: ['Links to Italian Rainforest and other sites lead to services with their own cookie and privacy policies.'],
       },
       {
         title: '3. Changes',

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from
 import type { Locale } from '@/content/types';
 import type { HeaderCopy } from '@/lib/client-copy';
 import { track } from '@/lib/analytics';
-import { allSectionIds, navItems } from '@/lib/nav';
+import { allSectionIds, navIdFor, navItems } from '@/lib/nav';
 import { Logo } from './Logo';
 import { Close, Menu } from './icons';
 
@@ -17,7 +17,10 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
   const panelRef = useRef<HTMLDivElement>(null);
   const other: Locale = locale === 'it' ? 'en' : 'it';
   const items = navItems(dict);
+  const current = navIdFor(items, active);
   const prefix = home ? '' : `/${locale}`;
+  /** "Contattaci" → the "Come vuoi iniziare?" cards */
+  const joinHref = `${prefix}#connect`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -46,8 +49,9 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
     const topIo = top
       ? new IntersectionObserver(([e]) => {
           if (e.isIntersecting && e.intersectionRatio > 0.5) {
+            // the language switch returns to the top; the nav highlights "Chi siamo"
             activeRef.current = null;
-            setActive(null);
+            setActive('top');
           }
         }, { threshold: [0.5] })
       : null;
@@ -110,7 +114,13 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
           <ul>
             {items.map((item) => (
               <li key={item.id}>
-                <a href={item.href ? `/${locale}${item.href}` : `${prefix}#${item.id}`} aria-current={active === item.id ? 'true' : undefined}>
+                {/* "Contattaci" is the highlighted button, in its place in the menu (2026-10-26) */}
+                <a
+                  href={item.href ? `/${locale}${item.href}` : `${prefix}#${item.id}`}
+                  aria-current={current === item.id ? 'true' : undefined}
+                  className={item.cta ? 'btn btn--primary btn--sm site-header__cta' : undefined}
+                  {...(item.cta ? { 'data-track': 'community_cta_click', 'data-location': 'header' } : {})}
+                >
                   {item.label}
                 </a>
               </li>
@@ -121,14 +131,6 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
         <div className="site-header__actions">
           <a className="lang-switch" href={`/${other}`} hrefLang={other} lang={other} onClick={switchLanguage} aria-label={`${other.toUpperCase()} – ${dict.a11y.languageSwitch}`}>
             {other.toUpperCase()}
-          </a>
-          <a
-            href={`/${locale}/join`}
-            className="btn btn--primary btn--sm site-header__cta"
-            data-track="community_cta_click"
-            data-location="header"
-          >
-            {dict.cta.join}
           </a>
           <button
             ref={toggleRef}
@@ -154,14 +156,14 @@ export function Header({ dict, locale, home = true }: { dict: HeaderCopy; locale
         }}
       >
         <ul>
-          {items.map((item, i) => (
+          {items.filter((item) => !item.cta).map((item, i) => (
             <li key={item.id} style={{ '--i': i } as CSSProperties}>
               <a href={item.href ? `/${locale}${item.href}` : `${prefix}#${item.id}`}>{item.label}</a>
             </li>
           ))}
         </ul>
         <a
-          href={`/${locale}/join`}
+          href={joinHref}
           className="btn btn--primary btn--block"
           data-track="community_cta_click"
           data-location="mobile_menu"

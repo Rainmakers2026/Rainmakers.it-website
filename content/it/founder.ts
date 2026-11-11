@@ -11,10 +11,6 @@ export const founder: FounderCopy = {
   text: 'Costruire un’impresa significa prendere decisioni difficili, spesso da soli. Francesco Inguscio ha fondato Rainmakers per mettere esperienza, competenze e relazioni al servizio di chi sta costruendo la propria.',
   name: 'Francesco Inguscio',
   role: 'Fondatore di Rainmakers',
-  facts: [
-    'Rainmakers è attiva a Milano dal 2011 (fino al 2021 come Nuvolab)',
-    'Scrive e parla di imprenditorialità come Italian Rainmaker',
-  ],
   photoAlt: 'Francesco Inguscio, fondatore di Rainmakers',
   video: {
     title: 'Francesco Inguscio — Nuovi Occhi (per Imprenditori e Paese), 2014',
@@ -24,5 +20,4 @@ export const founder: FounderCopy = {
   linkedinLabel: 'LinkedIn',
   youtubeLabel: 'Canale YouTube',
   substackLabel: 'Italian Rainmaker su Substack',
-  cta: 'Scopri Rainmakers',
 };

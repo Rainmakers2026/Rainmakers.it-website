@@ -1,4 +1,4 @@
-import { newsletterSchema } from '@/lib/validation';
+import { gdiNewsletterSchema } from '@/lib/crm/schema';
 import { guard, isBot, json, readJson } from '@/lib/api/guard';
 import { publicBaseUrl, requestSubscription } from '@/lib/brevo/workflows';
 
@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic';
 const MAX_BODY_BYTES = 4096;
 
 /**
- * Newsletter subscription with double opt-in (PRD §11.1):
- * validate → save in Supabase as "pending" with consent evidence → send the confirmation email (Brevo).
- * The contact is added to the Brevo list "Contatti" only after confirmation (POST /api/newsletter/confirm).
+ * "Gocce di Innovazione", the only newsletter (2026-11-11), with double opt-in:
+ * validate → contact + newsletter_subscriptions 'pending_confirmation' + editorial interests + consent event in Supabase
+ * → confirmation email. Nobody is added to a Brevo list here (the Brevo sync is prepared, not active).
  */
 export async function POST(request: Request) {
   const blocked = guard(request, 'newsletter');
@@ -22,13 +22,18 @@ export async function POST(request: Request) {
   // Spam traps: look like a normal request, store and send nothing
   if (isBot(body?.website, body?.elapsedMs)) return json({ ok: true, state: 'pending' });
 
-  const parsed = newsletterSchema.safeParse(body);
+  const parsed = gdiNewsletterSchema.safeParse(body);
   if (!parsed.success) return json({ ok: false, state: 'error', error: 'validation' }, 422);
+  const d = parsed.data;
 
   const state = await requestSubscription({
-    email: parsed.data.email,
-    locale: parsed.data.locale,
-    source: parsed.data.source,
+    email: d.email,
+    firstName: d.firstName,
+    interests: d.interests,
+    locale: d.locale,
+    source: d.source,
+    sourcePage: d.sourcePage,
+    utm: d.utm,
     baseUrl: publicBaseUrl(request),
   });
   if (state === 'error') return json({ ok: false, state }, 500);
