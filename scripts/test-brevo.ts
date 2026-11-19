@@ -46,7 +46,7 @@ console.info = () => {};
 let ip = 0;
 const post = (path: string, body: unknown, h: Record<string, string> = {}) =>
   new Request(`http://localhost${path}`, { method: 'POST', headers: { 'x-real-ip': `10.1.0.${++ip}`, 'Content-Type': 'application/json', ...h }, body: JSON.stringify(body) });
-const sub = (over: Record<string, unknown> = {}) => ({ email: '  Anna@Example.COM ', locale: 'it', consent: true, source: 'footer', elapsedMs: 5000, ...over });
+const sub = (over: Record<string, unknown> = {}) => ({ email: '  Anna@Example.COM ', firstName: 'Anna', lastName: 'Bianchi', locale: 'it', consent: true, source: 'footer', elapsedMs: 5000, ...over });
 const brevoCalls = (path?: string) => calls.filter((c) => c.url.startsWith('https://api.brevo.com') && (!path || c.url.endsWith(path)));
 const rpcCalls = (fn: string) => calls.filter((c) => c.url.endsWith(`/rpc/${fn}`));
 const CONTACT = '3f2a1c9e-1b2c-4d5e-8f90-123456789abc';
@@ -76,8 +76,14 @@ async function main() {
     assert.equal(r.status, 422);
     assert.equal(calls.length, 0);
   });
-  await test('newsletter: invalid email or unknown interest rejected server-side', async () => {
-    for (const body of [sub({ email: 'not-an-email' }), sub({ interests: ['rainforest_radar'] })]) {
+  await test('newsletter: invalid email, unknown interest, missing first/last name or email rejected server-side', async () => {
+    for (const body of [
+      sub({ email: 'not-an-email' }),
+      sub({ interests: ['rainforest_radar'] }),
+      sub({ firstName: '  ' }),
+      sub({ lastName: undefined }),
+      sub({ email: undefined }),
+    ]) {
       const r = await newsletter.POST(post('/api/newsletter', body));
       assert.equal(r.status, 422);
     }
@@ -91,6 +97,7 @@ async function main() {
     const p = rpcCalls('crm_newsletter_subscribe')[0].body!.p as Record<string, unknown>;
     assert.equal(p.email, 'anna@example.com', 'normalised');
     assert.equal(p.first_name, 'Anna');
+    assert.equal(p.last_name, 'Bianchi');
     assert.deepEqual(p.interests, ['giveback', 'advisory'], 'deduplicated editorial interests');
     assert.equal(p.source, 'rm_newsletter_gdi_v1');
     assert.ok(String(p.consent_version).length > 0, 'consent version recorded');

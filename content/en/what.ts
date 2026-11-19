@@ -20,7 +20,7 @@ export const what: WhatCopy = {
   structure: {
     hint: 'Tap a service to see what we can do for you.',
     label:
-      'Chart: Rainmakers at the centre with three branches. Giveback, our CSR: StartuParty, Junior Jedi and Italian Rainforest. Open Venture Building: Accelerator and Builder. Advisory: Innovation and Investment. Each service opens a popup with its description.',
+      'Chart: Rainmakers at the centre with three branches. Giveback, our CSR: informative and educational, activation and pure Giveback initiatives. Open Venture Building: Accelerator and Builder. Advisory: Innovation and Investment. Each service opens a popup with its description.',
     examplesLabel: 'Some projects',
     close: 'Close',
     branches: [
@@ -28,30 +28,45 @@ export const what: WhatCopy = {
         key: 'giveback',
         name: 'Giveback',
         tagline: 'Our CSR',
-        // Cautious descriptions, to be confirmed with the team (no StartuParty or Junior Jedi sheet in the materials)
+        // 2026-11-16: three categories of initiatives instead of the single initiatives (still shown as track record
+        // cards); team copy. 2026-11-18: popups explained better (lead and points) at the team's request, from the
+        // Foundation sheet of the founder portfolio and the initiative descriptions (content/data/giveback.ts)
         units: [
           {
-            name: 'StartuParty',
-            text: 'Meet-ups for the innovation ecosystem.',
-            brand: 'StartuParty',
-            lead: 'A not-for-profit Rainmakers Giveback initiative: informal moments where founders, aspiring entrepreneurs, investors and innovators meet and get to know each other.',
-            points: ['Networking open to the whole ecosystem', 'Relationships that turn into projects, partnerships and investments'],
+            name: 'Informative and educational',
+            text: 'On building innovative businesses in Italy.',
+            brand: 'Informative and educational initiatives',
+            lead: 'We share, free of charge, what we have learned in 15 years of startups and innovation, so that anyone who wants to build an innovative business in Italy starts out with the right information and skills.',
+            points: [
+              'Information on the Italian innovation world: the players, figures and trends of the ecosystem',
+              'Training on entrepreneurship and innovation in Italy, for founders and aspiring entrepreneurs',
+              'Raising awareness of entrepreneurship and innovation among the next generations',
+            ],
             cta: { label: 'Join the Giveback', path: 'giveback' },
           },
           {
-            name: 'Junior Jedi',
-            text: 'Entrepreneurship and innovation for the next generation.',
-            brand: 'Junior Jedi',
-            lead: 'A not-for-profit Rainmakers Giveback initiative bringing young people closer to entrepreneurship and innovation.',
-            points: ['Entrepreneurship awareness and training', 'Activating future entrepreneurs and innovators'],
+            name: 'Activation',
+            text: 'Of Italy’s aspiring entrepreneurs and innovators.',
+            brand: 'Activation initiatives',
+            lead: 'We help people with an idea take the first step: we create the occasions to test themselves, meet the right people and turn an intention into a concrete project.',
+            points: [
+              'Hands-on experiences where aspiring entrepreneurs and innovators put their ideas to the test',
+              'Meet-ups between founders, investors, mentors and innovators',
+              'Relationships that turn into teams, projects, partnerships and investments',
+            ],
             cta: { label: 'Join the Giveback', path: 'giveback' },
           },
           {
-            name: 'Italian Rainforest',
-            text: 'The map of Italy’s innovation ecosystem.',
-            brand: 'Italian Rainforest',
-            lead: 'On a not-for-profit basis, as its corporate giveback (CSR), Rainmakers created Italian Rainforest: the most complete and detailed picture possible of Italy’s innovation ecosystem, to make it more transparent, open and connected.',
-            points: ['Geo-referenced map', 'Database', 'Infographic'],
+            name: 'Pure Giveback',
+            text: 'For the Italian Rainforest.',
+            brand: 'Pure Giveback initiatives',
+            lead: 'These are the initiatives we run with no financial return at all, to give something back to Italy’s innovation ecosystem, the Italian Rainforest, which helped us grow. We make our time, skills, data and relationships available to everyone.',
+            points: [
+              'Not for profit: no revenue, no equity, no clients to win',
+              'Tools and knowledge open to the whole ecosystem, such as the Italian Rainforest map',
+              'Our team’s time and skills at the service of those building innovation in Italy',
+              'The goal: a more transparent, open and connected ecosystem, for everyone’s benefit',
+            ],
             cta: { label: 'Join the Giveback', path: 'giveback' },
           },
         ],

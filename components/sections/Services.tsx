@@ -22,7 +22,7 @@ export function Services({ dict }: { dict: Dictionary }) {
     close: s.close,
     branches: s.branches.map((b) => ({
       ...b,
-      units: b.units.map((u) => ({ ...u, lead: fillTokens(u.lead) })),
+      units: b.units.map((u) => ({ ...u, lead: u.lead && fillTokens(u.lead) })),
     })),
   };
   return (

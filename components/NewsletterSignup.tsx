@@ -14,7 +14,7 @@ type Status = 'idle' | 'sending' | Outcome;
 /**
  * "Gocce di Innovazione", the only Rainmakers newsletter (2026-11-11), with double opt-in: this form only requests the
  * subscription (Supabase 'pending_confirmation'); it becomes active when the person confirms from the email.
- * Email required; first name and editorial interests (Giveback / Open Venture Building / Advisory) optional.
+ * First name, last name and email required; editorial interests (Giveback / Open Venture Building / Advisory) optional.
  * `inline`: the form is shown in place (closing section of the homepage) instead of a link opening a popup.
  */
 export function NewsletterSignup({
@@ -34,6 +34,7 @@ export function NewsletterSignup({
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [interests, setInterests] = useState<Area[]>([]);
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState('');
@@ -47,8 +48,10 @@ export function NewsletterSignup({
         text: 'La newsletter di Rainmakers: le idee, le opportunità e le storie che fanno crescere l’innovazione.',
         email: 'Email',
         placeholder: 'La tua email',
-        firstName: 'Nome (facoltativo)',
-        namePlaceholder: 'Il tuo nome (facoltativo)',
+        firstName: 'Nome',
+        namePlaceholder: 'Nome',
+        lastName: 'Cognome',
+        lastNamePlaceholder: 'Cognome',
         interests: 'Mi interessano soprattutto (facoltativo)',
         consent: 'Voglio ricevere Gocce di Innovazione, la newsletter mensile di Rainmakers, e ho letto l’informativa privacy.',
         submit: 'Iscriviti',
@@ -58,7 +61,7 @@ export function NewsletterSignup({
         pending_recent: 'Ti abbiamo appena inviato l’email di conferma: controlla la tua casella (anche lo spam). Puoi richiederne un’altra tra qualche minuto.',
         already: 'Questo indirizzo è già iscritto alla newsletter. Grazie!',
         email_failed: 'Abbiamo registrato la tua richiesta, ma non siamo riusciti a inviare l’email di conferma. Riprova tra qualche minuto.',
-        invalid: 'Inserisci un indirizzo email valido e accetta l’informativa.',
+        invalid: 'Inserisci nome, cognome e un indirizzo email valido, e accetta l’informativa.',
         rate_limited: 'Troppi tentativi. Riprova tra qualche minuto.',
         error: 'Non è stato possibile completare l’iscrizione. Riprova.',
       }
@@ -68,8 +71,10 @@ export function NewsletterSignup({
         text: 'The Rainmakers newsletter: the ideas, opportunities and stories that help innovation grow.',
         email: 'Email',
         placeholder: 'Your email',
-        firstName: 'First name (optional)',
-        namePlaceholder: 'Your first name (optional)',
+        firstName: 'First name',
+        namePlaceholder: 'First name',
+        lastName: 'Last name',
+        lastNamePlaceholder: 'Last name',
         interests: 'I am mostly interested in (optional)',
         consent: 'I would like to receive Gocce di Innovazione, the Rainmakers monthly newsletter, and have read the privacy policy.',
         submit: 'Subscribe',
@@ -79,7 +84,7 @@ export function NewsletterSignup({
         pending_recent: 'We have just sent you the confirmation email: please check your inbox (and spam). You can request another one in a few minutes.',
         already: 'This address is already subscribed to the newsletter. Thank you!',
         email_failed: 'We saved your request but could not send the confirmation email. Please try again in a few minutes.',
-        invalid: 'Please enter a valid email address and accept the privacy policy.',
+        invalid: 'Please enter your first name, last name and a valid email address, and accept the privacy policy.',
         rate_limited: 'Too many attempts. Please try again in a few minutes.',
         error: 'We could not complete your subscription. Please try again.',
       };
@@ -87,7 +92,7 @@ export function NewsletterSignup({
   useEffect(() => {
     if (!open) return;
     document.documentElement.classList.add('modal-open');
-    dialog.current?.querySelector<HTMLElement>('input[type="email"]')?.focus();
+    dialog.current?.querySelector<HTMLElement>('input[name="firstName"]')?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         close();
@@ -128,6 +133,7 @@ export function NewsletterSignup({
         body: JSON.stringify({
           email,
           firstName,
+          lastName,
           interests,
           locale,
           consent,
@@ -195,9 +201,24 @@ export function NewsletterSignup({
                 name="firstName"
                 autoComplete="given-name"
                 placeholder={copy.namePlaceholder}
+                required
                 maxLength={80}
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
+              />
+              <label className="sr-only" htmlFor={`${id}-last-name`}>
+                {copy.lastName}
+              </label>
+              <input
+                id={`${id}-last-name`}
+                className="nl-inline__input nl-inline__input--name"
+                name="lastName"
+                autoComplete="family-name"
+                placeholder={copy.lastNamePlaceholder}
+                required
+                maxLength={80}
+                value={lastName}
+                onChange={(event) => setLastName(event.target.value)}
               />
               <label className="sr-only" htmlFor={`${id}-email`}>
                 {copy.email}
@@ -270,12 +291,16 @@ export function NewsletterSignup({
             ) : (
               <form className="modal-form" onSubmit={submit}>
                 <label className="field">
-                  <span className="field__label">{copy.email}</span>
-                  <input type="email" name="email" autoComplete="email" inputMode="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} />
+                  <span className="field__label">{copy.firstName}</span>
+                  <input name="firstName" autoComplete="given-name" required maxLength={80} value={firstName} onChange={(event) => setFirstName(event.target.value)} />
                 </label>
                 <label className="field">
-                  <span className="field__label">{copy.firstName}</span>
-                  <input name="firstName" autoComplete="given-name" maxLength={80} value={firstName} onChange={(event) => setFirstName(event.target.value)} />
+                  <span className="field__label">{copy.lastName}</span>
+                  <input name="lastName" autoComplete="family-name" required maxLength={80} value={lastName} onChange={(event) => setLastName(event.target.value)} />
+                </label>
+                <label className="field">
+                  <span className="field__label">{copy.email}</span>
+                  <input type="email" name="email" autoComplete="email" inputMode="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} />
                 </label>
                 {interestChoices}
                 <label className="modal-form__honeypot" aria-hidden="true">

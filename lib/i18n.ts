@@ -1,5 +1,6 @@
 import { tribeStats } from '@/content/data/tribe';
 import { advisory } from '@/content/data/advisory';
+import { rainforest } from '@/content/shared';
 import it from '@/content/it';
 import en from '@/content/en';
 import type { Dictionary, Locale } from '@/content/types';
@@ -28,12 +29,17 @@ export function formatDate(iso: string, locale: Locale) {
 }
 
 
-/** Counts derived from the data files, so copy never drifts from the data ({exits}, {active}, {advisory}). */
+/**
+ * Counts derived from the data files, so copy never drifts from the data ({exits}, {active}, {advisory}); {rfOrgs} and
+ * {rfItaly} are the Italian Rainforest database figures (content/shared.ts → rainforest.stats, updated 2026-11-17).
+ */
 const tokens: Record<string, () => string> = {
   exits: () => String(tribeStats.exits),
   active: () => String(tribeStats.active),
   minority: () => String(tribeStats.minority),
   advisory: () => String(advisory.length),
+  rfOrgs: () => String(rainforest.stats.activeOrganisations),
+  rfItaly: () => String(rainforest.stats.italy),
 };
 
 export function fillTokens(text: string, extra: Record<string, string | number> = {}): string {

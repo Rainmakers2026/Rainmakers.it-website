@@ -24,7 +24,8 @@ export function Benefits({ dict }: { dict: Dictionary }) {
       <div className="container">
         {/* Title across the full width (fewer lines), then text and illustration side by side (2026-10-27) */}
         <div className="benefits__heading">
-          <SectionHeader title={b.title} id="benefits-title" />
+          {/* Still, no word-by-word entrance (team request, 2026-11-18) */}
+          <SectionHeader title={b.title} id="benefits-title" still />
         </div>
         <div className="benefits__top">
           <div>

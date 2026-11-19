@@ -8,6 +8,8 @@ import en from '../content/en';
 import { isPlaceholder } from '../content/governance';
 import { brand, communitiesFallback, facts, reviewLink, socialProfiles } from '../content/shared';
 import { tribe } from '../content/data/tribe';
+import { giveback } from '../content/data/giveback';
+import { givebackLogoFiles } from '../content/data/logos';
 
 const found: string[] = [];
 
@@ -30,6 +32,8 @@ communitiesFallback.forEach((c) => {
   if (isPlaceholder(c.name.it)) found.push(`communitiesFallback.${c.slug}: name to be provided`);
 });
 tribe.forEach((c) => isPlaceholder(c.description.it) && found.push(`tribe.${c.slug}: description to be provided`));
+giveback.forEach((g) => g.description && isPlaceholder(g.description.it) && found.push(`giveback.${g.slug}: description to be provided`));
+giveback.forEach((g) => !givebackLogoFiles[g.slug] && found.push(`giveback.${g.slug}: logo to be provided (wordmark in use)`));
 if (!brand.available) found.push('brand: official logo files not provided yet (provisional wordmark in use)');
 
 if (!found.length) {

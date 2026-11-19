@@ -46,7 +46,7 @@ export function buildMetadata(dict: Dictionary, path = '', overrides: Partial<Me
 
 /**
  * schema.org graph (PRD §17.5) built ONLY from verified facts, consistent with the visible page:
- * no address, VAT or unconfirmed profiles. The contact email is the operational address from PRD §12.
+ * the head office address (verified 2026-11-17), no company name, VAT or unconfirmed profiles. The contact email is the operational address from PRD §12.
  * No VideoObject: Google requires the upload date, which is not publicly verifiable here.
  */
 export function buildJsonLd(dict: Dictionary) {
@@ -71,6 +71,15 @@ export function buildJsonLd(dict: Dictionary) {
     memberOf: { '@type': 'Organization', name: 'InnovUp' },
     foundingDate: String(facts.foundingYear.value),
     foundingLocation: { '@type': 'Place', name: 'Milano, Italia' },
+    // head office, shown in the footer (verified 2026-11-17)
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: facts.headquarters.value.street,
+      postalCode: facts.headquarters.value.postalCode,
+      addressLocality: facts.headquarters.value.city,
+      addressRegion: facts.headquarters.value.province,
+      addressCountry: facts.headquarters.value.country,
+    },
     areaServed: { '@type': 'Country', name: 'Italy' },
     audience: { '@type': 'Audience', audienceType: 'Entrepreneurs, founders, startups, scaleups, investors, corporates, innovation professionals' },
     knowsAbout: ['Innovation advisory', 'Open innovation', 'Open venture building', 'Startup acceleration', 'Italian innovation ecosystem', 'Entrepreneurship', 'Startups', 'Scaleups', 'Entrepreneurial network', 'Ecosystem intelligence', 'Meaningful innovation'],

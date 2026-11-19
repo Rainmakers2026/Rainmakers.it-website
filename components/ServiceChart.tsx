@@ -107,15 +107,17 @@ export function ServiceChart({ structure }: { structure: Pick<WhatCopy['structur
               {u.badge ? <span className="org__unit-badge svc__badge">{u.badge}</span> : null}
             </h2>
             <p className="svc__sub">{u.text}</p>
-            <p className="svc__lead">{u.lead}</p>
-            <ul className="svc__points">
-              {u.points.map((p) => (
-                <li key={p}>
-                  <Check aria-hidden />
-                  <span>{p}</span>
-                </li>
-              ))}
-            </ul>
+            {u.lead ? <p className="svc__lead">{u.lead}</p> : null}
+            {u.points.length ? (
+              <ul className="svc__points">
+                {u.points.map((p) => (
+                  <li key={p}>
+                    <Check aria-hidden />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             {u.examples?.length ? (
               <p className="svc__examples">
                 <span className="svc__examples-label">{structure.examplesLabel}</span>

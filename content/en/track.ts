@@ -23,7 +23,7 @@ export const track: TrackCopy = {
   },
   giveback: {
     title: 'Giveback',
-    intro: 'Initiatives supporting the Italian Rainforest.',
+    intro: 'Impact initiatives supporting the Italian Rainforest.',
     typeLabel: 'Giveback',
   },
   advisory: {

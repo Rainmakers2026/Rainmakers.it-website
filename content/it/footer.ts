@@ -9,6 +9,7 @@ export const footer: FooterCopy = {
   cookies: 'Cookie policy',
   rights: 'Tutti i diritti riservati.',
   emailLabel: 'Email',
+  headquarters: 'Sede',
   newsletter: 'Newsletter',
   newsletterText: 'Gocce di innovazione, una volta al mese.',
   onSubstack: 'su Substack',

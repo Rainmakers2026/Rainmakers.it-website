@@ -4,11 +4,14 @@ import { SECTION_IDS } from '@/content/types';
 import { founderProfile, substack } from '@/content/shared';
 import { LinkedIn, Substack, YouTube } from '../icons';
 import { YouTubeFacade } from '../YouTubeFacade';
+import { FounderPortfolio } from '../portfolio/FounderPortfolio';
+import { portfolioFor } from '../portfolio/resolve';
 
 /** Founder & credibility (PRD §6): message and links on the left; embedded video with the circular photo slot below it on the right. */
 export function Founder({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const f = dict.founder;
   const external = dict.ui.a11y.external;
+  const portfolio = portfolioFor(locale);
   const links = [
     {
       href: founderProfile.linkedinUrl,
@@ -49,6 +52,15 @@ export function Founder({ dict, locale }: { dict: Dictionary; locale: Locale }) 
             <div>
               <p className="founder-id__name">{f.name}</p>
               <p className="founder-id__role">{f.role}</p>
+              <FounderPortfolio
+                copy={f.portfolio}
+                intro={portfolio.intro}
+                slides={portfolio.slides}
+                photo={founderProfile.photo}
+                photoAlt={f.photoAlt}
+                play={f.video.play}
+                locale={locale}
+              />
             </div>
           </div>
         </div>

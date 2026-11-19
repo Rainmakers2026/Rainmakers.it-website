@@ -131,6 +131,21 @@ export interface FounderCopy {
   youtubeLabel: string;
   /** Link to the Substack blog, shown under the name "Italian Rainmaker" (PRD §13). */
   substackLabel: string;
+  /** Portfolio carousel opened under the name (2026-11-17, content/data/founder-portfolio.ts) */
+  portfolio: {
+    open: string;
+    title: string;
+    close: string;
+    prev: string;
+    next: string;
+    /** "{n}" and "{total}" are replaced */
+    goTo: string;
+    exit: string;
+    min: string;
+    off: string;
+    soon: string;
+    copyright: string;
+  };
 }
 
 export interface TrackCopy {
@@ -282,7 +297,8 @@ export interface ServiceUnit {
   brand: string;
   /** e.g. "Coming soon" */
   badge?: string;
-  lead: string;
+  /** Optional: the Giveback categories (2026-11-16) show only their one-line text in the popup */
+  lead?: string;
   points: string[];
   examples?: string[];
   /** "Come vuoi iniziare?" popup opened by the CTA */
@@ -460,6 +476,8 @@ export interface FooterCopy {
   cookies: string;
   rights: string;
   emailLabel: string;
+  /** Label above the head office address in the Contacts column */
+  headquarters: string;
   /** Newsletter column: title and one line */
   newsletter: string;
   newsletterText: string;

@@ -26,6 +26,7 @@ export type AnalyticsEvent =
   | 'service_expand'
   | 'explorer_filter'
   | 'video_play'
+  | 'founder_portfolio_open'
   | 'join_application_submit'
   | 'community_request'
   | 'newsletter_signup';

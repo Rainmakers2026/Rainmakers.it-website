@@ -160,7 +160,7 @@ export const tribe: TribeCompany[] = [
     name: 'Future Fashion (DIS – Design Italian Shoes)',
     status: 'writeoff',
     sector: s('FashionTech', 'FashionTech'),
-    website: 'https://www.futurefashionsolution.com',
+    website: 'http://www.futurefashionsolution.com', // 2026-11-18: the site has no HTTPS
     city: 'Macerata',
     founded: 2017,
     fte: 10,
@@ -262,7 +262,7 @@ export const tribe: TribeCompany[] = [
     name: 'Unconventional Road',
     status: 'active',
     sector: s('TravelTech', 'TravelTech'),
-    website: 'https://www.unconventionalroad.it',
+    website: null, // 2026-11-18: unconventionalroad.it no longer resolves
     city: 'Milano',
     founded: 2020,
     fte: 4,
@@ -387,7 +387,7 @@ export const tribe: TribeCompany[] = [
     name: 'This is not a sushi bar',
     status: 'exit',
     sector: s('Food delivery', 'Food delivery'),
-    website: 'https://www.thisisnotasushibar.com',
+    website: null, // 2026-11-18: thisisnotasushibar.com no longer resolves
     city: 'Milano',
     founded: 2007,
     fte: 21,
@@ -460,7 +460,7 @@ export const tribe: TribeCompany[] = [
     name: 'Robo for IT',
     status: 'writeoff',
     sector: s('Digital transformation', 'Digital transformation'),
-    website: 'https://www.roboforit.com',
+    website: null, // 2026-11-18: roboforit.com no longer resolves
     city: 'Milano',
     founded: 2020,
     fte: 3,

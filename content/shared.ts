@@ -23,10 +23,10 @@ export const substack = {
 /**
  * Founder section assets (PRD §6).
  * `photo`: path under /public of the official, team-approved photo (square).
- * Current file: supplied by the team on 2026-10-19 (original in assets-src/founder/), cropped square around the face.
+ * Current file (2026-11-17): cut out of the team's portfolio slide on a white background (scripts/generate-founder-photo.cjs).
  */
 export const founderProfile = {
-  photo: '/brand/francesco-inguscio.webp' as string | null,
+  photo: '/brand/francesco-inguscio-2026.webp' as string | null,
   linkedinUrl: 'https://www.linkedin.com/in/italianrainmaker',
   /** Channel "Italian Rainmaker" — author of the video below (YouTube oEmbed). */
   youtubeUrl: 'https://www.youtube.com/@InguscioFrancesco1981',
@@ -39,7 +39,13 @@ export const facts = {
   foundingYear: fact(2011, 'VERIFIED', 'rainmakers.it/en — “We are Rainmakers. Since 2011.”'),
   /** "Based in Milan" — rainmakers.it (EN), "How we work". */
   city: fact('Milano', 'VERIFIED', 'rainmakers.it/en — “Based in Milan”'),
-  /** Legal entity, address and VAT appear on nuvolab.com (2021). Not shown until confirmed (PRD §48). */
+  /** Head office, confirmed by the team on 2026-11-17: footer (Contacts) and schema.org PostalAddress. */
+  headquarters: fact(
+    { street: 'Via Giosuè Carducci, 8', postalCode: '20123', city: 'Milano', province: 'MI', country: 'IT' },
+    'VERIFIED',
+    'Team, 2026-11-17',
+  ),
+  /** Legal entity and VAT appear on nuvolab.com (2021). Not shown until confirmed (PRD §48). */
   legalEntity: fact(PH.provided, 'TO_VERIFY', 'nuvolab.com footer (2021)', 'Rainmakers s.r.l. a Socio Unico, Via Carducci 8, Milano — confirm before publishing'),
   /**
    * Operational contact address for every mailto on the site, including Italian Rainforest updates (PRD §12).
@@ -75,23 +81,31 @@ export const rainforest = {
    */
   background: null as string | null,
   /**
-   * Public figures shown on Italian Rainforest on the date below (VERIFIED, dated).
-   * Re-checked against the live map on 2026-10-12: unchanged. Update `asOf` and the numbers at each release.
+   * Italian Rainforest figures (VERIFIED, dated). Since 2026-11-17 computed from the team's updated database
+   * ("DB - Rainmakers OS.csv"): ecosystem organisations only (startups excluded), INACTIVE rows and duplicate names
+   * removed; "italy" = organisations whose REGION is an Italian region. Categories follow PLAYER TYPE (an organisation
+   * with two types counts in both). Update `asOf` and the numbers at each release.
    */
   stats: {
     status: 'VERIFIED' as const,
-    asOf: '2026-10-12',
-    activeOrganisations: 412,
-    italy: 308,
+    asOf: '2026-11-17',
+    activeOrganisations: 625,
+    italy: 472,
     categories: [
-      { key: 'vc', count: 168 },
-      { key: 'incubators', count: 139 },
-      { key: 'cvc', count: 38 },
-      { key: 'coworking', count: 37 },
-      { key: 'studios', count: 29 },
-      { key: 'angels', count: 21 },
-      { key: 'institutions', count: 13 },
+      { key: 'studios', count: 191 },
+      { key: 'vc', count: 160 },
+      { key: 'incubators', count: 102 },
+      { key: 'pst', count: 52 },
+      { key: 'coworking', count: 33 },
+      { key: 'associations', count: 27 },
+      { key: 'angels', count: 15 },
       { key: 'media', count: 13 },
+      { key: 'crowdfunding', count: 13 },
+      { key: 'cvc', count: 10 },
+      { key: 'training', count: 5 },
+      { key: 'institutions', count: 4 },
+      { key: 'familyOffices', count: 3 },
+      { key: 'programs', count: 2 },
     ],
   },
 } as const;

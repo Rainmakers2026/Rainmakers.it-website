@@ -2016,6 +2016,14 @@ html:not(.js) .netmap__spoke {
   color: #fff;
   text-decoration: underline;
 }
+/* head office address under the contacts (2026-11-17) */
+.site-footer__address {
+  display: grid;
+  gap: 2px;
+  margin-top: 14px;
+  font-style: normal;
+  line-height: 1.5;
+}
 .site-footer__bottom {
   display: flex;
   justify-content: space-between;
@@ -6228,12 +6236,26 @@ html:not(.js) .netmap__spoke {
   z-index: calc(10 - var(--ad, 0));
   opacity: calc(1 - var(--ad, 0) * 0.3);
   filter: blur(calc(var(--ad, 0) * 4px));
-  transform: translate3d(calc(var(--d, 0) * 74%), 0, calc(var(--ad, 0) * -220px)) rotateY(calc(var(--d, 0) * -18deg)) scale(calc(1 - var(--ad, 0) * 0.08));
+  /* --drag: live click-and-drag offset in slides, set on .rv by ReviewsCarousel (0 at rest) */
+  transform: translate3d(calc((var(--d, 0) + var(--drag, 0)) * 74%), 0, calc(var(--ad, 0) * -220px))
+    rotateY(calc((var(--d, 0) + var(--drag, 0)) * -18deg)) scale(calc(1 - var(--ad, 0) * 0.08));
   transition: transform 0.85s var(--ease), opacity 0.85s var(--ease), filter 0.85s var(--ease);
   cursor: pointer;
 }
 .rv__slide.is-active {
-  cursor: auto;
+  cursor: grab;
+}
+/* Click and drag (2026-11-18): the cards follow the pointer, no text selection or image ghost while dragging */
+.rv.is-ready .rv__stage {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rv.is-dragging .rv__stage,
+.rv.is-dragging .rv__slide {
+  cursor: grabbing;
+}
+.rv.is-dragging .rv__slide {
+  transition: opacity 0.3s var(--ease), filter 0.3s var(--ease);
 }
 .rv__slide.is-far {
   visibility: hidden;
@@ -6418,7 +6440,8 @@ html:not(.js) .netmap__spoke {
 @media (max-width: 640px) {
   .rv__slide {
     width: 90%;
-    transform: translate3d(calc(var(--d, 0) * 88%), 0, calc(var(--ad, 0) * -120px)) rotateY(calc(var(--d, 0) * -10deg));
+    transform: translate3d(calc((var(--d, 0) + var(--drag, 0)) * 88%), 0, calc(var(--ad, 0) * -120px))
+      rotateY(calc((var(--d, 0) + var(--drag, 0)) * -10deg));
   }
   .rv__arrow {
     display: none;
@@ -8087,4 +8110,575 @@ main > section[id],
 }
 .site-modal .nl-interests {
   margin-top: 0;
+}
+
+/* ==========================================================================
+   Founder portfolio carousel (2026-11-17): button under the founder's name → large translucent popup with the team's
+   slides (components/portfolio/FounderPortfolio.tsx)
+   ========================================================================== */
+.pf-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid rgba(123, 146, 232, 0.6);
+  border-radius: 999px;
+  background: rgba(75, 97, 209, 0.2);
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, border-color 0.25s;
+}
+.pf-open svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.25s var(--ease);
+}
+.pf-open:hover,
+.pf-open:focus-visible {
+  background: rgba(75, 97, 209, 0.42);
+  border-color: var(--c-periwinkle);
+}
+.pf-open:hover svg {
+  transform: translateX(3px);
+}
+
+.pf-dialog {
+  width: min(1180px, calc(100vw - 32px));
+  height: min(740px, calc(100dvh - 40px));
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 26px;
+  color: rgba(255, 255, 255, 0.86);
+  background: radial-gradient(90% 70% at 15% 0%, rgba(123, 146, 232, 0.2), transparent 65%),
+    linear-gradient(160deg, rgba(27, 52, 92, 0.74) 0%, rgba(8, 20, 36, 0.8) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 50px 140px rgba(0, 0, 0, 0.6);
+}
+.pf-dialog::backdrop {
+  background: rgba(5, 12, 24, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.pf {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  height: 100%;
+}
+.pf__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(8, 20, 36, 0.5);
+  color: #fff;
+  cursor: pointer;
+}
+.pf__close:hover,
+.pf__close:focus-visible {
+  background: rgba(75, 97, 209, 0.5);
+}
+.pf__viewport {
+  min-height: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.pf__track {
+  display: flex;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: transform 0.55s var(--ease);
+}
+.pf__slide {
+  flex: 0 0 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(26px, 3.6vw, 44px) clamp(20px, 5vw, 72px) 12px;
+}
+.pf__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 10px 16px 2px;
+}
+.pf__arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+}
+.pf__arrow svg {
+  width: 18px;
+  height: 18px;
+}
+.pf__arrow--prev svg {
+  transform: rotate(180deg);
+}
+.pf__arrow:hover,
+.pf__arrow:focus-visible {
+  background: rgba(75, 97, 209, 0.45);
+}
+.pf__dots {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* 24px hit area around a 10px dot */
+.pf__dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.pf__dot::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.32);
+  transition: width 0.3s var(--ease), background 0.3s;
+}
+.pf__dot:hover::before {
+  background: rgba(255, 255, 255, 0.6);
+}
+.pf__dot[aria-current="true"] {
+  width: 34px;
+}
+.pf__dot[aria-current="true"]::before {
+  width: 26px;
+  background: var(--grad-brand);
+}
+.pf__copy {
+  margin: 0;
+  padding: 2px 0 12px;
+  text-align: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* Rainmakers lockup: small, centred at the top of each slide */
+.pf-lockup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto clamp(18px, 2.6vw, 30px);
+  font-size: inherit;
+  font-weight: inherit;
+}
+.pf-lockup__mark {
+  flex: none;
+  width: 46px;
+  height: 46px;
+}
+.pf-lockup__text {
+  display: grid;
+  text-align: left;
+  line-height: 1.1;
+}
+.pf-lockup__name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+}
+.pf-lockup__unit {
+  color: #a9b8f5;
+}
+.pf-lockup__claim {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.pf-unit__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+}
+.pf-unit__body--single {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 780px;
+  margin: 0 auto;
+}
+.pf-text p {
+  margin: 0 0 14px;
+  font-size: clamp(0.94rem, 1.05vw, 1.03rem);
+  line-height: 1.62;
+}
+.pf-text strong {
+  color: #a9b8f5;
+  font-weight: 700;
+}
+.pf-text__lead {
+  color: #fff;
+  font-weight: 700;
+}
+.pf-text__lead strong {
+  color: inherit;
+}
+.pf-bullets {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pf-bullets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.55;
+}
+.pf-bullets img {
+  flex: none;
+  margin-top: 3px;
+  opacity: 0.9;
+}
+
+/* Logos: centred rows, so every group stays symmetrical */
+.pf-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 22px 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pf-logos > li {
+  display: grid;
+  place-items: center;
+  min-height: 60px;
+}
+.pf-logos--stack {
+  flex-direction: column;
+  gap: 18px;
+}
+.pf-logos--two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+.pf-logos--grid > li {
+  flex: 0 0 calc(25% - 26px);
+}
+.pf-logos--n3 > li {
+  flex-basis: calc(33.33% - 26px);
+}
+.pf-logos--tribe {
+  gap: 16px 14px;
+}
+.pf-logos--tribe > li {
+  flex: 0 0 calc(20% - 14px);
+  min-height: 46px;
+}
+.pf-logos--below {
+  margin-top: 16px;
+}
+.pf-logos--below > li {
+  flex-basis: calc(25% - 14px);
+}
+.pf-tribe__panel {
+  padding: 18px 14px 12px;
+  border: 2px solid rgba(123, 146, 232, 0.7);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.pf-tribe__more {
+  margin: 10px 4px 0;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #a9b8f5;
+}
+.pf-logo {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+.pf-logo img {
+  display: block;
+}
+.pf-logo__word {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+}
+/* Junior Jedi, StartuParty: on a black disc */
+.pf-logo--black {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 12px 30px -12px rgba(0, 0, 0, 0.8);
+}
+/* logos to be updated (Soldi Gratis, Startup Weekend): faded grey */
+.pf-logo--faded {
+  opacity: 0.36;
+  filter: grayscale(1);
+}
+.pf-badge {
+  position: absolute;
+  top: -11px;
+  right: -16px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: #fff;
+}
+.pf-badge--exit {
+  background: #1f9d55;
+}
+.pf-badge--min {
+  background: var(--c-indigo);
+}
+.pf-badge--off {
+  background: #6f7580;
+}
+/* "Coming soon" tape clipped on the logo (Dottor Startup) */
+.pf-logo--soon img {
+  opacity: 0.7;
+}
+.pf-soon {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  padding: 3px 12px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ffe08a, #ffd166);
+  color: #1d1d1d;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateX(-50%) rotate(-7deg);
+  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.7);
+}
+
+/* Slide 1: Francesco Inguscio */
+.pf-intro__name {
+  margin: 0 0 clamp(18px, 2.6vw, 28px);
+  text-align: center;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.pf-intro__cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+}
+.pf-intro__label {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #fff;
+}
+.pf-intro__now-body {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+.pf-intro__now .pf-lockup {
+  margin: 0;
+}
+.pf-intro__photo {
+  position: relative;
+  width: clamp(120px, 14vw, 168px);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  background: linear-gradient(#fff, #fff) padding-box,
+    conic-gradient(from 210deg, var(--c-periwinkle), var(--c-cyan), #ffffff, var(--c-periwinkle)) border-box;
+}
+.pf-intro__photo img {
+  object-fit: cover;
+}
+.pf-intro__more {
+  margin: clamp(16px, 2.4vw, 26px) 0 0;
+  text-align: center;
+  font-size: 0.95rem;
+}
+.pf-intro__more a {
+  color: #a9b8f5;
+}
+
+.pf-video--idle {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.05);
+}
+.pf-stat {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 0;
+  text-align: center;
+}
+.pf-stat__value {
+  font-size: clamp(2.6rem, 5.4vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.pf-stat__label {
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+}
+.pf-stat__mark {
+  opacity: 0.85;
+}
+
+@media (max-width: 860px) {
+  .pf-dialog {
+    width: calc(100vw - 16px);
+    height: calc(100dvh - 24px);
+    border-radius: 20px;
+  }
+  .pf__slide {
+    padding: 56px 18px 10px;
+  }
+  .pf-unit__body,
+  .pf-intro__cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pf-logos--grid > li {
+    flex-basis: calc(33.33% - 26px);
+  }
+  .pf-logos--tribe > li {
+    flex-basis: calc(33.33% - 14px);
+  }
+}
+@media (max-width: 480px) {
+  .pf-logos--grid > li,
+  .pf-logos--below > li {
+    flex-basis: calc(50% - 26px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pf__track {
+    transition: none;
+  }
+}
+/* fixed cells: a wide logo shrinks inside its cell instead of pushing the row (Tribe: 5 per row, as on the slide) */
+.pf-logos > li {
+  min-width: 0;
+}
+.pf-logo {
+  max-width: 100%;
+}
+.pf-logos__more {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  color: #a9b8f5;
+}
+.pf-intro__label {
+  text-wrap: balance;
+}
+
+/* Portfolio logos, 2026-11-17 ("loghi ben visibili"): wider logo column, tighter gaps, larger black discs */
+@media (min-width: 861px) {
+  .pf-unit__body:has(.pf-logos) {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(24px, 3vw, 44px);
+  }
+  .pf-unit__body:has(.pf-tribe) {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  }
+}
+.pf-logos--grid {
+  gap: 26px 18px;
+}
+.pf-logos--grid > li {
+  /* an incomplete last row shares the width, so its logos (e.g. Innovatec) get more room */
+  flex: 1 0 calc(25% - 14px);
+  max-width: calc(33.33% - 12px);
+  min-height: 76px;
+}
+.pf-logos--n3 > li {
+  flex-basis: calc(33.33% - 12px);
+}
+.pf-logos--tribe {
+  gap: 18px 10px;
+}
+.pf-logos--tribe > li {
+  flex-basis: calc(20% - 8px);
+  min-height: 54px;
+}
+.pf-logos--tribe.pf-logos--below > li {
+  flex-basis: calc(25% - 8px);
+}
+.pf-tribe__panel {
+  padding: 20px 10px 14px;
+}
+.pf-logo--black {
+  width: 94px;
+  height: 94px;
+}
+@media (max-width: 860px) {
+  .pf-logos--grid > li {
+    flex-basis: calc(33.33% - 12px);
+    max-width: calc(50% - 9px);
+  }
+  .pf-logos--tribe > li {
+    flex-basis: calc(33.33% - 7px);
+  }
+}
+@media (max-width: 480px) {
+  .pf-logos--grid > li,
+  .pf-logos--tribe.pf-logos--below > li {
+    flex-basis: calc(50% - 9px);
+    max-width: none;
+  }
 }

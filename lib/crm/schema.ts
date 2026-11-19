@@ -212,10 +212,11 @@ export function submissionData(v: CrmForm): Record<string, string | string[]> {
   return Object.fromEntries(Object.entries(out).filter(([, x]) => x !== undefined && !(Array.isArray(x) && !x.length))) as Record<string, string | string[]>;
 }
 
-/** Newsletter "Gocce di Innovazione" (dedicated form): email, optional name and editorial interests, explicit consent. */
+/** Newsletter "Gocce di Innovazione" (dedicated form): first name, last name and email required, optional editorial interests, explicit consent. */
 export const gdiNewsletterSchema = z.object({
   email,
-  firstName: opt(80),
+  firstName: req(80),
+  lastName: req(80),
   interests: multi(AREAS),
   locale: z.enum(locales),
   consent: z.literal(true, { errorMap: () => ({ message: 'consent' }) }),

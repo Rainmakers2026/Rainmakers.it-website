@@ -165,7 +165,7 @@ export function LogoGrid({ kind, items, labels, cards, externalLabel, placeholde
                   {active.status ? <span className="logo-chip logo-chip--status">{active.status}</span> : null}
                 </p>
               ) : null}
-              <p className="logo-dialog__summary">{active.summary}</p>
+              {active.summary ? <p className="logo-dialog__summary">{active.summary}</p> : null}
             </div>
 
             {active.sections.map((s) => {

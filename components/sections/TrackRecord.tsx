@@ -3,8 +3,9 @@ import { SECTION_IDS } from '@/content/types';
 import { tribe } from '@/content/data/tribe';
 import { advisory, type AdvisoryProject } from '@/content/data/advisory';
 import { giveback } from '@/content/data/giveback';
+import { isPlaceholder } from '@/content/governance';
 import { advisoryLogoFiles, givebackLogoFiles, logoBox, tribeLogoFiles, whiteLogo } from '@/content/data/logos';
-import { formatNumber } from '@/lib/i18n';
+import { fillTokens, formatNumber } from '@/lib/i18n';
 import { LogoGrid, type LogoCardItem, type SizedLogo } from '../explorer/LogoGrid';
 import { SectionHeader } from '../ui';
 
@@ -141,14 +142,9 @@ function givebackItems(dict: Dictionary, locale: Locale): LogoCardItem[] {
     wordmark: g.name,
     logo: sized(givebackLogoFiles[g.slug]),
     tag: t.giveback.typeLabel,
-    summary: g.summary[locale],
-    sections: [
-      {
-        icon: 'document',
-        title: t.cards.project,
-        text: [g.description[locale]],
-      },
-    ],
+    // logo-only cards have no copy; initiatives awaiting their copy show "Da completare" instead of the raw placeholder
+    summary: !g.summary ? '' : isPlaceholder(g.summary[locale]) ? dict.ui.placeholderBadge : fillTokens(g.summary[locale]),
+    sections: g.description ? [{ icon: 'document', title: t.cards.project, text: [g.description[locale]] }] : [],
     url: g.website ?? undefined,
   }));
 }

@@ -20,4 +20,17 @@ export const founder: FounderCopy = {
   linkedinLabel: 'LinkedIn',
   youtubeLabel: 'YouTube channel',
   substackLabel: 'Italian Rainmaker on Substack',
+  portfolio: {
+    open: 'View the portfolio',
+    title: 'Francesco Inguscio and Rainmakers portfolio',
+    close: 'Close',
+    prev: 'Previous slide',
+    next: 'Next slide',
+    goTo: 'Go to slide {n} of {total}',
+    exit: 'Exit',
+    min: 'Min',
+    off: 'Off',
+    soon: 'Coming soon',
+    copyright: '©2026 Rainmakers',
+  },
 };

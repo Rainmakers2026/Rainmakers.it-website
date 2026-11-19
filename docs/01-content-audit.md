@@ -22,7 +22,7 @@ Regola: preservare il valore, non il wording.
 | Sede a Milano | rainmakers.it ("Based in Milan") | About, schema `address` | KEEP |
 | Ragione sociale Rainmakers s.r.l. a Socio Unico, via Carducci 8, 20123 Milano, P.IVA 07342210965 | footer nuvolab.com (2021) | Footer legale, privacy | **VERIFY** (indirizzo 2021) |
 | Italian Rainforest: progetto creato da Rainmakers (nato come iniziativa CSR) | italian-innovation-map | Sezione Rainforest, FAQ | KEEP |
-| Rainforest: 412 organizzazioni attive mappate (VC 168, incubatori/acceleratori 139, CVC 38, coworking 37, startup studio 29, angel network 21, istituzioni 13, media/community 13…) | italian-innovation-map, dati al 06/10/2026 | Statistiche Rainforest (con data) | KEEP — **aggiornare a ogni release** (`content/shared.ts`) |
+| Rainforest: 625 organizzazioni mappate, 472 con sede in Italia (startup studio 191, VC 160, incubatori/acceleratori 102, PST 52, coworking 33, associazioni 27…) | database Italian Rainforest aggiornato (DB - Rainmakers OS.csv), dati al 17/11/2026 | Statistiche Rainforest (con data) | KEEP — **aggiornare a ogni release** (`content/shared.ts`) |
 | Rainforest: mappa + database interattivi, open data copyleft per uso non commerciale, aggiornamento partecipativo | italian-innovation-map | Rainforest + FAQ | KEEP |
 | Community WhatsApp di Italian Rainforest (link pubblico) | italian-innovation-map | Thank-you page, sezione Community | KEEP — **VERIFY** che sia il link da promuovere |
 | Email italianrainforest@rainmakers.it | italian-innovation-map | Footer/FAQ | KEEP |

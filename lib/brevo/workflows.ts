@@ -65,7 +65,8 @@ export const stateOf = (action: NewsletterAction): SubscribeState | null =>
 /** Dedicated "Gocce di Innovazione" form: saved as pending_confirmation with its consent event, then the email. */
 export async function requestSubscription(input: {
   email: string;
-  firstName?: string;
+  firstName: string;
+  lastName: string;
   interests: Area[];
   locale: Locale;
   source?: string;
@@ -84,7 +85,8 @@ export async function requestSubscription(input: {
   const c = newConfirmation();
   const db = await dbNewsletterSubscribe({
     email: input.email,
-    first_name: input.firstName ?? null,
+    first_name: input.firstName,
+    last_name: input.lastName,
     language: input.locale,
     interests: input.interests,
     consent_version: NEWSLETTER_CONSENT_VERSION,

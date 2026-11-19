@@ -29,6 +29,7 @@ export async function POST(request: Request) {
   const state = await requestSubscription({
     email: d.email,
     firstName: d.firstName,
+    lastName: d.lastName,
     interests: d.interests,
     locale: d.locale,
     source: d.source,

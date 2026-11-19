@@ -12,13 +12,15 @@ const socialIcons = { facebook: Facebook, instagram: Instagram, linkedin: Linked
 /**
  * Footer (PRD §48), aligned with the 2026-10-27 header: the same sections (Perché · Come · Cosa · Chi · News ·
  * Contattaci; no external Italian Rainforest link and no duplicate "Contattaci" since 2026-10-27), contacts
- * (info@rainmakers.it, Substack), the newsletter, and the legal links in the bottom bar. No address or company data
- * until confirmed as current.
+ * (info@rainmakers.it, Substack, head office address since 2026-11-17), the newsletter, and the legal links in the
+ * bottom bar. No company name or VAT until confirmed as current.
  */
 export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale: Locale; home?: boolean }) {
   const prefix = home ? '' : `/${locale}`;
   const f = dict.footer;
   const year = new Date().getFullYear();
+  const hq = facts.headquarters.value;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Rainmakers, ${hq.street}, ${hq.postalCode} ${hq.city}`)}`;
   return (
     <footer className="site-footer">
       <div className="container site-footer__grid">
@@ -75,6 +77,14 @@ export function Footer({ dict, locale, home = true }: { dict: Dictionary; locale
               </a>
             </li>
           </ul>
+          <address className="site-footer__address">
+            <span className="muted">{f.headquarters}</span>
+            <a href={mapsUrl} target="_blank" rel="noopener">
+              {hq.street}
+              <br />
+              {hq.postalCode} {hq.city} ({hq.province})<span className="sr-only"> {dict.ui.a11y.external}</span>
+            </a>
+          </address>
         </div>
 
         <div>

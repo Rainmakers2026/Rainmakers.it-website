@@ -17,7 +17,8 @@ const INTERVAL = 7000;
 /**
  * "Dicono di noi" carousel: translucent glass cards in a 3D coverflow — the active review in front, its neighbours
  * tilted and blurred behind — with the company logo under each quote. Autoplay (paused on hover, focus, off-screen,
- * by the pause button or with reduced motion), prev/next, dots with a progress fill, arrow keys and swipe.
+ * by the pause button or with reduced motion), prev/next, dots with a progress fill, arrow keys, swipe and click-and-drag
+ * with the mouse (2026-11-18: the cards follow the pointer, release moves by as many reviews as were dragged).
  * Server-rendered with the first review in front; without JS the CSS shows every review as a list.
  */
 export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; labels: ProofCopy['carousel'] }) {
@@ -29,7 +30,12 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
   const [hold, setHold] = useState(false);
   const [onScreen, setOnScreen] = useState(false);
   const [reduced, setReduced] = useState(false);
-  const swipe = useRef<number | null>(null);
+  /** Drag in progress: start x, step width in px, whether it moved past the click threshold. */
+  const swipe = useRef<{ x: number; step: number; moved: boolean } | null>(null);
+  /** Live drag offset in slides (negative = towards the next review); null when not dragging. */
+  const [drag, setDrag] = useState<number | null>(null);
+  /** Swallows the click that follows a drag, so releasing over a side card does not jump to it. */
+  const dragged = useRef(false);
 
   const go = useCallback((i: number) => setActive(((i % n) + n) % n), [n]);
 
@@ -43,7 +49,7 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
     return () => io.disconnect();
   }, []);
 
-  const running = ready && !paused && !hold && onScreen && !reduced && n > 1;
+  const running = ready && !paused && !hold && drag == null && onScreen && !reduced && n > 1;
   useEffect(() => {
     if (!running) return;
     const t = window.setTimeout(() => go(active + 1), INTERVAL);
@@ -59,14 +65,37 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
       go(active - 1);
     }
   };
-  const onPointerDown = (e: PointerEvent) => {
-    swipe.current = e.clientX;
+  const onPointerDown = (e: PointerEvent<HTMLUListElement>) => {
+    if (n < 2 || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    const slide = e.currentTarget.querySelector<HTMLElement>('.rv__slide.is-active');
+    // a slide sits 74% of its width from its neighbour, 88% on phones (see .rv__slide in globals.css)
+    const pitch = window.matchMedia('(max-width: 640px)').matches ? 0.88 : 0.74;
+    swipe.current = { x: e.clientX, step: Math.max(120, (slide?.offsetWidth ?? 600) * pitch), moved: false };
+    dragged.current = false;
   };
-  const onPointerUp = (e: PointerEvent) => {
-    if (swipe.current == null) return;
-    const dx = e.clientX - swipe.current;
+  const onPointerMove = (e: PointerEvent<HTMLUListElement>) => {
+    const s = swipe.current;
+    if (!s) return;
+    const dx = e.clientX - s.x;
+    if (!s.moved) {
+      if (Math.abs(dx) < 6) return;
+      s.moved = true;
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    }
+    setDrag(Math.max(-(n - 1), Math.min(n - 1, dx / s.step)));
+  };
+  const onPointerEnd = (e: PointerEvent<HTMLUListElement>) => {
+    const s = swipe.current;
     swipe.current = null;
-    if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
+    setDrag(null);
+    if (!s?.moved) return;
+    dragged.current = true;
+    if (e.currentTarget.hasPointerCapture?.(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    const dx = e.clientX - s.x;
+    if (e.type === 'pointercancel' || Math.abs(dx) <= 40) return;
+    // at least one review, then as many as were dragged across
+    const steps = Math.max(1, Math.round(Math.abs(dx) / s.step));
+    go(active + (dx < 0 ? steps : -steps));
   };
 
   /** Signed distance from the active slide, wrapped so the ring is continuous. */
@@ -80,7 +109,8 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
   return (
     <div
       ref={root}
-      className={`rv${ready ? ' is-ready' : ''}${running ? ' is-running' : ''}`}
+      className={`rv${ready ? ' is-ready' : ''}${running ? ' is-running' : ''}${drag != null ? ' is-dragging' : ''}`}
+      style={{ '--drag': drag ?? 0 } as CSSProperties}
       role="region"
       aria-roledescription="carousel"
       aria-label={labels.label}
@@ -92,7 +122,21 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
       }}
       onKeyDown={onKey}
     >
-      <ul className="rv__stage" aria-live={running ? 'off' : 'polite'} onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+      <ul
+        className="rv__stage"
+        aria-live={running ? 'off' : 'polite'}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={onPointerEnd}
+        onDragStart={(e) => e.preventDefault()}
+        onClickCapture={(e) => {
+          if (!dragged.current) return;
+          dragged.current = false;
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
         {items.map((r, i) => {
           const d = offset(i);
           const front = d === 0;

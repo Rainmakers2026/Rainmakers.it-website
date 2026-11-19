@@ -20,7 +20,7 @@ export const what: WhatCopy = {
   structure: {
     hint: 'Tocca un servizio per scoprire cosa possiamo fare per te.',
     label:
-      'Schema: Rainmakers al centro, con tre rami. Giveback, la nostra CSR: StartuParty, Junior Jedi e Italian Rainforest. Open Venture Building: Accelerator e Builder. Advisory: Innovation e Investment. Ogni servizio apre un popup con la descrizione.',
+      'Schema: Rainmakers al centro, con tre rami. Giveback, la nostra CSR: iniziative informative e formative, di attivazione e di Giveback puro. Open Venture Building: Accelerator e Builder. Advisory: Innovation e Investment. Ogni servizio apre un popup con la descrizione.',
     examplesLabel: 'Alcuni progetti',
     close: 'Chiudi',
     branches: [
@@ -28,30 +28,45 @@ export const what: WhatCopy = {
         key: 'giveback',
         name: 'Giveback',
         tagline: 'La nostra CSR',
-        // Descrizioni prudenti, da confermare con il team (nessuna scheda di StartuParty e Junior Jedi nei materiali)
+        // 2026-11-16: tre categorie di iniziative al posto delle singole iniziative (che restano come card nel track
+        // record); testi del team. 2026-11-18: popup spiegati meglio (introduzione e punti) su richiesta del team, dalla
+        // scheda Foundation del portfolio del founder e dalle descrizioni delle iniziative (content/data/giveback.ts)
         units: [
           {
-            name: 'StartuParty',
-            text: 'Occasioni di incontro per l’ecosistema dell’innovazione.',
-            brand: 'StartuParty',
-            lead: 'Un’iniziativa di Giveback di Rainmakers, senza scopo di lucro: momenti informali in cui founder, aspiranti imprenditori, investitori e innovatori si incontrano e si conoscono.',
-            points: ['Networking aperto a tutto l’ecosistema', 'Relazioni che diventano progetti, partnership e investimenti'],
+            name: 'Informative e formative',
+            text: 'Sul fare impresa innovativa in Italia.',
+            brand: 'Iniziative informative e formative',
+            lead: 'Condividiamo gratuitamente quello che abbiamo imparato in 15 anni di startup e innovazione, perché chi vuole fare impresa innovativa in Italia parta con le informazioni e le competenze giuste.',
+            points: [
+              'Informazione sul mondo dell’innovazione italiana: protagonisti, numeri e tendenze dell’ecosistema',
+              'Formazione sul fare impresa e innovazione in Italia, per founder e aspiranti imprenditori',
+              'Sensibilizzazione delle nuove generazioni all’imprenditorialità e all’innovazione',
+            ],
             cta: { label: 'Unisciti al Giveback', path: 'giveback' },
           },
           {
-            name: 'Junior Jedi',
-            text: 'Imprenditorialità e innovazione per le nuove generazioni.',
-            brand: 'Junior Jedi',
-            lead: 'Un’iniziativa di Giveback di Rainmakers, senza scopo di lucro, per avvicinare i più giovani al fare impresa e all’innovazione.',
-            points: ['Sensibilizzazione e formazione all’imprenditorialità', 'Attivazione di futuri imprenditori e innovatori'],
+            name: 'Di attivazione',
+            text: 'Degli aspiranti imprenditori e innovatori italiani.',
+            brand: 'Iniziative di attivazione',
+            lead: 'Aiutiamo chi ha un’idea a fare il primo passo: creiamo le occasioni per mettersi alla prova, conoscere le persone giuste e trasformare un’intenzione in un progetto concreto.',
+            points: [
+              'Esperienze pratiche in cui aspiranti imprenditori e innovatori mettono alla prova le proprie idee',
+              'Occasioni di incontro tra founder, investitori, mentor e innovatori',
+              'Relazioni che diventano team, progetti, partnership e investimenti',
+            ],
             cta: { label: 'Unisciti al Giveback', path: 'giveback' },
           },
           {
-            name: 'Italian Rainforest',
-            text: 'La mappa dell’ecosistema italiano dell’innovazione.',
-            brand: 'Italian Rainforest',
-            lead: 'Senza alcuno scopo di lucro e come giveback (CSR) aziendale, Rainmakers ha creato Italian Rainforest: la rappresentazione più completa e dettagliata possibile dell’ecosistema italiano dell’innovazione, per renderlo più trasparente, aperto e interconnesso.',
-            points: ['Mappa georeferenziata', 'Database', 'Infografica'],
+            name: 'Di Giveback puro',
+            text: 'Per la Rainforest italiana.',
+            brand: 'Iniziative di Giveback puro',
+            lead: 'Sono le iniziative che portiamo avanti senza alcun ritorno economico, per restituire qualcosa all’ecosistema italiano dell’innovazione, la Rainforest italiana, che ci ha fatto crescere. Mettiamo a disposizione di tutti tempo, competenze, dati e relazioni.',
+            points: [
+              'Senza scopo di lucro: nessun ricavo, nessuna partecipazione, nessun cliente da acquisire',
+              'Strumenti e conoscenza aperti a tutto l’ecosistema, come la mappa di Italian Rainforest',
+              'Il tempo e le competenze del team al servizio di chi costruisce l’innovazione in Italia',
+              'L’obiettivo: un ecosistema più trasparente, aperto e interconnesso, a beneficio di tutti',
+            ],
             cta: { label: 'Unisciti al Giveback', path: 'giveback' },
           },
         ],

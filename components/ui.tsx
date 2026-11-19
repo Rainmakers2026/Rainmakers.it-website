@@ -40,21 +40,25 @@ interface HeaderProps {
   id: string;
   intro?: string;
   align?: 'left' | 'center';
+  /** No entrance animation: the title is shown as is, neither the block nor its words move. */
+  still?: boolean;
 }
 
-export function SectionHeader({ eyebrow, title, id, intro, align = 'left' }: HeaderProps) {
+export function SectionHeader({ eyebrow, title, id, intro, align = 'left', still = false }: HeaderProps) {
   return (
-    <header className={`section-header section-header--${align} reveal`}>
+    <header className={`section-header section-header--${align}${still ? '' : ' reveal'}`}>
       {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
       {/* Words are wrapped so they can rise one by one (CSS); the heading text itself is unchanged */}
       <h2 id={id} className="h2">
-        {title.split(' ').map((word, i) => (
-          <span key={i}>
-            <span className="w" style={{ '--w': i } as CSSProperties}>
-              {word}
-            </span>{' '}
-          </span>
-        ))}
+        {still
+          ? title
+          : title.split(' ').map((word, i) => (
+              <span key={i}>
+                <span className="w" style={{ '--w': i } as CSSProperties}>
+                  {word}
+                </span>{' '}
+              </span>
+            ))}
       </h2>
       {intro ? <p className="lead">{intro}</p> : null}
     </header>

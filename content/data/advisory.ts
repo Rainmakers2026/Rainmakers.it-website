@@ -43,7 +43,7 @@ export const advisory: AdvisoryProject[] = [
     project: '360 by 360',
     type: 'investor',
     typeLabel: T.vc,
-    website: 'https://360by360competiton.com/',
+    website: null, // 2026-11-18: domain parked (was 360by360competiton.com, misspelled; 360by360competition.com is parked too)
     location: 'Torino / Milano',
     year: 2013,
     summary: s('Ideazione e gestione “chiavi in mano” dell’unica startup competition promossa da un VC in Italia.', 'Turnkey design and management of the only startup competition run by a VC in Italy.'),
@@ -110,7 +110,7 @@ export const advisory: AdvisoryProject[] = [
     project: 'Climate-KIC / Accelmed',
     type: 'institution',
     typeLabel: T.ppp,
-    website: 'https://www.art-er.it/2020/04/climate-kic-startup-accelerator-italy-2020/',
+    website: 'https://www.art-er.it/', // 2026-11-18: the 2020 article returns 404
     location: 'Bologna / Trento',
     year: 2012,
     summary: s('Formazione e venture acceleration per startup cleantech.', 'Training and venture acceleration for cleantech startups.'),
@@ -298,7 +298,7 @@ export const advisory: AdvisoryProject[] = [
     project: 'Corporate venture capital',
     type: 'corporate',
     typeLabel: T.corporate,
-    website: 'https://innovatecventure.it',
+    website: null, // 2026-11-18: innovatecventure.it no longer resolves
     location: 'Milano',
     year: 2022,
     summary: s('Creazione e gestione del CVC di un’azienda cleantech quotata.', 'Set-up and management of the CVC of a listed cleantech company.'),
@@ -331,7 +331,7 @@ export const advisory: AdvisoryProject[] = [
     project: 'AdottUp',
     type: 'corporate',
     typeLabel: T.corporate,
-    website: 'https://adottup.it',
+    website: null, // 2026-11-18: adottup.it no longer resolves
     location: 'Napoli',
     year: 2014,
     summary: s('Matchmaking tra la Piccola Industria di Confindustria e startup.', 'Matchmaking between Confindustria’s Piccola Industria and startups.'),
