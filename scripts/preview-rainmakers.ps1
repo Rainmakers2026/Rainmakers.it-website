@@ -255,9 +255,20 @@ Ok "pushed to origin/$PreviewBranch"
 Step '9. Vercel preview'
 $deployOut = Native $VercelExe @("deploy", "--yes", "--target", "preview")
 if ($LASTEXITCODE -ne 0) { Fail 'vercel deploy failed (a deployment "Blocked" by Vercel means the commit author is not recognised by the team)' }
-$url = ($deployOut | Where-Object { $_ -match '^https://\S+\.vercel\.app' } | Select-Object -Last 1)
-if (-not $url) { Fail "could not read the preview URL from: $($deployOut -join ' ')" }
-$url = $url.Trim()
+# Outside an interactive terminal the CLI answers in JSON ({ status, deployment: { url, readyState, target, ... } });
+# in a terminal it prints the URL on its own line
+$raw = ($deployOut -join "`n").Trim()
+$url = $null
+if ($raw.StartsWith('{')) {
+  $res = $raw | ConvertFrom-Json
+  if ($res.status -ne 'ok') { Fail "vercel deploy did not succeed: $raw" }
+  if ($res.deployment.productionUrl -or $res.deployment.target -eq 'production') { Fail "deployment $($res.deployment.url) is a PRODUCTION deployment" }
+  $url = $res.deployment.url
+} else {
+  $url = ($deployOut | Where-Object { $_ -match '^https://\S+\.vercel\.app' } | Select-Object -Last 1)
+}
+if (-not $url) { Fail "could not read the preview URL from: $raw" }
+$url = "$url".Trim()
 $inspect = (Native $VercelExe @("inspect", $url) -MergeStderr | Out-String)
 if ($inspect -notmatch 'target\s+preview') { Fail "deployment $url is not a preview: check it in the Vercel dashboard" }
 if ($inspect -notmatch 'Ready') { Fail "deployment $url is not Ready:`n$inspect" }
