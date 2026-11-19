@@ -50,32 +50,62 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
     return () => io.disconnect();
   }, []);
 
-  // Trackpad two-finger swipe (horizontal wheel events). Native listener: React's wheel handler is passive and could
-  // not stop the browser's own "swipe = history back/forward". The gesture (and its inertia) moves one review; the
-  // next one needs the fingers to rest for a moment.
+  // Trackpad two-finger swipe (wheel events), 2026-11-19, reworked after a test on a Windows laptop:
+  // - the cards follow the fingers like a drag (--drag), and when the fingers stop the carousel settles on the nearest
+  //   review(s), exactly like releasing a mouse drag;
+  // - the direction is judged on the whole gesture, not event by event: Windows touchpads mix some vertical movement
+  //   into a horizontal swipe;
+  // - legacy touchpad drivers (and Shift + mouse wheel) send a horizontal scroll as deltaY with shiftKey;
+  // - native listener with passive: false, so the browser's "swipe = history back/forward" can be stopped.
+  // A clearly vertical gesture is left entirely to the page.
   useEffect(() => {
     const el = root.current;
     if (!el || n < 2) return;
-    let acc = 0;
-    let locked = false;
+    const px = (v: number, mode: number) => v * (mode === 1 ? 16 : mode === 2 ? 400 : 1);
+    let ax = 0; // horizontal movement of the gesture (positive = fingers moving left = towards the next review)
+    let ay = 0;
+    let mode: 'undecided' | 'carousel' | 'page' = 'undecided';
+    let step = 400;
     let quiet: number | undefined;
+    const end = () => {
+      if (mode === 'carousel') {
+        setDrag(null);
+        if (Math.abs(ax) > 30) {
+          // computed now: the state updater runs later, after ax has been reset for the next gesture
+          const move = (ax > 0 ? 1 : -1) * Math.max(1, Math.round(Math.abs(ax) / step));
+          setActive((a) => (((a + move) % n) + n) % n);
+        }
+      }
+      ax = 0;
+      ay = 0;
+      mode = 'undecided';
+    };
     const onWheel = (e: WheelEvent) => {
-      const dx = e.deltaX * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);
-      // vertical scrolling and pinch-zoom (ctrlKey) stay with the page
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) || e.ctrlKey) return;
-      e.preventDefault();
+      if (e.ctrlKey) return; // pinch-zoom stays with the browser
+      let dx = px(e.deltaX, e.deltaMode);
+      let dy = px(e.deltaY, e.deltaMode);
+      if (e.shiftKey && !dx) {
+        dx = dy;
+        dy = 0;
+      }
       window.clearTimeout(quiet);
-      quiet = window.setTimeout(() => {
-        locked = false;
-        acc = 0;
-      }, 220);
-      if (locked) return;
-      acc += dx;
-      if (Math.abs(acc) < 50) return;
-      locked = true;
-      const dir = acc > 0 ? 1 : -1; // fingers moving left (positive deltaX) → next review
-      acc = 0;
-      setActive((a) => (((a + dir) % n) + n) % n);
+      quiet = window.setTimeout(end, 160);
+      if (mode === 'page') return;
+      ax += dx;
+      ay += dy;
+      if (mode === 'undecided') {
+        if (Math.abs(ax) + Math.abs(ay) < 6) {
+          if (Math.abs(dx) > Math.abs(dy)) e.preventDefault();
+          return;
+        }
+        mode = Math.abs(ax) > Math.abs(ay) ? 'carousel' : 'page';
+        if (mode === 'page') return;
+        const slide = el.querySelector<HTMLElement>('.rv__slide.is-active');
+        const pitch = window.matchMedia('(max-width: 640px)').matches ? 0.88 : 0.74;
+        step = Math.max(120, (slide?.offsetWidth ?? 600) * pitch);
+      }
+      e.preventDefault();
+      setDrag(Math.max(-(n - 1), Math.min(n - 1, -ax / step)));
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => {
