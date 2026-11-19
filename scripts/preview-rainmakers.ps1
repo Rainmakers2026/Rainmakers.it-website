@@ -50,7 +50,9 @@ $ExpectedProjectId = 'prj_5uJR8Lq9RhhNYf41lHJ5eDroe5lg'
 $ExpectedOrgId     = 'team_uil1PIU0oTpaorKXwLJJyQCD'
 $ExpectedTeamSlug  = 'rainmakers3'
 $ExpectedGitName   = 'Rainmakers2026'
+# this terminal first, then the value saved for the Windows user (setx), which VS Code terminals only see after a restart
 $ExpectedGitEmail  = $env:RAINMAKERS_GIT_EMAIL
+if (-not $ExpectedGitEmail) { $ExpectedGitEmail = [Environment]::GetEnvironmentVariable('RAINMAKERS_GIT_EMAIL', 'User') }
 $PreviewBranch     = 'preview/rainmakers'
 $ProtectedBranches = @('main', 'master', 'production')
 
@@ -274,8 +276,10 @@ if ($inspect -notmatch 'target\s+preview') { Fail "deployment $url is not a prev
 if ($inspect -notmatch 'Ready') { Fail "deployment $url is not Ready:`n$inspect" }
 Ok "preview ready: $url"
 try {
-  $r = Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 30 -ErrorAction Stop
-  $public = ($r.StatusCode -eq 200)
+  # "/" redirects to "/it" (307): follow it; a protected deployment answers 401/403 or lands on the Vercel login
+  $r = Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 5 -TimeoutSec 30 -ErrorAction Stop
+  $final = "$($r.BaseResponse.ResponseUri)"
+  $public = ($r.StatusCode -eq 200 -and $final -notmatch 'vercel\.com/(login|sso)')
 } catch { $public = $false }
 
 # ---- 10. Production and main untouched ----------------------------------------------------------------------------
