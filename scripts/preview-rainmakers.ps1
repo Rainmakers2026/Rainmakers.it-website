@@ -202,7 +202,8 @@ if ($current -ne $PreviewBranch) {
 Step '6. Files'
 $changed = @(RunGit status --porcelain --untracked-files=all | ForEach-Object { ($_.Substring(3) -replace '^.* -> ', '').Trim('"') -replace '\\', '/' })
 if ($Paths) {
-  $wanted = @($Paths | ForEach-Object { ($_ -replace '\\', '/').TrimEnd('/') })
+  # with `powershell -File`, "-Paths a,b,c" arrives as one string: split on commas as well
+  $wanted = @($Paths | ForEach-Object { $_ -split ',' } | ForEach-Object { ($_.Trim() -replace '\\', '/').TrimEnd('/') } | Where-Object { $_ })
   $files = @($changed | Where-Object { $f = $_; $wanted | Where-Object { $f -eq $_ -or $f.StartsWith("$_/") } })
   $missing = @($wanted | Where-Object { $w = $_; -not ($changed | Where-Object { $_ -eq $w -or $_.StartsWith("$w/") }) })
   if ($missing.Count) { Write-Host "  --  no changes in: $($missing -join ', ')" -ForegroundColor Yellow }

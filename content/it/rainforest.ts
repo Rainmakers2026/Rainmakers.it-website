@@ -23,6 +23,7 @@ export const rainforest: RainforestCopy = {
     training: 'Corsi di formazione',
     familyOffices: 'Family office',
     programs: 'Programmi di empowerment',
+    investors: 'Altri investitori',
   },
   statsMore: '+ altre {n} categorie nella mappa',
   contribute: 'Proponi un aggiornamento al database',

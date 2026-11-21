@@ -85,23 +85,26 @@ export const rainforest = {
    * ("DB - Rainmakers OS.csv"): ecosystem organisations only (startups excluded), INACTIVE rows and duplicate names
    * removed; "italy" = organisations whose REGION is an Italian region. Categories follow PLAYER TYPE (an organisation
    * with two types counts in both). Update `asOf` and the numbers at each release.
+   * 2026-11-21: recomputed from the new export ("DB - Rainmakers OS (1).csv"); the 7 rows with the new PLAYER TYPE
+   * "INVESTOR" (added from Chelonia Italia) are shown as "Altri investitori".
    */
   stats: {
     status: 'VERIFIED' as const,
-    asOf: '2026-11-17',
-    activeOrganisations: 625,
-    italy: 472,
+    asOf: '2026-11-21',
+    activeOrganisations: 633,
+    italy: 473,
     categories: [
       { key: 'studios', count: 191 },
       { key: 'vc', count: 160 },
-      { key: 'incubators', count: 102 },
+      { key: 'incubators', count: 101 },
       { key: 'pst', count: 52 },
-      { key: 'coworking', count: 33 },
-      { key: 'associations', count: 27 },
+      { key: 'coworking', count: 34 },
+      { key: 'associations', count: 28 },
       { key: 'angels', count: 15 },
       { key: 'media', count: 13 },
       { key: 'crowdfunding', count: 13 },
       { key: 'cvc', count: 10 },
+      { key: 'investors', count: 7 },
       { key: 'training', count: 5 },
       { key: 'institutions', count: 4 },
       { key: 'familyOffices', count: 3 },
