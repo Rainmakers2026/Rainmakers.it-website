@@ -12,6 +12,22 @@ import { Drizzle } from '../visuals/Drizzle';
  * right of the copy on desktop, above it on phones so the title never sits on the image; without it, the
  * illustration of a cloud raining opportunities on entrepreneurs with umbrellas turned inside out.
  */
+/** Wraps each highlighted word of the title tail in its own shade of blue (hero__hl--1, --2, --3). */
+function highlight(text: string, words: string[]) {
+  if (!words.length) return text;
+  const esc = words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return text.split(new RegExp(`\\b(${esc.join('|')})\\b`, 'u')).map((part, i) => {
+    const n = words.indexOf(part);
+    return n >= 0 ? (
+      <span key={i} className={`hero__hl hero__hl--${n + 1}`}>
+        {part}
+      </span>
+    ) : (
+      part
+    );
+  });
+}
+
 export function Hero({ dict }: { dict: Dictionary }) {
   const h = dict.hero;
   return (
@@ -33,7 +49,9 @@ export function Hero({ dict }: { dict: Dictionary }) {
           {h.eyebrow}
         </p>
         <h1 id="hero-title" className="hero__title intro-anim" style={{ animationDelay: '80ms' }}>
-          {h.title} <span className="text-gradient">{h.titleAccent}</span> {h.titleTail}
+          {h.title} <span className="text-gradient">{h.titleAccent}</span>
+          <br />
+          <span className="hero__title-tail">{highlight(h.titleTail, h.titleHighlights)}</span>
         </h1>
         <p className="hero__lead intro-anim" style={{ animationDelay: '180ms' }}>
           {h.lead}

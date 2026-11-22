@@ -2,10 +2,11 @@ import type { HeroCopy } from '../types';
 
 export const hero: HeroCopy = {
   eyebrow: 'Our purpose',
-  title: 'Saving our country',
-  titleAccent: 'in a single generation',
-  titleTail: 'through impact, entrepreneurship and innovation.',
-  lead: 'Rainmakers brings together the work of startups, large companies, investors and institutions to make innovation happen in Italy. Together. Now.',
+  title: 'Saving our',
+  titleAccent: 'country',
+  titleTail: 'in a single generation through impact, entrepreneurship and innovation.',
+  titleHighlights: ['impact', 'entrepreneurship', 'innovation'],
+  lead: 'Rainmakers brings together the work of every enabler of Italy’s innovation ecosystem. Together. Now.',
   primaryCta: 'Get started',
   scrollLabel: 'Scroll down',
   visualLabel:

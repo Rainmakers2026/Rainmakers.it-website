@@ -7911,6 +7911,20 @@ main > section[id],
   font-size: clamp(2.05rem, 1.15rem + 2.7vw, 3.45rem);
   max-width: 22ch;
 }
+/* 2026-11-22: "Nazione" keeps the brand blue, the rest of the purpose is white, and impatto / imprenditoria /
+   innovazione each get their own shade of Savoy blue (#4b61d1 = --c-indigo), lightened enough to read on the dark hero */
+.hero__title-tail {
+  color: #fff;
+}
+.hero__hl--1 {
+  color: #8aa0f5;
+}
+.hero__hl--2 {
+  color: #6683ec;
+}
+.hero__hl--3 {
+  color: #4b6ade;
+}
 .hero__lead {
   max-width: 56ch;
 }

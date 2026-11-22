@@ -2,10 +2,11 @@ import type { HeroCopy } from '../types';
 
 export const hero: HeroCopy = {
   eyebrow: 'Il nostro scopo',
-  title: 'Salvare la nostra Nazione',
-  titleAccent: 'in una sola generazione',
-  titleTail: 'con impatto, imprenditoria e innovazione.',
-  lead: 'Rainmakers integra l’azione di startup, grandi aziende, investitori e istituzioni, per far accadere l’innovazione in Italia. Insieme. Ora.',
+  title: 'Salvare la nostra',
+  titleAccent: 'Nazione',
+  titleTail: 'in una sola generazione con impatto, imprenditoria e innovazione.',
+  titleHighlights: ['impatto', 'imprenditoria', 'innovazione'],
+  lead: 'Rainmakers integra l’azione di tutti gli abilitatori dell’ecosistema dell’innovazione italiano. Insieme. Ora.',
   primaryCta: 'Inizia con noi',
   scrollLabel: 'Scorri verso il basso',
   visualLabel:
