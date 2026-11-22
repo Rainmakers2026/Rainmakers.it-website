@@ -58,23 +58,31 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
   // - legacy touchpad drivers (and Shift + mouse wheel) send a horizontal scroll as deltaY with shiftKey;
   // - native listener with passive: false, so the browser's "swipe = history back/forward" can be stopped.
   // A clearly vertical gesture is left entirely to the page.
+  // 2026-11-21, paging like a phone gallery (team feedback: the swipe felt heavy and could jump several reviews):
+  // - GAIN makes the cards follow the fingers more readily than a 1:1 mapping;
+  // - as soon as the cards are dragged past half a slot the carousel moves to the neighbouring review, without
+  //   waiting for the fingers to stop; the rest of that gesture and its inertia are swallowed ('locked'), so one
+  //   swipe = one review;
+  // - a short flick (past FLICK) also moves one review when the fingers stop; anything smaller springs back.
   useEffect(() => {
     const el = root.current;
     if (!el || n < 2) return;
+    const GAIN = 1.6;
+    const COMMIT = 0.5;
+    const FLICK = 0.06;
     const px = (v: number, mode: number) => v * (mode === 1 ? 16 : mode === 2 ? 400 : 1);
+    const wrap = (move: number) => setActive((a) => (((a + move) % n) + n) % n);
     let ax = 0; // horizontal movement of the gesture (positive = fingers moving left = towards the next review)
     let ay = 0;
-    let mode: 'undecided' | 'carousel' | 'page' = 'undecided';
+    let mode: 'undecided' | 'carousel' | 'page' | 'locked' = 'undecided';
     let step = 400;
     let quiet: number | undefined;
+    const offset = () => -(ax * GAIN) / step; // in slides, negative = towards the next review
     const end = () => {
       if (mode === 'carousel') {
+        const d = offset();
         setDrag(null);
-        if (Math.abs(ax) > 30) {
-          // computed now: the state updater runs later, after ax has been reset for the next gesture
-          const move = (ax > 0 ? 1 : -1) * Math.max(1, Math.round(Math.abs(ax) / step));
-          setActive((a) => (((a + move) % n) + n) % n);
-        }
+        if (Math.abs(d) > FLICK) wrap(d < 0 ? 1 : -1);
       }
       ax = 0;
       ay = 0;
@@ -89,8 +97,13 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
         dy = 0;
       }
       window.clearTimeout(quiet);
-      quiet = window.setTimeout(end, 160);
+      // a committed gesture waits a little longer, so the tail of the inertia cannot start a new one
+      quiet = window.setTimeout(end, mode === 'locked' ? 240 : 160);
       if (mode === 'page') return;
+      if (mode === 'locked') {
+        if (Math.abs(dx) >= Math.abs(dy)) e.preventDefault();
+        return;
+      }
       ax += dx;
       ay += dy;
       if (mode === 'undecided') {
@@ -105,7 +118,14 @@ export function ReviewsCarousel({ items, labels }: { items: ReviewSlide[]; label
         step = Math.max(120, (slide?.offsetWidth ?? 600) * pitch);
       }
       e.preventDefault();
-      setDrag(Math.max(-(n - 1), Math.min(n - 1, -ax / step)));
+      const d = offset();
+      if (Math.abs(d) >= COMMIT) {
+        mode = 'locked';
+        setDrag(null);
+        wrap(d < 0 ? 1 : -1);
+        return;
+      }
+      setDrag(d);
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => {

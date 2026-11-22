@@ -189,6 +189,8 @@ export const givebackLogoFiles: Record<string, string> = {
   'italian-rainforest': 'italianrainforest.webp',
   'imprenditore-non-sei-solo': 'imprenditorenonseisolo.webp',
   'imprenditori-anonimi': 'imprenditorianonimi.webp',
+  // Official logo supplied by the team on 2026-11-21 (assets-src/logos/giveback/originals/soldigratis.webp)
+  'soldi-gratis': 'soldigratis.webp',
 };
 
 /**

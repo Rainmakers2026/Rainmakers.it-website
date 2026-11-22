@@ -4,5 +4,6 @@ export const givebackLogoSizes: Record<string, [number, number, number]> = {
   'imprenditorianonimi.webp': [462, 392, 0.555],
   'italianrainforest.webp': [1736, 505, 0.116],
   'juniorjedi.webp': [680, 675, 0.227],
+  'soldigratis.webp': [1039, 671, 0.258],
   'startuparty.webp': [723, 577, 0.299],
 };

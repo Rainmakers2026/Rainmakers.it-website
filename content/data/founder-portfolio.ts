@@ -172,7 +172,7 @@ export const portfolioSlides: PortfolioSlide[] = [
       { name: 'Startup Geeks', src: 'site:startupgeeks.webp' },
       { name: 'InnovUp', src: 'pf:innovup' },
       { name: 'StartuParty', src: 'site:startuparty.webp', look: 'black' },
-      { name: 'Soldi Gratis', src: 'pf:soldigratis', look: 'faded' },
+      { name: 'Soldi Gratis', src: 'site:soldigratis.webp' },
       { name: 'Imprenditori anonimi', src: 'site:imprenditorianonimi.webp' },
       { name: 'Italian Rainforest', src: 'site:italianrainforest.webp' },
       { name: 'Startup Weekend', src: 'pf:startupweekend', look: 'faded' },
