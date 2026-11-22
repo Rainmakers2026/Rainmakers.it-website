@@ -5,7 +5,7 @@ export const hero: HeroCopy = {
   title: 'Saving our',
   titleAccent: 'country',
   titleTail: 'in a single generation through impact, entrepreneurship and innovation.',
-  titleHighlights: ['impact', 'entrepreneurship', 'innovation'],
+  titleHighlights: ['Saving', 'generation', 'impact', 'entrepreneurship', 'innovation'],
   lead: 'Rainmakers brings together the work of every enabler of Italy’s innovation ecosystem. Together. Now.',
   primaryCta: 'Get started',
   scrollLabel: 'Scroll down',

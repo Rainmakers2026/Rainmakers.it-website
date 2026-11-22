@@ -7911,19 +7911,29 @@ main > section[id],
   font-size: clamp(2.05rem, 1.15rem + 2.7vw, 3.45rem);
   max-width: 22ch;
 }
-/* 2026-11-22: "Nazione" keeps the brand blue, the rest of the purpose is white, and impatto / imprenditoria /
-   innovazione each get their own shade of Savoy blue (#4b61d1 = --c-indigo), lightened enough to read on the dark hero */
-.hero__title-tail {
+/* 2026-11-22: only "Nazione" is in the exact logo blue (#4b61d1, flat as in public/brand/logo-square-color.png);
+   the rest of the purpose is white, and Salvare / generazione / impatto / imprenditoria / innovazione each get
+   a different shade of blue, light enough to read on the dark hero */
+.hero__title-plain {
   color: #fff;
 }
+.hero__accent {
+  color: #4b61d1;
+}
 .hero__hl--1 {
-  color: #8aa0f5;
+  color: #a9bcff;
 }
 .hero__hl--2 {
-  color: #6683ec;
+  color: #7f9cf6;
 }
 .hero__hl--3 {
-  color: #4b6ade;
+  color: #5b8ff0;
+}
+.hero__hl--4 {
+  color: #3aa2e0;
+}
+.hero__hl--5 {
+  color: #2596be;
 }
 .hero__lead {
   max-width: 56ch;

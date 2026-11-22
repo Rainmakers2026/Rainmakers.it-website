@@ -90,8 +90,8 @@ export interface HeroCopy {
   /** Small blue claim above the title: "Il nostro scopo" (header "Perché", 2026-10-27) */
   eyebrow: string;
   /**
-   * The purpose (2026-11-22): title + accent ("Nazione", brand blue), a line break, then the tail in white
-   * with each word of titleHighlights in its own shade of Savoy blue.
+   * The purpose (2026-11-22): title + accent ("Nazione", in the logo blue), a line break, then the tail; text is
+   * white and each word of titleHighlights (in title or tail) gets its own shade of blue.
    */
   title: string;
   titleAccent: string;
