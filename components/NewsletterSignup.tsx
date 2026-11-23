@@ -3,7 +3,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import type { Locale } from '@/content/types';
 import { track } from '@/lib/analytics';
-import { AREA_LABELS, type Area } from '@/lib/crm/taxonomy';
 import { currentPage, visitUtm } from '@/lib/crm/client-source';
 import { Check, Close } from './icons';
 
@@ -14,7 +13,7 @@ type Status = 'idle' | 'sending' | Outcome;
 /**
  * "Gocce di Innovazione", the only Rainmakers newsletter (2026-11-11), with double opt-in: this form only requests the
  * subscription (Supabase 'pending_confirmation'); it becomes active when the person confirms from the email.
- * First name, last name and email required; editorial interests (Giveback / Open Venture Building / Advisory) optional.
+ * First name, last name and email required (the optional Giveback / OVB / Advisory interests were removed on 2026-11-23).
  * `inline`: the form is shown in place (closing section of the homepage) instead of a link opening a popup.
  */
 export function NewsletterSignup({
@@ -35,7 +34,6 @@ export function NewsletterSignup({
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [interests, setInterests] = useState<Area[]>([]);
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<Status>('idle');
@@ -52,7 +50,6 @@ export function NewsletterSignup({
         namePlaceholder: 'Nome',
         lastName: 'Cognome',
         lastNamePlaceholder: 'Cognome',
-        interests: 'Mi interessano soprattutto (facoltativo)',
         consent: 'Voglio ricevere Gocce di Innovazione, la newsletter mensile di Rainmakers, e ho letto l’informativa privacy.',
         submit: 'Iscriviti',
         sending: 'Invio…',
@@ -75,7 +72,6 @@ export function NewsletterSignup({
         namePlaceholder: 'First name',
         lastName: 'Last name',
         lastNamePlaceholder: 'Last name',
-        interests: 'I am mostly interested in (optional)',
         consent: 'I would like to receive Gocce di Innovazione, the Rainmakers monthly newsletter, and have read the privacy policy.',
         submit: 'Subscribe',
         sending: 'Sending…',
@@ -134,7 +130,8 @@ export function NewsletterSignup({
           email,
           firstName,
           lastName,
-          interests,
+          // the optional interest choices were removed from the form on 2026-11-23
+          interests: [],
           locale,
           consent,
           source,
@@ -157,26 +154,6 @@ export function NewsletterSignup({
   // Final states replace the form; recoverable ones keep it (with the email still filled in)
   const done = status === 'pending' || status === 'pending_recent' || status === 'already';
   const problem = status === 'email_failed' || status === 'invalid' || status === 'rate_limited' || status === 'error';
-
-  const interestChoices = (
-    <fieldset className="choice-group choice-group--compact nl-interests">
-      <legend className="field__label">{copy.interests}</legend>
-      <div className="choice-group__options">
-        {(Object.keys(AREA_LABELS) as Area[]).map((area) => (
-          <label key={area} className="choice">
-            <input
-              type="checkbox"
-              name="interests"
-              value={area}
-              checked={interests.includes(area)}
-              onChange={(event) => setInterests((list) => (event.target.checked ? [...list, area] : list.filter((a) => a !== area)))}
-            />
-            <span>{AREA_LABELS[area][locale]}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-  );
 
   if (inline) {
     return (
@@ -240,7 +217,6 @@ export function NewsletterSignup({
             <label className="modal-form__honeypot" aria-hidden="true">
               Website <input tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
             </label>
-            {interestChoices}
             <label className="consent nl-inline__consent">
               <input type="checkbox" required checked={consent} onChange={(event) => setConsent(event.target.checked)} />
               <span>
@@ -302,7 +278,6 @@ export function NewsletterSignup({
                   <span className="field__label">{copy.email}</span>
                   <input type="email" name="email" autoComplete="email" inputMode="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} />
                 </label>
-                {interestChoices}
                 <label className="modal-form__honeypot" aria-hidden="true">
                   Website <input tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
                 </label>

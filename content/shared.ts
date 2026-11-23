@@ -23,10 +23,10 @@ export const substack = {
 /**
  * Founder section assets (PRD §6).
  * `photo`: path under /public of the official, team-approved photo (square).
- * Current file (2026-11-17): cut out of the team's portfolio slide on a white background (scripts/generate-founder-photo.cjs).
+ * Current file (2026-11-23): the 2026-11-22 portrait cut out and set on the Rainmakers blue #4b61d1 (team request).
  */
 export const founderProfile = {
-  photo: '/brand/francesco-inguscio-2026.webp' as string | null,
+  photo: '/brand/francesco-inguscio-2026-blue.webp' as string | null,
   linkedinUrl: 'https://www.linkedin.com/in/italianrainmaker',
   /** Channel "Italian Rainmaker" — author of the video below (YouTube oEmbed). */
   youtubeUrl: 'https://www.youtube.com/@InguscioFrancesco1981',

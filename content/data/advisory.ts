@@ -492,7 +492,7 @@ export const advisory: AdvisoryProject[] = [
     ),
   },
 
-  // ───────────── Added in the 2026-11-23 copy review: summary only, no logo or website on record yet ─────────────
+  // ───────────── Added in the 2026-11-23 copy review: summary only, no website on record yet (logos: content/data/logos.ts) ─────────────
   ...(
     [
       ['almacube', 'Almacube', s('Advisory a supporto dello sviluppo dell’innovazione dell’Università di Bologna.', 'Advisory supporting the development of innovation at the University of Bologna.')],

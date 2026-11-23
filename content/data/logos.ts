@@ -68,6 +68,11 @@ export const advisoryLogoFiles: Record<string, string> = {
   unicredit: 'unicreditstartlab.webp',
   bicocca: 'ibicocca.unimib.webp',
   vita: 'vita.webp',
+  // official logos from the websites listed in the Italian Rainforest database (2026-11-23; originals in
+  // assets-src/logos/advisory)
+  almacube: 'almacube.webp',
+  'azimut-libera-impresa': 'azimutliberaimpresa.webp',
+  'startup-bakery': 'startupbakery.webp',
 };
 
 /**
