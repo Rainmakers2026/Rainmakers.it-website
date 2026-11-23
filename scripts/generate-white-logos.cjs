@@ -30,6 +30,10 @@ const OVERRIDES = {
   // the supplied file was cut on both sides (eagle and final "A"): replaced on 2026-10-21 with the complete logo from
   // confindustria.veneto.it (267×90, originals in assets-src/logos/)
   'confindustriaveneto.webp': { upscale: 4 },
+  // supplied by the team on 2026-11-23 (originals in assets-src/logos/): Edulia is the left half of the 1000-px
+  // Edulia | Treccani lockup; Blackship only exists as a 150×45 JPEG and is pre-traced 8× from it
+  'edulia.webp': { upscale: 3 },
+  'anatomage.webp': { upscale: 2 },
 };
 
 /** Share of the trimmed box covered by the logo (mean alpha, 0–1): solid marks ≈ 0.6, thin wordmarks ≈ 0.15. */

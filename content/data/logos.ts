@@ -38,6 +38,8 @@ export const tribeLogoFiles: Record<string, string> = {
   // traced to white vectors from the supplied images (scripts/generate-giveback-logos.cjs)
   'buy-buy-shop': 'buybuyshop.webp',
   'trade-to-world': 'tradetoworld.webp',
+  // Edulia (formerly Impactscool): supplied by the team on 2026-11-23, without the Treccani half of the lockup
+  impactscool: 'edulia.webp',
 };
 
 /** Advisory project slug (content/data/advisory.ts) → client logo file */
@@ -73,6 +75,10 @@ export const advisoryLogoFiles: Record<string, string> = {
   almacube: 'almacube.webp',
   'azimut-libera-impresa': 'azimutliberaimpresa.webp',
   'startup-bakery': 'startupbakery.webp',
+  // supplied by the team on 2026-11-23 (originals in assets-src/logos/advisory)
+  anatomage: 'anatomage.webp',
+  blackship: 'blackship.webp',
+  'feltrinelli-education': 'feltrinellieducation.webp',
 };
 
 /**

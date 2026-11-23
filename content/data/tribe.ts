@@ -312,7 +312,7 @@ export const tribe: TribeCompany[] = [
   // ───────────── Exits (6 here + Noonic and Verbalizza above = 8, as in the 2026 deck) ─────────────
   {
     slug: 'impactscool',
-    name: 'Impactscool', // 2026-11-23 copy review (was shown as Edulia, its name today)
+    name: 'Edulia', // formerly Impactscool (team request, 2026-11-23); the slug stays for the portfolio references
     status: 'exit',
     sector: s('EduTech', 'EduTech'),
     website: 'https://edulia.it/',
@@ -325,7 +325,7 @@ export const tribe: TribeCompany[] = [
       'Formazione per giovani e adulti su temi di frontiera come tecnologie esponenziali, AI, stampa 3D, biotecnologie e genetica, con format offline e contenuti online: la “versione italiana” della Singularity University. Con l’ingresso in Treccani (Treccani Futura) ha ampliato la formazione online e offline su una platea molto ampia.',
       'Training for young people and adults on frontier topics such as exponential technologies, AI, 3D printing, biotech and genetics, offline and online: the “Italian version” of Singularity University. After joining Treccani (Treccani Futura) it expanded online and offline training to a very wide audience.',
     ),
-    note: s('Exit: acquisita da Treccani, oggi Edulia.', 'Exit: acquired by Treccani, now Edulia.'),
+    note: s('Exit: nata come Impactscool e acquisita da Treccani, oggi è Edulia.', 'Exit: founded as Impactscool and acquired by Treccani, now Edulia.'),
     source: deck,
   },
   {
