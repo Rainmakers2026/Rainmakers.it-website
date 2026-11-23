@@ -7,8 +7,8 @@ import type { FounderCopy } from '../types';
  */
 export const founder: FounderCopy = {
   eyebrow: 'Il fondatore',
-  title: 'L’esperienza prende valore quando diventa utile agli altri.',
-  text: 'Costruire un’impresa significa prendere decisioni difficili, spesso da soli. Francesco Inguscio ha fondato Rainmakers per mettere esperienza, competenze e relazioni al servizio di chi sta costruendo la propria.',
+  title: 'L’impresa ha senso quando è al servizio degli altri.',
+  text: 'Costruire un’impresa significa prendere decisioni difficili, spesso da soli. Francesco Inguscio ha fondato Rainmakers nel 2011 per aggregare imprenditori e innovatori italiani (i rainmaker) e mettere a fattor comune le loro esperienze, competenze e relazioni al servizio di chi sta costruendo la propria impresa innovativa.',
   name: 'Francesco Inguscio',
   role: 'Fondatore di Rainmakers',
   photoAlt: 'Francesco Inguscio, fondatore di Rainmakers',

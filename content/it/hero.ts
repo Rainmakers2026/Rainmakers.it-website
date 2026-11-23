@@ -6,7 +6,7 @@ export const hero: HeroCopy = {
   titleAccent: 'Nazione',
   titleTail: 'in una sola generazione con impatto, imprenditoria e innovazione.',
   titleHighlights: ['Salvare', 'generazione', 'impatto', 'imprenditoria', 'innovazione'],
-  lead: 'Rainmakers integra l’azione di tutti gli abilitatori dell’ecosistema dell’innovazione italiano. Insieme. Ora.',
+  lead: 'Rainmakers catalizza l’azione di tutti gli abilitatori dell’ecosistema dell’innovazione italiano per far accadere l’innovazione in Italia. Tutti insieme. Qui. Ora.',
   primaryCta: 'Inizia con noi',
   scrollLabel: 'Scorri verso il basso',
   visualLabel:

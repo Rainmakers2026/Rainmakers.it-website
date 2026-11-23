@@ -87,14 +87,14 @@ export const tribe: TribeCompany[] = [
   {
     slug: 'mercurion',
     name: 'Mercurion',
-    status: 'active',
+    status: 'writeoff', // 2026-11-23 copy review (was active)
     sector: s('Logistica / E-commerce', 'Logistics / E-commerce'),
     website: null,
     city: 'Teggiano (SA)',
     founded: 2023,
     fte: 2,
     revenueK: null,
-    summary: s('Logistica in outsourcing per e-commerce, verso spedizioni a zero emissioni.', 'Outsourced logistics for e-commerce, towards zero-emission shipping.'),
+    summary: s('Servizi di logistica integrata per gli e-commerce.', 'Integrated logistics services for e-commerce.'),
     description: s(
       'Si rivolge ai titolari di e-commerce, permettendo di delegare al 100% la logistica e accompagnandoli verso l’azzeramento delle emissioni di CO2 delle spedizioni. Stocca e assicura gratuitamente la merce dei clienti nel proprio magazzino.',
       'Serves e-commerce owners, letting them fully outsource logistics and guiding them towards zero CO2 emissions on shipping. It stores and insures customers’ goods in its warehouse free of charge.',
@@ -113,7 +113,7 @@ export const tribe: TribeCompany[] = [
     founded: null,
     fte: null,
     revenueK: null,
-    summary: s('Negozi automatici con distributori, aperti a ogni ora.', 'Automated shops with vending machines, open around the clock.'),
+    summary: s('Negozi automatici con vending machine, aperti a ogni ora.', 'Automated shops with vending machines, open around the clock.'),
     description: s(
       'Progetto di open venture building nel retail automatico: punti vendita con distributori automatici, per acquistare in autonomia a qualsiasi ora.',
       'An open venture building project in automated retail: shops with vending machines, where customers buy on their own at any hour.',
@@ -148,7 +148,7 @@ export const tribe: TribeCompany[] = [
     founded: 2014,
     fte: 35,
     revenueK: 3301,
-    summary: s('Conversion marketing, growth marketing e sviluppo di prodotti digitali.', 'Conversion marketing, growth marketing and digital product development.'),
+    summary: s('Agenzia di conversion marketing, growth marketing e sviluppo di prodotti digitali.', 'An agency for conversion marketing, growth marketing and digital product development.'),
     description: s(
       'Agenzia di conversion marketing e sviluppo di prodotti digitali con esperienza decennale, specializzata in funnel building, performance e growth marketing. Ha lavorato con clienti come Crédit Agricole e illimity e affiancato numerose startup nel lancio sul mercato e nella prototipazione della value proposition con MVP ad hoc.',
       'A conversion marketing and digital product agency with ten years of experience, specialised in funnel building, performance and growth marketing. It has worked with clients such as Crédit Agricole and illimity and helped many startups launch and prototype their value proposition with custom MVPs.',
@@ -182,7 +182,7 @@ export const tribe: TribeCompany[] = [
     founded: 2018,
     fte: 5,
     revenueK: 250,
-    summary: s('Digital media company sul design, con 1,5M di utenti al giorno sui social.', 'Digital media company on design, reaching 1.5M users a day on social media.'),
+    summary: s('Digital media company e content agency sul mondo del design.', 'Digital media company and content agency on the world of design.'),
     description: s(
       'Fondata da Patrick Abbattista e nata a Milano, è una risorsa per professionisti, studenti e menti curiose del design: fornisce a product e industrial designer strumenti e conoscenze per un progresso consapevole e sostenibile, con contenuti, approfondimenti, progetti e report. È testata giornalistica registrata e tramite i social raggiunge 1,5M di utenti al giorno.',
       'Founded by Patrick Abbattista and born in Milan, it is a resource for design professionals, students and curious minds: it gives product and industrial designers tools and knowledge for conscious, sustainable progress through content, insights, projects and reports. A registered news outlet, it reaches 1.5M users a day through social media.',
@@ -243,14 +243,14 @@ export const tribe: TribeCompany[] = [
   {
     slug: 'sano-e-sazio',
     name: 'Sano e Sazio',
-    status: 'active',
+    status: 'writeoff', // 2026-11-23 copy review (was active)
     sector: s('FoodTech', 'FoodTech'),
     website: 'https://www.sanoesazio.com',
     city: 'Altamura',
     founded: 2019,
     fte: 4,
     revenueK: 50,
-    summary: s('Alimenti funzionali: Spezza.fame, snack vegetale ad alto contenuto di proteine.', 'Functional foods: Spezza.fame, a high-protein plant-based snack.'),
+    summary: s('Produzione e vendita di snack salati iperproteici.', 'Makes and sells high-protein savoury snacks.'),
     description: s(
       'Nasce dall’esperienza dei soci nella panificazione e nella comunicazione e crea prodotti alimentari funzionali che, con uno stile di vita sano, riducono il senso di fame prima dei pasti e forniscono nutrienti adeguati. Ha sviluppato Spezza.fame, snack vegetale proteico arricchito con superfood come spirulina e moringa.',
       'Built on the founders’ experience in baking and communications, it creates functional foods that, with a healthy lifestyle, reduce hunger before meals and provide adequate nutrients. It developed Spezza.fame, a plant-based protein snack enriched with superfoods such as spirulina and moringa.',
@@ -260,14 +260,14 @@ export const tribe: TribeCompany[] = [
   {
     slug: 'unconventional-road',
     name: 'Unconventional Road',
-    status: 'active',
+    status: 'writeoff', // 2026-11-23 copy review (was active)
     sector: s('TravelTech', 'TravelTech'),
     website: null, // 2026-11-18: unconventionalroad.it no longer resolves
     city: 'Milano',
     founded: 2020,
     fte: 4,
     revenueK: 50,
-    summary: s('Tour in eBike su itinerari non convenzionali, con impatto sociale.', 'eBike tours on unconventional routes, with social impact.'),
+    summary: s('Social tourism alla scoperta delle più belle location italiane.', 'Social tourism discovering the most beautiful places in Italy.'),
     description: s(
       'Propone tour ed esperienze originali in eBike. Il cuore del progetto è l’impatto sociale: accessibilità (50% degli utenti over 60), 70% del giro d’affari a sostegno delle economie locali (guide, noleggiatori, agriturismi), turismo totalmente green e benefici per la salute dei partecipanti.',
       'Offers original eBike tours and experiences. Social impact is at its core: accessibility (50% of users are over 60), 70% of turnover supporting local economies (guides, rentals, farm stays), fully green tourism and health benefits for participants.',
@@ -312,7 +312,7 @@ export const tribe: TribeCompany[] = [
   // ───────────── Exits (6 here + Noonic and Verbalizza above = 8, as in the 2026 deck) ─────────────
   {
     slug: 'impactscool',
-    name: 'Edulia',
+    name: 'Impactscool', // 2026-11-23 copy review (was shown as Edulia, its name today)
     status: 'exit',
     sector: s('EduTech', 'EduTech'),
     website: 'https://edulia.it/',
@@ -320,7 +320,7 @@ export const tribe: TribeCompany[] = [
     founded: 2017,
     fte: 6,
     revenueK: 400,
-    summary: s('Formazione sulle tecnologie esponenziali, oggi Edulia (già Impactscool).', 'Training in exponential technologies, now Edulia (formerly Impactscool).'),
+    summary: s('Scuola di digitale e futuro per le nuove generazioni.', 'A school of digital skills and the future for the next generations.'),
     description: s(
       'Formazione per giovani e adulti su temi di frontiera come tecnologie esponenziali, AI, stampa 3D, biotecnologie e genetica, con format offline e contenuti online: la “versione italiana” della Singularity University. Con l’ingresso in Treccani (Treccani Futura) ha ampliato la formazione online e offline su una platea molto ampia.',
       'Training for young people and adults on frontier topics such as exponential technologies, AI, 3D printing, biotech and genetics, offline and online: the “Italian version” of Singularity University. After joining Treccani (Treccani Futura) it expanded online and offline training to a very wide audience.',
@@ -338,7 +338,7 @@ export const tribe: TribeCompany[] = [
     founded: 2010,
     fte: 15,
     revenueK: 500,
-    summary: s('Design thinking applicato all’innovazione; acquisita da Gellify nel 2017.', 'Design thinking applied to innovation; acquired by Gellify in 2017.'),
+    summary: s('Agenzia di design driven innovation.', 'A design-driven innovation agency.'),
     description: s(
       'Agenzia di UX/UI e società di consulenza specializzata nel design thinking per progetti innovativi (sul modello di Frog o IDEO), in particolare in digital transformation, service design e innovation. Si è dedicata anche al venture building nell’industria creativa e culturale.',
       'A UX/UI agency and consultancy specialised in design thinking for innovation projects (in the vein of Frog or IDEO), especially digital transformation, service design and innovation. It also did venture building in the creative and cultural industries.',
@@ -356,7 +356,7 @@ export const tribe: TribeCompany[] = [
     founded: 2010,
     fte: 3,
     revenueK: 80,
-    summary: s('Piattaforme di crowdfunding white label; exit su Gellify nel 2017.', 'White-label crowdfunding platforms; exit to Gellify in 2017.'),
+    summary: s('Piattaforma CMS per iniziative di crowdfunding donation based.', 'A CMS platform for donation-based crowdfunding initiatives.'),
     description: s(
       'Piattaforma che genera piattaforme di crowdfunding per conto terzi in white label (dopo l’exit solo in modalità B2B2B), come CA Crowd for Life. Un team interno fa formazione e consulenza sulle campagne di crowdfunding per massimizzare la raccolta e ottimizzare l’uso dei dati dei donatori.',
       'A platform that builds white-label crowdfunding platforms for third parties (B2B2B only after the exit), such as CA Crowd for Life. An internal team provides training and consulting on crowdfunding campaigns to maximise fundraising and make better use of donor data.',
@@ -410,7 +410,7 @@ export const tribe: TribeCompany[] = [
     founded: 2021,
     fte: 10,
     revenueK: 650,
-    summary: s('Business plan, pianificazione finanziaria e controllo per startup.', 'Business plans, financial planning and controlling for startups.'),
+    summary: s('Business plan, pianificazione finanziaria e controllo di gestione per startup.', 'Business plans, financial planning and controlling for startups.'),
     description: s(
       'Aiuta le startup a definire il business plan, testare business model, identificare e controllare i KPI di crescita, farsi selezionare nei migliori programmi di accelerazione (es. Y Combinator), raccogliere round e vendere in modo profittevole. Servizi: business plan, pianificazione finanziaria e tesoreria, cruscotto per monitorare la performance, revisione contabile.',
       'Helps startups define their business plan, test business models, identify and track growth KPIs, get into top accelerators (e.g. Y Combinator), raise rounds and sell profitably. Services: business plans, financial planning and treasury, performance dashboards, auditing.',
@@ -502,15 +502,15 @@ export const tribe: TribeCompany[] = [
   },
   {
     slug: 'startuphome',
-    name: 'StartupHome',
-    status: 'writeoff',
+    name: 'Startup Home',
+    status: 'exit', // 2026-11-23 copy review (was write-off)
     sector: s('Co-living', 'Co-living'),
     website: null,
     city: null,
     founded: null,
     fte: null,
     revenueK: null,
-    summary: s('Co-living per imprenditori e freelance.', 'Co-living for entrepreneurs and freelancers.'),
+    summary: s('Co-living e co-working per startup in UK.', 'Co-living and co-working for startups in the UK.'),
     description: s(
       'Co-living per imprenditori e freelance, nato dall’idea che riunire persone appassionate nello stesso luogo sia la formula per l’innovazione.',
       'Co-living for entrepreneurs and freelancers, based on the idea that bringing passionate people together in one place is the recipe for innovation.',

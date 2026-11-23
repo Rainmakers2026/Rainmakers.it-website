@@ -7,8 +7,8 @@ import type { FounderCopy } from '../types';
  */
 export const founder: FounderCopy = {
   eyebrow: 'The founder',
-  title: 'Experience matters most when it helps others.',
-  text: 'Building a company means making hard decisions, often alone. Francesco Inguscio founded Rainmakers to put experience, expertise and relationships at the service of people building their own.',
+  title: 'Business makes sense when it serves others.',
+  text: 'Building a company means making hard decisions, often alone. Francesco Inguscio founded Rainmakers in 2011 to bring together Italian entrepreneurs and innovators (the rainmakers) and pool their experience, expertise and relationships in the service of people building their own innovative company.',
   name: 'Francesco Inguscio',
   role: 'Founder of Rainmakers',
   photoAlt: 'Francesco Inguscio, founder of Rainmakers',

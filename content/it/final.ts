@@ -34,7 +34,7 @@ export const final: FinalCopy = {
   },
   newsletter: {
     eyebrow: 'La newsletter di Rainmakers',
-    title: 'Le opportunità non cadono dal cielo.',
+    title: 'Le opportunità a volte piovono dal cielo.',
     titleAccent: 'Gocce di innovazione.',
     lead: 'Una volta al mese, poche gocce scelte dal team Rainmakers: quanto basta per far crescere le tue idee e restare un passo avanti.',
     perks: [

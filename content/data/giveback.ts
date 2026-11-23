@@ -32,7 +32,11 @@ export const giveback: GivebackInitiative[] = [
     slug: 'junior-jedi',
     name: 'Junior Jedi',
     website: null,
-    summary: s('Imprenditorialità e innovazione per le nuove generazioni.', 'Entrepreneurship and innovation for the next generation.'),
+    // 2026-11-23 copy review: new summary (the popup text below still speaks of the next generation, to be aligned)
+    summary: s(
+      'Ecosistema al servizio della Rainforest italiana tramite eventi e condivisione di competenze e relazioni.',
+      'An ecosystem serving the Italian Rainforest through events and the sharing of skills and relationships.',
+    ),
     description: s(
       'Un’iniziativa di Giveback di Rainmakers, senza scopo di lucro, per avvicinare i più giovani al fare impresa e all’innovazione: sensibilizzazione, formazione e attivazione dei futuri imprenditori e innovatori.',
       'A not-for-profit Rainmakers Giveback initiative bringing young people closer to entrepreneurship and innovation: awareness, training and activation of future entrepreneurs and innovators.',
@@ -44,8 +48,8 @@ export const giveback: GivebackInitiative[] = [
     website: null,
     // {rfOrgs}/{rfItaly}: figures from the Italian Rainforest database (content/shared.ts), filled in by TrackRecord
     summary: s(
-      'La mappa dell’ecosistema italiano dell’innovazione: {rfOrgs} organizzazioni mappate, {rfItaly} con sede in Italia.',
-      'The map of Italy’s innovation ecosystem: {rfOrgs} organisations mapped, {rfItaly} based in Italy.',
+      'La mappa ufficiale dell’ecosistema italiano dell’innovazione: {rfOrgs} organizzazioni mappate, {rfItaly} con sede in Italia.',
+      'The official map of Italy’s innovation ecosystem: {rfOrgs} organisations mapped, {rfItaly} based in Italy.',
     ),
     description: s(
       'Senza alcuno scopo di lucro e come giveback (CSR) aziendale, Rainmakers ha creato Italian Rainforest: la rappresentazione più completa e dettagliata possibile dell’ecosistema italiano dell’innovazione, con mappa georeferenziata, database e infografica, per renderlo più trasparente, aperto e interconnesso.',
@@ -65,14 +69,22 @@ export const giveback: GivebackInitiative[] = [
     slug: 'imprenditori-anonimi',
     name: 'Imprenditori anonimi',
     website: null,
-    summary: s(PH.provided, PH.provided),
+    // summary from the 2026-11-23 copy review; the longer description is still to be supplied
+    summary: s(
+      'Gruppo di auto aiuto tra imprenditori che devono risolvere problemi connessi alla propria scelta di vita.',
+      'A self-help group for entrepreneurs facing problems connected with their choice of life.',
+    ),
     description: s(PH.provided, PH.provided),
   },
   {
     slug: 'startup-weekend-italia',
     name: 'Startup Weekend Italia',
     website: null,
-    summary: s(PH.provided, PH.provided),
+    // summary from the 2026-11-23 copy review; the longer description is still to be supplied
+    summary: s(
+      'Iniziativa per dare maggiori risorse, visibilità e coordinamento a tutti gli hackathon per la creazione di nuove imprese in Italia con Startup Weekend.',
+      'An initiative giving more resources, visibility and coordination to all the hackathons for creating new companies in Italy with Startup Weekend.',
+    ),
     description: s(PH.provided, PH.provided),
   },
   {

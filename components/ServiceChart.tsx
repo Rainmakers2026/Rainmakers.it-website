@@ -59,6 +59,8 @@ export function ServiceChart({ structure }: { structure: Pick<WhatCopy['structur
             <div className="org__node">
               <strong>{b.name}</strong>
               <span>{b.tagline}</span>
+              {/* on hover or focus the branch lights up and the word of the purpose it serves appears under it */}
+              <em className="org__purpose">{b.purpose}</em>
             </div>
             <ul className="org__units">
               {b.units.map((unit, j) => (

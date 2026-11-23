@@ -11,7 +11,7 @@ export const track: TrackCopy = {
     { value: '{advisory}', label: 'innovation advisory projects' },
   ],
   tribe: {
-    title: 'Open Venture Building',
+    title: 'Entrepreneurship – Open Venture Building',
     intro: 'Startups created, co-founded or accelerated by Rainmakers.',
     statusLabels: {
       active: 'Portfolio',
@@ -22,13 +22,13 @@ export const track: TrackCopy = {
     dataNote: 'Portfolio status: company overview, May 2025. FTE (partners + employees) and revenue: latest available sheets (2023).',
   },
   giveback: {
-    title: 'Giveback',
+    title: 'Impact – Giveback',
     intro: 'Impact initiatives supporting the Italian Rainforest.',
     typeLabel: 'Giveback',
   },
   advisory: {
-    title: 'Advisory',
-    intro: 'Projects for corporates, investors, associations and institutions.',
+    title: 'Innovation – Advisory',
+    intro: 'Projects supporting the enablers of Italy’s innovation ecosystem.',
     typeLabels: {
       corporate: 'Corporate',
       investor: 'Investors',

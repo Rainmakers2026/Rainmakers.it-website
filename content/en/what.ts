@@ -6,9 +6,9 @@ import type { WhatCopy } from '../types';
  * 2026-11-02): Advisory / Open Venture Building / Giveback. Units: descriptions from the company overview (May 2025).
  */
 export const what: WhatCopy = {
-  eyebrow: 'Italian innovation platform',
+  eyebrow: 'Our activities',
   title: 'What Rainmakers does',
-  lead: 'We make large companies innovative with innovation advisory, and innovative companies large with open venture building. Since 2011 we have built synergistic, complementary business units to make innovation happen in Italy: an integrated innovation ecosystem that helps companies grow, inside and outside Rainmakers.',
+  lead: 'We make large companies innovative with innovation advisory, and innovative companies large with open venture building. The fruits of this work are also shared with the Italian Rainforest through our giveback initiatives. Since 2011 we have built synergistic, complementary activities to make innovation happen in Italy: an integrated innovation ecosystem that helps companies grow, inside and outside Rainmakers.',
   stats: [
     { value: '10+', label: 'Giveback initiatives' },
     { value: '30+', label: 'startups launched in every sector' },
@@ -28,6 +28,7 @@ export const what: WhatCopy = {
         key: 'giveback',
         name: 'Giveback',
         tagline: 'Our CSR',
+        purpose: 'impact',
         // 2026-11-16: three categories of initiatives instead of the single initiatives (still shown as track record
         // cards); team copy. 2026-11-18: popups explained better (lead and points) at the team's request, from the
         // Foundation sheet of the founder portfolio and the initiative descriptions (content/data/giveback.ts)
@@ -75,14 +76,15 @@ export const what: WhatCopy = {
         key: 'builder',
         name: 'Open Venture Building',
         tagline: 'We make innovative companies large',
+        purpose: 'entrepreneurship',
         units: [
           {
             name: 'Accelerator',
             text: 'Venture acceleration for startups after product-market fit.',
             brand: 'Rainmakers Accelerator',
-            lead: 'Since 2011 we have created, co-founded or accelerated many startups: after {exits} exits, our holdings make up the Tribe, a portfolio of startups bringing meaningful innovation to our Country, People and the Planet.',
+            lead: 'Since 2011 we have created, co-founded or accelerated 30+ startups: after {exits} exits, our startups together make up the Tribe, our tribe of Rainmakers bringing meaningful innovation to our Country, People and the Planet.',
             points: [
-              'Skills, relationships and services to grow after product-market fit',
+              'Skills, relationships and “scaling as a service” to help startups grow after product-market fit',
               'A place in the Tribe and its network of founders',
               'Active support for incubators, accelerators and operational VCs growing the Italian Rainforest',
             ],
@@ -92,14 +94,14 @@ export const what: WhatCopy = {
             name: 'Builder',
             text: 'Venture building for in-house projects.',
             brand: 'Rainmakers Builder',
-            lead: 'We provide “as a service” everything a startup needs to grow in a scalable way: with “scaling as a service” we turn a valuable idea into a successful company.',
+            lead: 'We provide “as a service”, to our own startups and to others, everything a startup needs to grow in a scalable way: with “scaling as a service” we turn a valuable idea into a successful company.',
             points: [
               'Strategy, marketing, sales, fundraising, finance, IT, legal and HR',
               'Open venture building: in-house projects, from idea to company',
               'Meaningful business: strong impact on the innovation ecosystem and on at least one of the 3 Ps',
               'Startup know-how and know-who as a competitive edge',
             ],
-            examples: ['Dottor Startup', 'Renditalia'],
+            examples: ['Chi Odia Paga', 'Dottor Startup', 'Renditalia'],
             cta: { label: 'Send your pitch', path: 'startup' },
           },
         ],
@@ -108,6 +110,7 @@ export const what: WhatCopy = {
         key: 'advisory',
         name: 'Advisory',
         tagline: 'We make large companies innovative',
+        purpose: 'innovation',
         units: [
           {
             name: 'Innovation',
@@ -152,7 +155,7 @@ export const what: WhatCopy = {
     pillars: [
       { title: 'Our country', text: 'Innovative Made in Italy and sectors that are strategic for Italy.' },
       { title: 'People', text: 'Services for people that improve everyday life.' },
-      { title: 'The planet', text: 'Cleantech, energy efficiency and the circular economy.' },
+      { title: 'The planet', text: 'Innovation in the service of the Earth, energy efficiency and the circular economy.' },
     ],
   },
   giveback: {

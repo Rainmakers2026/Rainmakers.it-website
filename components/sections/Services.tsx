@@ -29,7 +29,7 @@ export function Services({ dict }: { dict: Dictionary }) {
     <section id={SECTION_IDS.services} className="section section--base org-section" aria-labelledby="org-title">
       <div className="container">
         <div className="what__top">
-          <SectionHeader title={w.title} intro={w.lead} id="org-title" />
+          <SectionHeader eyebrow={w.eyebrow} title={w.title} intro={w.lead} id="org-title" />
           <dl className="what__stats">
             {w.stats.map((st, i) => (
               <div key={st.label} className="what__stat reveal" style={cssVars({ '--i': i })}>

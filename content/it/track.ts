@@ -11,7 +11,7 @@ export const track: TrackCopy = {
     { value: '{advisory}', label: 'progetti di innovation advisory' },
   ],
   tribe: {
-    title: 'Open Venture Building',
+    title: 'Imprenditoria – Open Venture Building',
     intro: 'Le startup create, co-fondate o accelerate da Rainmakers.',
     statusLabels: {
       active: 'Partecipata',
@@ -22,13 +22,13 @@ export const track: TrackCopy = {
     dataNote: 'Stato del portafoglio: company overview, maggio 2025. FTE (soci + dipendenti) e fatturato: ultime schede disponibili (2023).',
   },
   giveback: {
-    title: 'Giveback',
+    title: 'Impatto – Giveback',
     intro: 'Iniziative impact a supporto della Rainforest italiana.',
     typeLabel: 'Giveback',
   },
   advisory: {
-    title: 'Advisory',
-    intro: 'Progetti per corporate, investitori, associazioni e istituzioni.',
+    title: 'Innovazione – Advisory',
+    intro: 'Progetti a supporto degli abilitatori dell’ecosistema italiano dell’innovazione.',
     typeLabels: {
       corporate: 'Corporate',
       investor: 'Investitori',

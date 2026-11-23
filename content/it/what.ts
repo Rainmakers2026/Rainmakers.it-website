@@ -6,14 +6,14 @@ import type { WhatCopy } from '../types';
  * 2026-11-02): Advisory / Open Venture Building / Giveback. Unità: descrizioni dal company overview (maggio 2025).
  */
 export const what: WhatCopy = {
-  eyebrow: 'Italian innovation platform',
+  eyebrow: 'Le nostre attività',
   title: 'Cosa fa Rainmakers',
-  lead: 'Rendiamo innovative le grandi aziende con innovation advisory e grandi le aziende innovative con open venture building. Dal 2011 abbiamo sviluppato business unit sinergiche e complementari per far accadere l’innovazione in Italia: un innovation ecosystem integrato per far crescere le aziende, dentro e fuori Rainmakers.',
+  lead: 'Rendiamo innovative le grandi aziende con l’innovation advisory e grandi le aziende innovative con l’open venture building. I frutti di queste attività sono condivisi anche con la Rainforest italiana tramite le nostre iniziative di giveback. Dal 2011 abbiamo sviluppato attività sinergiche e complementari per far accadere l’innovazione in Italia: un innovation ecosystem integrato per far crescere le aziende, dentro e fuori Rainmakers.',
   stats: [
     { value: '10+', label: 'iniziative di Giveback' },
-    { value: '30+', label: 'startup lanciate in ogni settore' },
+    { value: '30+', label: 'Startup lanciate in ogni settore' },
     { value: '40+', label: 'progetti di innovation advisory' },
-    { value: '15', label: 'anni di meaningful innovation' },
+    { value: '15', label: 'anni di Meaningful Innovation' },
   ],
   // Capital (Venture) tolto e Foundation diventata Giveback il 2026-10-27; la unit Club era stata tolta il 2026-10-26;
   // 2026-11-10: ordine Giveback → Open Venture Building → Advisory, Italian Rainforest terza unit del Giveback
@@ -28,6 +28,7 @@ export const what: WhatCopy = {
         key: 'giveback',
         name: 'Giveback',
         tagline: 'La nostra CSR',
+        purpose: 'impatto',
         // 2026-11-16: tre categorie di iniziative al posto delle singole iniziative (che restano come card nel track
         // record); testi del team. 2026-11-18: popup spiegati meglio (introduzione e punti) su richiesta del team, dalla
         // scheda Foundation del portfolio del founder e dalle descrizioni delle iniziative (content/data/giveback.ts)
@@ -75,14 +76,15 @@ export const what: WhatCopy = {
         key: 'builder',
         name: 'Open Venture Building',
         tagline: 'Rendiamo grandi le aziende innovative',
+        purpose: 'imprenditoria',
         units: [
           {
             name: 'Accelerator',
             text: 'Venture acceleration per startup dopo il product market fit.',
             brand: 'Rainmakers Accelerator',
-            lead: 'Dal 2011 abbiamo creato, co-fondato o accelerato numerose startup: dopo {exits} exit, le nostre partecipazioni formano la Tribe, il portafoglio di startup che portano meaningful innovation al Paese, alle Persone e al Pianeta.',
+            lead: 'Dal 2011 abbiamo creato, co-fondato o accelerato 30+ startup: dopo {exits} exit, le nostre startup formano insieme la Tribe, la nostra Tribù di Rainmaker che portano la meaningful innovation al Paese, alle Persone e al Pianeta.',
             points: [
-              'Competenze, relazioni e servizi per crescere dopo il product market fit',
+              'Competenze, relazioni e servizi di “scaling as a service” per far crescere le startup dopo il product market fit',
               'L’ingresso nella Tribe e nella sua rete di founder',
               'Il supporto attivo a incubatori, acceleratori e operational VC che fanno crescere la Rainforest italiana',
             ],
@@ -92,14 +94,14 @@ export const what: WhatCopy = {
             name: 'Builder',
             text: 'Venture building per progetti interni.',
             brand: 'Rainmakers Builder',
-            lead: 'Forniamo “as a service” tutto ciò che serve a una startup per crescere in modo scalabile: con lo “scaling as a service” trasformiamo un’idea di valore in un’impresa di successo.',
+            lead: 'Forniamo “as a service” alle startup nostre e di altri tutto ciò che serve a una startup per crescere in modo scalabile: con lo “scaling as a service” trasformiamo un’idea di valore in un’impresa di successo.',
             points: [
               'Strategy, marketing, sales, fundraising, finance, IT, legal e HR',
               'Open venture building: progetti interni, dall’idea all’impresa',
               'Meaningful business: forte impatto sull’ecosistema dell’innovazione e su almeno una delle 3 P',
               'Il know-how e il know-who del mondo startup come vantaggio competitivo',
             ],
-            examples: ['Dottor Startup', 'Renditalia'],
+            examples: ['Chi Odia Paga', 'Dottor Startup', 'Renditalia'],
             cta: { label: 'Invia il pitch', path: 'startup' },
           },
         ],
@@ -108,6 +110,7 @@ export const what: WhatCopy = {
         key: 'advisory',
         name: 'Advisory',
         tagline: 'Rendiamo innovative le grandi aziende',
+        purpose: 'innovazione',
         units: [
           {
             name: 'Innovation',
@@ -142,7 +145,7 @@ export const what: WhatCopy = {
   },
   meaningful: {
     title: 'Meaningful innovation.',
-    text: 'Rainmakers si occupa solo di meaningful innovation: tecnologia al servizio di uno scopo che conta davvero. È il nostro modo di fare impresa, in tre parole che tornano sempre.',
+    text: 'Rainmakers si occupa solo di meaningful innovation: tecnologia al servizio di uno scopo che conta davvero. È il nostro modo di fare impresa, in tre parole che tornano sempre:',
     motto: [
       ['Il', 'bene,'],
       ['fatto', 'bene,'],
@@ -152,7 +155,7 @@ export const what: WhatCopy = {
     pillars: [
       { title: 'Paese', text: 'Innovative Made in Italy e settori strategici per l’Italia.' },
       { title: 'Persone', text: 'Servizi alla persona, che migliorano la vita di tutti i giorni.' },
-      { title: 'Pianeta', text: 'Cleantech, efficienza energetica ed economia circolare.' },
+      { title: 'Pianeta', text: 'Innovazione al servizio della Terra, efficienza energetica ed economia circolare.' },
     ],
   },
   giveback: {

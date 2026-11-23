@@ -5,19 +5,23 @@
  */
 export type ClientType = 'corporate' | 'investor' | 'association' | 'institution' | 'third_sector';
 
+/**
+ * Projects added in the 2026-11-23 copy review come with a one-line summary only: project name, client type, location,
+ * year, impact and description are left out (null) until the team supplies them, rather than invented.
+ */
 export interface AdvisoryProject {
   slug: string;
   client: string;
-  project: string;
-  type: ClientType;
+  project: string | null;
+  type: ClientType | null;
   /** Client type exactly as written on the sheet */
-  typeLabel: { it: string; en: string };
+  typeLabel: { it: string; en: string } | null;
   website: string | null;
-  location: string;
-  year: number;
+  location: string | null;
+  year: number | null;
   summary: { it: string; en: string };
-  impact: { it: string; en: string };
-  description: { it: string; en: string };
+  impact: { it: string; en: string } | null;
+  description: { it: string; en: string } | null;
   /** True when the impact is under NDA or still in progress */
   impactUndisclosed?: boolean;
 }
@@ -46,7 +50,7 @@ export const advisory: AdvisoryProject[] = [
     website: null, // 2026-11-18: domain parked (was 360by360competiton.com, misspelled; 360by360competition.com is parked too)
     location: 'Torino / Milano',
     year: 2013,
-    summary: s('Ideazione e gestione “chiavi in mano” dell’unica startup competition promossa da un VC in Italia.', 'Turnkey design and management of the only startup competition run by a VC in Italy.'),
+    summary: s('Ideazione e gestione “chiavi in mano” della prima startup competition promossa da un VC in Italia.', 'Turnkey design and management of the first startup competition run by a VC in Italy.'),
     impact: s('700+ startup analizzate, 2+ investite nelle 2 edizioni', '700+ startups analysed, 2+ invested in over 2 editions'),
     description: s(
       'Per uno dei principali fondi VC italo-francesi abbiamo ideato e gestito 360 by 360, la prima startup competition fatta da un VC in Italia: 300+ startup alla prima edizione, 400+ alla seconda.',
@@ -78,7 +82,7 @@ export const advisory: AdvisoryProject[] = [
     website: 'https://www.antea.tech',
     location: 'Canada',
     year: 2023,
-    summary: s('Scouting tecnologico di software manutentivi per l’oil & gas.', 'Technology scouting of maintenance software for oil & gas.'),
+    summary: s('Scouting tecnologico a livello mondiale di software manutentivi per l’oil & gas.', 'Worldwide technology scouting of maintenance software for oil & gas.'),
     impact: s('100+ startup in target individuate', '100+ target startups identified'),
     description: s(
       'Database di 100+ startup di software manutentivi per l’oil & gas (RCM, FMEA, FMECA, RCA, reliability e predictive maintenance), su cui il cliente ha poi gestito in autonomia contatti e negoziazioni.',
@@ -383,7 +387,7 @@ export const advisory: AdvisoryProject[] = [
     website: 'https://mamacrowd.com',
     location: 'Milano',
     year: 2023,
-    summary: s('Ecosistema di partner a supporto del dealflow della piattaforma di crowdfunding.', 'A partner ecosystem feeding the crowdfunding platform’s dealflow.'),
+    summary: s('Creazione di un ecosistema di partner a supporto del dealflow della piattaforma di crowdfunding.', 'Building a partner ecosystem feeding the crowdfunding platform’s dealflow.'),
     impact: WIP,
     impactUndisclosed: true,
     description: s(
@@ -487,4 +491,34 @@ export const advisory: AdvisoryProject[] = [
       'For the leading Italian third-sector publication we are developing a “startup on demand” for the digital transformation of non-profits.',
     ),
   },
+
+  // ───────────── Added in the 2026-11-23 copy review: summary only, no logo or website on record yet ─────────────
+  ...(
+    [
+      ['almacube', 'Almacube', s('Advisory a supporto dello sviluppo dell’innovazione dell’Università di Bologna.', 'Advisory supporting the development of innovation at the University of Bologna.')],
+      ['anatomage', 'Anatomage', s('Scouting tecnologico di startup a livello europeo nel settore VR e AR applicate in ambito medicale.', 'Europe-wide technology scouting of startups in VR and AR applied to medicine.')],
+      ['azimut-libera-impresa', 'Azimut Libera Impresa', s('Supporto nella gestione delle startup in portfolio.', 'Support in managing its portfolio startups.')],
+      ['blackship', 'Blackship', s('Advisory nella diffusione delle competenze di vendita B2B tra le startup italiane.', 'Advisory on spreading B2B sales skills among Italian startups.')],
+      ['feltrinelli-education', 'Feltrinelli Education', s('Supporto nella creazione di contenuti formativi per aspiranti imprenditori.', 'Support in creating training content for aspiring entrepreneurs.')],
+      ['real-bowl', 'Real Bowl', s('Fundraising advisory nei round in fase pre-seed e seed.', 'Fundraising advisory for its pre-seed and seed rounds.')],
+      ['startup-bakery', 'Startup Bakery', s('Fundraising advisory nei round in fase pre-seed e seed di alcune startup del venture builder.', 'Fundraising advisory for the pre-seed and seed rounds of some of the venture builder’s startups.')],
+    ] as const
+  ).map(
+    ([slug, client, summary]): AdvisoryProject => ({
+      slug,
+      client,
+      project: null,
+      type: null,
+      typeLabel: null,
+      website: null,
+      location: null,
+      year: null,
+      summary,
+      impact: null,
+      description: null,
+    }),
+  ),
 ];
+
+/** Shown although they have no logo or website on record yet (listed in the 2026-11-23 copy review) */
+export const advisoryListedInCopy = new Set(['almacube', 'anatomage', 'azimut-libera-impresa', 'blackship', 'feltrinelli-education', 'real-bowl', 'startup-bakery']);

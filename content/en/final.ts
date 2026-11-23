@@ -34,7 +34,7 @@ export const final: FinalCopy = {
   },
   newsletter: {
     eyebrow: 'The Rainmakers newsletter',
-    title: 'Opportunities don’t fall from the sky.',
+    title: 'Sometimes opportunities rain from the sky.',
     titleAccent: 'Drops of innovation.',
     lead: 'Once a month, a few drops picked by the Rainmakers team: just enough to help your ideas grow and keep you one step ahead.',
     perks: [

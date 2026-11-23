@@ -8706,3 +8706,60 @@ main > section[id],
     max-width: none;
   }
 }
+
+/* ==========================================================================
+   Copy review of 2026-11-23
+   ========================================================================== */
+
+/* --- "Cosa fa Rainmakers" chart: on hover (or keyboard focus) a branch lights up and the word of the purpose it
+   serves appears under it, in the blue that word has in the hero title (impatto, imprenditoria, innovazione) --- */
+.org__node {
+  position: relative;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), filter 0.35s;
+}
+.org__purpose {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -6px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+  pointer-events: none;
+}
+.org__branch--giveback .org__purpose { color: #5b8ff0; }
+.org__branch--builder .org__purpose { color: #3aa2e0; }
+.org__branch--advisory .org__purpose { color: #2596be; }
+.org__branch:hover .org__node,
+.org__branch:focus-within .org__node {
+  transform: scale(1.05);
+  filter: brightness(1.12);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 18px 40px -14px rgba(91, 143, 240, 0.95);
+}
+.org__branch:hover .org__purpose,
+.org__branch:focus-within .org__purpose {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+/* one column: the word sits to the right of the box, not over the units below it */
+@media (max-width: 960px) {
+  .org__purpose {
+    left: calc(100% + 14px);
+    top: 50%;
+    transform: translate(-6px, -50%);
+  }
+  .org__branch:hover .org__purpose,
+  .org__branch:focus-within .org__purpose {
+    transform: translate(0, -50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .org__node,
+  .org__purpose {
+    transition: none;
+  }
+}

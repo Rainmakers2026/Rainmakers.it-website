@@ -1,6 +1,7 @@
 /**
- * Browser-tab icon (app/icon.png, 2026-11-17): the Rainmakers umbrella and ring in the brand blue (#4b61d1, --c-indigo,
- * the colour of the official logo) on a white disc; transparent outside the circle, so no corners show on the tab.
+ * Browser-tab icon (app/icon.png): the Rainmakers umbrella and ring in white on a disc of the brand blue (#4b61d1,
+ * --c-indigo, the colour of the official logo; copy review 2026-11-23, before: blue on white); transparent outside the
+ * circle, so no corners show on the tab.
  * Source: assets-src/favicon/icon-source.png (white umbrella and ring on navy, the ring touching the edges).
  * Run: node scripts/generate-favicon.cjs
  */
@@ -24,13 +25,13 @@ const root = path.join(__dirname, '..');
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = y * w + x;
-      // ink: white parts of the source (umbrella, ring) → blue; navy background → white
+      // ink: white parts of the source (umbrella, ring) stay white; navy background → brand blue
       const lum = data[i * channels];
       const ink = Math.max(0, Math.min(1, (lum - 20) / 215));
       // antialiased disc edge
       const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy);
       const cover = Math.max(0, Math.min(1, r - d + 0.5));
-      for (let c = 0; c < 3; c++) out[i * 4 + c] = Math.round(255 + (BLUE[c] - 255) * ink);
+      for (let c = 0; c < 3; c++) out[i * 4 + c] = Math.round(BLUE[c] + (255 - BLUE[c]) * ink);
       out[i * 4 + 3] = Math.round(cover * 255);
     }
   }

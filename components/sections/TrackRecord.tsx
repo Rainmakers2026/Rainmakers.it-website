@@ -1,7 +1,7 @@
 import type { Dictionary, Locale } from '@/content/types';
 import { SECTION_IDS } from '@/content/types';
 import { tribe } from '@/content/data/tribe';
-import { advisory, type AdvisoryProject } from '@/content/data/advisory';
+import { advisory, advisoryListedInCopy, type AdvisoryProject } from '@/content/data/advisory';
 import { giveback } from '@/content/data/giveback';
 import { isPlaceholder } from '@/content/governance';
 import { advisoryLogoFiles, givebackLogoFiles, logoBox, tribeLogoFiles, whiteLogo } from '@/content/data/logos';
@@ -28,10 +28,28 @@ function sized(file: string | undefined): SizedLogo | undefined {
 /** Shown on request although their website is not on record yet (2026-11-10). */
 const SHOWN_WITHOUT_WEBSITE = new Set(['buy-buy-shop']);
 /**
+ * Listed in the 2026-11-23 copy review: shown even without a logo (white wordmark) or a website on record (the last
+ * four were hidden on 2026-11-18 when their website stopped resolving).
+ */
+const LISTED_IN_COPY = new Set([
+  'coppa-landini',
+  'robo-for-it',
+  'this-is-not-a-sushi-bar',
+  '360-capital',
+  'intesa-adottup',
+  'crowdchicken',
+  'impactscool',
+  'mercurion',
+  'sano-e-sazio',
+  'startuphome',
+  'unconventional-road',
+  ...advisoryListedInCopy,
+]);
+/**
  * Temporarily hidden (team request, 2026-10-16): companies without a verified website or logo.
  * Remove this filter once their website and logo have been confirmed.
  */
-const verified = (i: LogoCardItem) => !!i.logo && (!!i.url || SHOWN_WITHOUT_WEBSITE.has(i.id));
+const verified = (i: LogoCardItem) => LISTED_IN_COPY.has(i.id) || (!!i.logo && (!!i.url || SHOWN_WITHOUT_WEBSITE.has(i.id)));
 
 /** Alphabetical order. */
 function tribeItems(dict: Dictionary, locale: Locale): LogoCardItem[] {
@@ -102,29 +120,28 @@ function advisoryItems(dict: Dictionary, locale: Locale): LogoCardItem[] {
   const t = dict.track;
   const f = t.explorer.fields;
   return [...advisory]
-    .sort((a, b) => byName(a.client, b.client) || byName(a.project, b.project))
+    .sort((a, b) => byName(a.client, b.client) || byName(a.project ?? '', b.project ?? ''))
     .map((p: AdvisoryProject): LogoCardItem => ({
       id: p.slug,
-      name: `${p.client} — ${p.project}`,
+      name: p.project ? `${p.client} — ${p.project}` : p.client,
       wordmark: p.client,
       logo: sized(advisoryLogoFiles[p.slug]),
-      tag: p.typeLabel[locale],
+      tag: p.typeLabel?.[locale],
       summary: p.summary[locale],
+      // projects added with a summary only (2026-11-23) show just the facts on record
       sections: [
-        {
-          icon: 'document',
-          title: `${t.cards.project}: ${p.project}`,
-          text: [p.description[locale]],
-        },
-        { icon: 'team', title: t.cards.impact, text: [p.impact[locale]] },
+        ...(p.description
+          ? [{ icon: 'document' as const, title: p.project ? `${t.cards.project}: ${p.project}` : t.cards.project, text: [p.description[locale]] }]
+          : []),
+        ...(p.impact ? [{ icon: 'team' as const, title: t.cards.impact, text: [p.impact[locale]] }] : []),
         {
           icon: 'chart',
           title: t.cards.keyFacts,
           facts: [
             { label: f.client, value: p.client },
-            { label: f.type, value: p.typeLabel[locale] },
-            { label: f.location, value: p.location },
-            { label: f.year, value: String(p.year) },
+            ...(p.typeLabel ? [{ label: f.type, value: p.typeLabel[locale] }] : []),
+            ...(p.location ? [{ label: f.location, value: p.location }] : []),
+            ...(p.year ? [{ label: f.year, value: String(p.year) }] : []),
             ...(p.website ? [{ label: t.explorer.website, value: host(p.website) }] : []),
           ],
         },

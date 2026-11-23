@@ -108,6 +108,8 @@ export interface HeroCopy {
 
 /** Why Rainmakers: the benefits for an entrepreneur (PRD §5.3 step 2). */
 export interface BenefitsCopy {
+  /** Small label above the title ("Il nostro metodo", copy review 2026-11-23) */
+  eyebrow: string;
   title: string;
   /** Explicit, quotable entity definition for search & answer engines (PRD §17.4). */
   definition: string;
@@ -273,7 +275,8 @@ export interface WhatCopy {
     /** Close button of the popup */
     close: string;
     /** Branches in chart order */
-    branches: { key: 'advisory' | 'builder' | 'giveback'; name: string; tagline: string; units: ServiceUnit[] }[];
+    /** purpose: the word of the hero claim the branch stands for, shown under it on hover (impatto, imprenditoria, innovazione) */
+    branches: { key: 'advisory' | 'builder' | 'giveback'; name: string; tagline: string; purpose: string; units: ServiceUnit[] }[];
   };
   meaningful: {
     title: string;
