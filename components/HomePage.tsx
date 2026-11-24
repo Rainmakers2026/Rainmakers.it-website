@@ -45,7 +45,7 @@ export function HomePage({ dict, locale }: { dict: Dictionary; locale: Locale })
         <Founder dict={dict} locale={locale} />
         <TrackRecord dict={dict} locale={locale} />
         <Reviews dict={dict} />
-        <LogoMarquee logos={bannerLogos} reverse />
+        <LogoMarquee logos={bannerLogos} />
         <FinalCta dict={dict} locale={locale} />
       </main>
       <Footer dict={dict} locale={locale} />
