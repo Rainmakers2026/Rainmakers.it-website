@@ -41,7 +41,7 @@ export function Founder({ dict, locale }: { dict: Dictionary; locale: Locale }) 
         </div>
         <div className="founder-section__media">
           <figure className="founder-video reveal">
-            <YouTubeFacade videoId={founderProfile.videoId} title={f.video.title} play={f.video.play} locale={locale} />
+            <YouTubeFacade videoId={founderProfile.videoId} title={f.video.title} play={f.video.play} locale={locale} autoplayInView />
             <figcaption>{f.video.caption}</figcaption>
           </figure>
           <div className="founder-id reveal">

@@ -81,34 +81,33 @@ export const rainforest = {
    */
   background: null as string | null,
   /**
-   * Italian Rainforest figures (VERIFIED, dated). Since 2026-11-17 computed from the team's updated database
-   * ("DB - Rainmakers OS.csv"): ecosystem organisations only (startups excluded), INACTIVE rows and duplicate names
-   * removed; "italy" = organisations whose REGION is an Italian region. Categories follow PLAYER TYPE (an organisation
-   * with two types counts in both). Update `asOf` and the numbers at each release.
-   * 2026-11-21: recomputed from the new export ("DB - Rainmakers OS (1).csv"); the 7 rows with the new PLAYER TYPE
-   * "INVESTOR" (added from Chelonia Italia) are shown as "Altri investitori".
+   * Italian Rainforest figures (VERIFIED, dated), computed from the team's database export. Method: ecosystem
+   * organisations only (MAIN TYPE "STARTUP" or empty excluded), INACTIVE rows and duplicate names removed (first row
+   * kept); "italy" = organisations whose REGION is an Italian region. Update `asOf` and the numbers at each release.
+   * 2026-11-24: recomputed from "DB - Rainmakers OS (3).csv", which replaces PLAYER TYPE with MAIN TYPE / SECONDARY
+   * TYPE; categories now follow MAIN TYPE only, so each organisation counts once and the categories add up to the total.
    */
   stats: {
     status: 'VERIFIED' as const,
-    asOf: '2026-11-21',
-    activeOrganisations: 633,
-    italy: 473,
+    asOf: '2026-11-24',
+    activeOrganisations: 777,
+    italy: 492,
     categories: [
-      { key: 'studios', count: 191 },
       { key: 'vc', count: 160 },
-      { key: 'incubators', count: 101 },
-      { key: 'pst', count: 52 },
-      { key: 'coworking', count: 34 },
-      { key: 'associations', count: 28 },
-      { key: 'angels', count: 15 },
-      { key: 'media', count: 13 },
-      { key: 'crowdfunding', count: 13 },
-      { key: 'cvc', count: 10 },
-      { key: 'investors', count: 7 },
-      { key: 'training', count: 5 },
-      { key: 'institutions', count: 4 },
-      { key: 'familyOffices', count: 3 },
-      { key: 'programs', count: 2 },
+      { key: 'incubators', count: 152 },
+      { key: 'associations', count: 86 },
+      { key: 'media', count: 74 },
+      { key: 'pst', count: 56 },
+      { key: 'studios', count: 53 },
+      { key: 'institutions', count: 36 },
+      { key: 'angels', count: 35 },
+      { key: 'coworking', count: 33 },
+      { key: 'cvc', count: 26 },
+      { key: 'training', count: 25 },
+      { key: 'crowdfunding', count: 19 },
+      { key: 'privateTraining', count: 9 },
+      { key: 'familyOffices', count: 8 },
+      { key: 'banks', count: 5 },
     ],
   },
 } as const;
