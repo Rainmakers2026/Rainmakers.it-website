@@ -84,31 +84,32 @@ export const rainforest = {
    * Italian Rainforest figures (VERIFIED, dated), computed from the team's database export. Method: ecosystem
    * organisations only (MAIN TYPE "STARTUP" or empty excluded), INACTIVE rows and duplicate names removed (first row
    * kept); "italy" = organisations whose REGION is an Italian region. Update `asOf` and the numbers at each release.
-   * 2026-11-25: recomputed from "DB_Rainmakers_OS_gmaps_completed.csv" (same figures as "DB - Rainmakers OS (6).csv":
-   * more organisations with an Italian REGION; categories unchanged). 2026-11-24: recomputed from "DB - Rainmakers OS (3).csv", which replaces PLAYER TYPE with MAIN TYPE / SECONDARY
+   * 2026-11-25 (2): recomputed from "DB - Rainmakers OS.csv" (1,594 rows; 783 ecosystem organisations after removing
+   * 1 INACTIVE row and 40 duplicate names; 527 with an Italian REGION). Earlier the same day: "DB_Rainmakers_OS_gmaps_completed.csv"
+   * (777 / 512). 2026-11-24: recomputed from "DB - Rainmakers OS (3).csv", which replaces PLAYER TYPE with MAIN TYPE / SECONDARY
    * TYPE; categories now follow MAIN TYPE only, so each organisation counts once and the categories add up to the total.
    */
   stats: {
     status: 'VERIFIED' as const,
     asOf: '2026-11-25',
-    activeOrganisations: 777,
-    italy: 512,
+    activeOrganisations: 783,
+    italy: 527,
     categories: [
-      { key: 'vc', count: 160 },
-      { key: 'incubators', count: 152 },
-      { key: 'associations', count: 86 },
-      { key: 'media', count: 74 },
+      { key: 'vc', count: 159 },
+      { key: 'incubators', count: 154 },
+      { key: 'associations', count: 83 },
+      { key: 'media', count: 73 },
       { key: 'pst', count: 56 },
       { key: 'studios', count: 53 },
+      { key: 'angels', count: 44 },
       { key: 'institutions', count: 36 },
-      { key: 'angels', count: 35 },
       { key: 'coworking', count: 33 },
       { key: 'cvc', count: 26 },
       { key: 'training', count: 25 },
-      { key: 'crowdfunding', count: 19 },
+      { key: 'crowdfunding', count: 18 },
       { key: 'privateTraining', count: 9 },
       { key: 'familyOffices', count: 8 },
-      { key: 'banks', count: 5 },
+      { key: 'banks', count: 6 },
     ],
   },
 } as const;
