@@ -31,7 +31,7 @@ export function formatDate(iso: string, locale: Locale) {
 
 /**
  * Counts derived from the data files, so copy never drifts from the data ({exits}, {active}, {advisory}); {rfOrgs} and
- * {rfItaly} are the Italian Rainforest database figures (content/shared.ts → rainforest.stats, updated 2026-11-24).
+ * {rfItaly} are the Italian Rainforest database figures (content/shared.ts → rainforest.stats, updated 2026-11-25).
  */
 const tokens: Record<string, () => string> = {
   exits: () => String(tribeStats.exits),

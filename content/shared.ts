@@ -84,14 +84,15 @@ export const rainforest = {
    * Italian Rainforest figures (VERIFIED, dated), computed from the team's database export. Method: ecosystem
    * organisations only (MAIN TYPE "STARTUP" or empty excluded), INACTIVE rows and duplicate names removed (first row
    * kept); "italy" = organisations whose REGION is an Italian region. Update `asOf` and the numbers at each release.
-   * 2026-11-24: recomputed from "DB - Rainmakers OS (3).csv", which replaces PLAYER TYPE with MAIN TYPE / SECONDARY
+   * 2026-11-25: recomputed from "DB_Rainmakers_OS_gmaps_completed.csv" (same figures as "DB - Rainmakers OS (6).csv":
+   * more organisations with an Italian REGION; categories unchanged). 2026-11-24: recomputed from "DB - Rainmakers OS (3).csv", which replaces PLAYER TYPE with MAIN TYPE / SECONDARY
    * TYPE; categories now follow MAIN TYPE only, so each organisation counts once and the categories add up to the total.
    */
   stats: {
     status: 'VERIFIED' as const,
-    asOf: '2026-11-24',
+    asOf: '2026-11-25',
     activeOrganisations: 777,
-    italy: 492,
+    italy: 512,
     categories: [
       { key: 'vc', count: 160 },
       { key: 'incubators', count: 152 },
