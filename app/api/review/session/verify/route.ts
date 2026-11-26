@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { guard, json, readJson } from '@/lib/api/guard';
 import { anonConfig, signOut, verifySignInCode } from '@/lib/review/auth';
-import { getMembership, respond, sessionCookies } from '@/lib/review/session';
+import { getMembership, respond, sessionCookies, userIdFromAccessToken } from '@/lib/review/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,5 +33,10 @@ export async function POST(req: Request) {
     await signOut(verified.data.access_token);
     return json({ ok: false, error: 'not_team' }, 403);
   }
-  return respond({ ok: true, email: membership.member.email, role: membership.member.role }, 200, sessionCookies(verified.data));
+  const userId = verified.data.user?.id ?? userIdFromAccessToken(verified.data.access_token);
+  if (!userId) {
+    await signOut(verified.data.access_token);
+    return json({ ok: false, error: 'error' }, 500);
+  }
+  return respond({ ok: true, userId, email: membership.member.email, role: membership.member.role }, 200, sessionCookies(verified.data));
 }

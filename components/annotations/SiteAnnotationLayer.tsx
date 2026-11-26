@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type MouseEvent as ReactMouseEvent } from 'react';
+import posthog from 'posthog-js';
 import { reviewCopy } from './copy';
 import { anchorFor, currentPage, positionOf, type Anchor } from './anchors';
 
@@ -21,7 +22,7 @@ interface Note {
   created_at: string;
   updated_at: string;
 }
-type Me = { email: string; role: 'editor' | 'admin' };
+type Me = { userId: string; email: string; role: 'editor' | 'admin' };
 type Auth = 'loading' | 'signed_out' | 'not_configured' | Me;
 
 const json = (body: unknown) => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -55,6 +56,7 @@ export default function SiteAnnotationLayer({ onExit }: { onExit: () => void }) 
   const check = useCallback(
     (res: Response) => {
       if (res.status === 401) {
+        posthog.reset();
         setAuth('signed_out');
         setNotes([]);
         setMessage(t.sessionExpired);
@@ -95,6 +97,11 @@ export default function SiteAnnotationLayer({ onExit }: { onExit: () => void }) 
   useEffect(() => {
     if (me) void loadNotes();
   }, [me, loadNotes]);
+
+  useEffect(() => {
+    if (!me) return;
+    posthog.identify(me.userId, { email: me.email, role: me.role });
+  }, [me]);
 
   // Pin positions follow the content (resize, fonts, lazy content…)
   const visible = useMemo(() => notes.filter((n) => filter === 'all' || n.status === 'open'), [notes, filter]);
@@ -161,6 +168,7 @@ export default function SiteAnnotationLayer({ onExit }: { onExit: () => void }) 
       if (check(res)) {
         const { item } = (await res.json()) as { item: Note };
         setNotes((list) => [...list, item]);
+        posthog.capture('review_annotation_created', { locale });
         setDraft(null);
         setSelected(item.id);
         setPanelOpen(true);
@@ -179,6 +187,7 @@ export default function SiteAnnotationLayer({ onExit }: { onExit: () => void }) 
       if (check(res)) {
         const { item } = (await res.json()) as { item: Note };
         setNotes((list) => list.map((n) => (n.id === id ? item : n)));
+        posthog.capture('review_annotation_updated', { action: body.status ? 'status_changed' : 'content_edited' });
         setEditing(null);
       }
     } catch {
@@ -192,7 +201,10 @@ export default function SiteAnnotationLayer({ onExit }: { onExit: () => void }) 
     setBusy(true);
     try {
       const res = await fetch(`/api/annotations/${id}`, { method: 'DELETE' });
-      if (check(res)) setNotes((list) => list.filter((n) => n.id !== id));
+      if (check(res)) {
+        setNotes((list) => list.filter((n) => n.id !== id));
+        posthog.capture('review_annotation_deleted');
+      }
     } catch {
       setMessage(t.error);
     }
@@ -208,12 +220,18 @@ export default function SiteAnnotationLayer({ onExit }: { onExit: () => void }) 
       if (!codeSent) {
         const res = await fetch('/api/review/session/start', json({ email }));
         if (res.status === 503) setAuth('not_configured');
-        else if (res.ok) setCodeSent(true);
+        else if (res.ok) {
+          setCodeSent(true);
+          posthog.capture('review_session_code_requested');
+        }
         else setMessage(t.error);
       } else {
         const res = await fetch('/api/review/session/verify', json({ email, code }));
         if (res.ok) {
-          setAuth((await res.json()) as Me);
+          const signedIn = (await res.json()) as Me;
+          posthog.identify(signedIn.userId, { email: signedIn.email, role: signedIn.role });
+          setAuth(signedIn);
+          posthog.capture('review_session_signed_in');
           setCode('');
           setCodeSent(false);
         } else setMessage(res.status === 403 ? t.notTeam : res.status === 401 || res.status === 422 ? t.invalidCode : t.error);
@@ -226,6 +244,8 @@ export default function SiteAnnotationLayer({ onExit }: { onExit: () => void }) 
 
   async function signOut() {
     await fetch('/api/review/session', { method: 'DELETE' }).catch(() => undefined);
+    posthog.capture('review_session_signed_out');
+    posthog.reset();
     setAuth('signed_out');
     setNotes([]);
   }

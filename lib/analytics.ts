@@ -1,6 +1,7 @@
 'use client';
 
 import { track as vercelTrack } from '@vercel/analytics';
+import posthog from 'posthog-js';
 
 /**
  * Event catalogue (PRD §44). Keep names stable: they feed dashboards and KPIs.
@@ -41,6 +42,7 @@ declare global {
 
 /**
  * Sends an event to:
+ *  - PostHog, except page_view which the browser SDK captures automatically
  *  - Vercel Web Analytics (cookieless; custom events need a plan that supports them)
  *  - window.dataLayer, so a Tag Manager container can be added later behind a consent banner.
  * Never send personal data (names, emails…) as event properties.
@@ -51,10 +53,17 @@ export function track(event: AnalyticsEvent, props: Props = {}) {
     string,
     string | number | boolean | null
   >;
+  if (event !== 'page_view') {
+    try {
+      posthog.capture(event, clean);
+    } catch {
+      // Analytics must never break the page.
+    }
+  }
   try {
     vercelTrack(event, clean);
   } catch {
-    /* analytics must never break the page */
+    // Analytics must never break the page.
   }
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event, ...clean });

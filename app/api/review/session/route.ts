@@ -1,6 +1,6 @@
 import { guard, json } from '@/lib/api/guard';
 import { anonConfig, signOut } from '@/lib/review/auth';
-import { clearSessionCookies, getMembership, getSession, respond } from '@/lib/review/session';
+import { clearSessionCookies, getMembership, getSession, respond, userIdFromAccessToken } from '@/lib/review/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,7 +21,9 @@ export async function GET(req: Request) {
       : respond({ ok: false, error: 'error' }, 500, session.setCookies);
   }
   if (!membership.member) return respond({ ok: false, error: 'not_team' }, 403, clearSessionCookies());
-  return respond({ ok: true, email: membership.member.email, role: membership.member.role }, 200, session.setCookies);
+  const userId = userIdFromAccessToken(session.accessToken);
+  if (!userId) return respond({ ok: false, error: 'error' }, 500, session.setCookies);
+  return respond({ ok: true, userId, email: membership.member.email, role: membership.member.role }, 200, session.setCookies);
 }
 
 /** Sign out: revokes the Supabase session and clears the cookies. */
