@@ -10,3 +10,4 @@ scripts/preview/dist
 
 .vercel
 .env*
+.env.local

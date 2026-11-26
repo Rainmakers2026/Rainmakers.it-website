@@ -53,6 +53,21 @@ export async function getSession(req: Request): Promise<Session | null> {
 
 export type Membership = { email: string; role: 'editor' | 'admin' };
 
+/**
+ * Extracts the Supabase Auth subject after the token has been validated by an authenticated
+ * request. The subject is the immutable user primary key used as the analytics distinct ID.
+ */
+export function userIdFromAccessToken(accessToken: string): string | null {
+  try {
+    const encodedPayload = accessToken.split('.')[1];
+    if (!encodedPayload) return null;
+    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8')) as { sub?: unknown };
+    return typeof payload.sub === 'string' && payload.sub ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 /** The caller's own team_members row (RLS lets a user read only their own row). */
 export async function getMembership(accessToken: string): Promise<{ ok: true; member: Membership | null } | { ok: false; status: number }> {
   const r = await asUser(accessToken, '/team_members?select=email,role');

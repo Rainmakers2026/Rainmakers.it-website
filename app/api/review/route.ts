@@ -4,6 +4,7 @@ import { notifyReview } from '@/lib/brevo/notify';
 import { dbSubmit } from '@/lib/crm/db';
 import { PRIVACY_VERSION, REVIEW_FORM, SOURCE_BRAND } from '@/lib/crm/forms';
 import { guard, isBot, json, readJson } from '@/lib/api/guard';
+import { posthogLogger, SeverityNumber } from '@/instrumentation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -71,6 +72,11 @@ export async function POST(req: Request) {
 
   if (!stored.ok && !mail.ok) return json({ ok: false, error: 'not_configured' }, 500);
   if (stored.ok && stored.id && mail.ok) await markReviewNotified(stored.id);
+  posthogLogger?.emit({
+    body: 'Review submission processed',
+    severityNumber: SeverityNumber.INFO,
+    attributes: { route: '/api/review', review_stored: stored.ok, notification_sent: mail.ok },
+  });
   return json({ ok: true, stored: stored.ok, emailed: mail.ok });
 }
 

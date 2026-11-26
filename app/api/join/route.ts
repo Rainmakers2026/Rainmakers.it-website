@@ -9,6 +9,7 @@ import { supabaseConfig } from '@/lib/supabase/rest';
 import { notifyJoin } from '@/lib/brevo/notify';
 import { newConfirmation, publicBaseUrl, sendConfirmation, sendWelcome, stateOf, type SubscribeState } from '@/lib/brevo/workflows';
 import { guard, isBot, json } from '@/lib/api/guard';
+import { posthogLogger, SeverityNumber } from '@/instrumentation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -154,6 +155,11 @@ export async function POST(req: Request) {
       stateOf(n.action) ??
       (await sendConfirmation({ subscriptionId: n.id, email: data.email, locale: data.locale, token: confirmation.token, baseUrl }));
   }
+  posthogLogger?.emit({
+    body: 'Join submission processed',
+    severityNumber: SeverityNumber.INFO,
+    attributes: { route: '/api/join', form: def.id, newsletter_requested: data.newsletterOptIn },
+  });
   return json({ ok: true, duplicate: false, newsletter });
 }
 

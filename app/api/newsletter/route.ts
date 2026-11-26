@@ -1,6 +1,7 @@
 import { gdiNewsletterSchema } from '@/lib/crm/schema';
 import { guard, isBot, json, readJson } from '@/lib/api/guard';
 import { publicBaseUrl, requestSubscription } from '@/lib/brevo/workflows';
+import { posthogLogger, SeverityNumber } from '@/instrumentation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -40,6 +41,11 @@ export async function POST(request: Request) {
   if (state === 'error') return json({ ok: false, state }, 500);
   // Saved, but the confirmation email failed: honest answer, the visitor can retry later
   if (state === 'email_failed') return json({ ok: false, state }, 503);
+  posthogLogger?.emit({
+    body: 'Newsletter subscription processed',
+    severityNumber: SeverityNumber.INFO,
+    attributes: { route: '/api/newsletter', subscription_state: state },
+  });
   return json({ ok: true, state });
 }
 
