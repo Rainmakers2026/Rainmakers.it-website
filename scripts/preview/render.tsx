@@ -13,6 +13,7 @@ mkdirSync(out, { recursive: true });
 
 for (const locale of ['it', 'en'] as Locale[]) {
   const dict = getDictionary(locale);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- preview-only script reading untyped metadata fields
   const meta = buildMetadata(dict) as any;
   const body = renderToString(<HomePage dict={dict} locale={locale} communities={communitiesFallback} />);
   const alt = meta.alternates.languages;
